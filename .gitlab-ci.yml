@@ -1,0 +1,110 @@
+include:
+  - project: TankerHQ/gitlab-ci-files
+    ref: 92c595cc271c32b3d7cd014683de2641e1845b4a
+    file: /react-native.yml
+
+########
+# Jobs #
+########
+
+default:
+  before_script:
+    - poetry install
+
+check/android/deployed:
+  extends:
+    - .check
+    - .tags/linux
+    - .rules/deployed-native
+  script:
+    - sudo chgrp 1000 -f /dev/kvm
+    - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION 
+    - poetry run python run-ci.py build-and-test android
+  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
+
+check/android/downstream:
+  extends:
+    - .check
+    - .tags/linux
+    - .before-script/download-artifacts
+    - .rules/check/downstream/android
+  script:
+    - sudo chgrp 1000 -f /dev/kvm
+    - poetry run python run-ci.py build-and-test android
+  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
+
+check/android/from-sources:
+  extends:
+    - .check
+    - .tags/linux
+    - .rules/mr/manual
+  script:
+    - sudo chgrp 1000 -f /dev/kvm
+    - poetry run python run-ci.py prepare android --isolate-conan-user-home --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
+    - poetry run python run-ci.py build-and-test android
+  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
+
+check/android/all-from-sources:
+  extends:
+    - .check
+    - .tags/linux
+    - .rules/native-from-sources
+  script:
+    - sudo chgrp 1000 -f /dev/kvm
+    - poetry run python run-ci.py prepare android --isolate-conan-user-home --use-tanker=same-as-branch
+    - poetry run python run-ci.py build-and-test android
+  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
+
+check/ios/deployed:
+  extends:
+    - .check
+    - .tags/macos
+    - .rules/deployed-native
+  script:
+    - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION 
+    - poetry run python run-ci.py build-and-test ios
+
+check/ios/downstream:
+  extends:
+    - .check
+    - .tags/macos
+    - .before-script/download-artifacts
+    - .rules/check/downstream/ios
+  script:
+    - poetry run python run-ci.py build-and-test ios
+
+check/ios/from-sources:
+  extends:
+    - .check
+    - .tags/macos
+    - .rules/mr/manual
+  script:
+    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
+    - poetry run python run-ci.py build-and-test ios
+
+check/ios/all-from-sources:
+  extends:
+    - .check
+    - .tags/macos
+    - .rules/native-from-sources
+  script:
+    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --use-tanker=same-as-branch
+    - poetry run python run-ci.py build-and-test ios
+
+################
+# deploy stage #
+################
+
+deploy:
+  extends:
+    - .deploy
+    - .tags/linux
+    - .rules/deploy/react-native
+  script:
+    - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "${HOME}/.npmrc"
+    - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION 
+    - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION 
+    - poetry run python run-ci.py deploy --version $SDK_REACT_NATIVE_RELEASE_VERSION
+  release:
+    description: sdk-react-native v$SDK_REACT_NATIVE_RELEASE_VERSION
+    tag_name: v$SDK_REACT_NATIVE_RELEASE_VERSION
