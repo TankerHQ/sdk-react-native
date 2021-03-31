@@ -50,6 +50,8 @@
             ReferencedContainer = "container:ClientReactNativeExample.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <Testables>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
