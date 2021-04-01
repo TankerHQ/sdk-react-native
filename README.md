@@ -8,6 +8,28 @@ Tanker client SDK for React Native
 npm install @tanker/client-react-native
 ```
 
+## Tests
+
+First, compile the Android app:
+
+```sh
+cd example
+yarn
+yarn detox build --configuration android
+```
+
+Then, start the application:
+
+```sh
+yarn start # This will block your terminal. Test logs will be spit by this process, keep an eye on it
+```
+
+Finally, run the tests:
+
+```sh
+yarn detox test --configuration android
+```
+
 ## Usage
 
 ```js
