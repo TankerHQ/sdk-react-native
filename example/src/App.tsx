@@ -1,31 +1,30 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text } from 'react-native';
-import ClientReactNative from '@tanker/client-react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+
+import { runTests } from './framework';
+import { generateTests } from './tests';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
+  const [result, setResult] = React.useState<string | undefined>();
 
-  React.useEffect(() => {
-    ClientReactNative.multiply(3, 7).then(setResult);
-  }, []);
+  React.useEffect(() => generateTests(), []);
+
+  const reportUnexpectedError = (e) => {
+    console.error('Got an unexpected error:', e.message, "\n", e.stack);
+    setResult('UNEXPECTED ERROR ' + e.message);
+  }
+
+  const startTests = () => {
+    runTests().then(setResult).catch(reportUnexpectedError);
+  };
 
   return (
-    <View style={styles.container}>
-      <Text>Result: {result}</Text>
+    <View>
+      <TouchableOpacity testID='run_tests' onPress={startTests}>
+        <Text>Run the tests</Text>
+      </TouchableOpacity>
+      <Text testID="result">{result}</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
-  },
-});
