@@ -1,0 +1,36 @@
+include:
+  - project: TankerHQ/gitlab-ci-files
+    ref: cc820822bc646de30fd3f2f01304ea4a6f23b72d
+    # TODO replace with react-native.yml later on
+    file: /common.yml
+
+##########
+# Stages #
+##########
+
+stages:
+  - check
+
+########
+# Jobs #
+########
+
+default:
+  before_script:
+    - yarn
+
+check/ios/dummy:
+  stage: check
+  extends:
+    - .tags/macos
+    - .rules/mr/auto
+  script:
+    - yarn test
+
+check/android/dummy:
+  stage: check
+  extends:
+    - .tags/linux
+    - .rules/mr/auto
+  script:
+    - yarn test
