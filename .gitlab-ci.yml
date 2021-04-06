@@ -17,7 +17,8 @@ stages:
 
 default:
   before_script:
-    - yarn
+    # TODO: should be done by the include script above I think
+    - poetry install
 
 check/ios/dummy:
   stage: check
@@ -25,12 +26,15 @@ check/ios/dummy:
     - .tags/macos
     - .rules/mr/auto
   script:
+    - yarn
     - yarn test
 
-check/android/dummy:
+check/android/deployed:
   stage: check
   extends:
     - .tags/linux
     - .rules/mr/auto
   script:
-    - yarn test
+    - sudo chgrp 1000 -f /dev/kvm
+    - poetry run python run-ci.py build-and-test
+  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
