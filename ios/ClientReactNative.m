@@ -1,5 +1,7 @@
 #import "ClientReactNative.h"
 
+#import "Tanker/TKRTanker.h"
+
 @implementation ClientReactNative
 
 RCT_EXPORT_MODULE()
@@ -9,7 +11,7 @@ RCT_REMAP_METHOD(multiply, multiplyWithA:(nonnull NSNumber*)a withB:(nonnull NSN
                      rejecter:(RCTPromiseRejectBlock)reject)
 {
   NSNumber *result = @([a floatValue] * [b floatValue]);
-
+  NSLog(@"Tanker version: %@", [TKRTanker versionString]);
   resolve(@[result]);
 }
 

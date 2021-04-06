@@ -61,3 +61,6 @@ lib/
 
 __pycache__
 .mypy_cache
+
+# CI related
+pod/
