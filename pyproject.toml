@@ -2,7 +2,7 @@
 name = "sdk-react-native"
 version = "0.1.0"
 description = ""
-authors = ["The Taner Team <support@tanker.io>"]
+authors = ["The Tanker Team <support@tanker.io>"]
 
 [[tool.poetry.source]]
 name = "gitlab"

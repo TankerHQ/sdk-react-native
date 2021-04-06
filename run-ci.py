@@ -1,10 +1,18 @@
-import argparse
-import sys
-
 import cli_ui as ui  # noqa
+
+
+from typing import Dict, List, Optional
+
+import argparse
+import os
+from pathlib import Path
+import sys
 
 import tankerci
 import tankerci.android
+import tankerci.git
+import tankerci.gitlab
+import cli_ui as ui
 
 
 def build_and_check() -> None:
@@ -32,13 +40,34 @@ def main() -> None:
 
     subparsers.add_parser("build-and-test")
 
-    args = parser.parse_args()
+    reset_branch_parser = subparsers.add_parser("reset-branch")
+    reset_branch_parser.add_argument("branch")
 
-    if args.command == "build-and-test":
+    download_artifacts_parser = subparsers.add_parser("download-artifacts")
+    download_artifacts_parser.add_argument("--project-id", required=True)
+    download_artifacts_parser.add_argument("--pipeline-id", required=True)
+    download_artifacts_parser.add_argument("--job-name", required=True)
+
+    args = parser.parse_args()
+    command = args.command
+
+    if command == "reset-branch":
+        fallback = os.environ["CI_COMMIT_REF_NAME"]
+        ref = tankerci.git.find_ref(
+            Path.cwd(), [f"origin/{args.branch}", f"origin/{fallback}"]
+        )
+        tankerci.git.reset(Path.cwd(), ref)
+    elif command == "download-artifacts":
+        tankerci.gitlab.download_artifacts(
+            project_id=args.project_id,
+            pipeline_id=args.pipeline_id,
+            job_name=args.job_name,
+        )
+    elif command == "build-and-test":
         build_and_check()
     else:
         parser.print_help()
-        sys.exit(1)
+        sys.exit()
 
 
 if __name__ == "__main__":
