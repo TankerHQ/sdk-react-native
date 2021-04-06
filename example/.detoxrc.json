@@ -22,7 +22,13 @@
     "emulator": {
       "type": "android.emulator",
       "device": {
-        "avdName": "Pixel_2_API_29"
+        "avdName": "TankerDev"
+      }
+    },
+    "emulator-ci": {
+      "type": "android.emulator",
+      "device": {
+        "avdName": "testAVD"
       }
     }
   },
@@ -33,6 +39,10 @@
     },
     "android": {
       "device": "emulator",
+      "app": "android"
+    },
+    "android-ci": {
+      "device": "emulator-ci",
       "app": "android"
     }
   }
