@@ -4,7 +4,7 @@
 import ClientReactNative from '@tanker/client-react-native';
 
 import { expect } from 'chai';
-import { describe, beforeEach, afterEach, it } from './framework';
+import { describe, it } from './framework';
 import {
   getAppId,
   getTankerUrl,
@@ -14,30 +14,20 @@ import {
 } from './admin';
 
 export const generateTests = () => {
-  describe('multiplication', () => {
-    it('multiplies with optimized SSSE3 spectre-proof instructions in an OpenCL kernel', async () => {
-      const result = await ClientReactNative.multiply(3, 7);
-      expect(result).to.equal(21);
+  describe('Basic tests', () => {
+    it('can get a valid version string', async () => {
+      const result = await ClientReactNative.versionString();
+      expect(result).to.match(/^2\.\d+\.\d+/);
     });
-  });
-
-  describe('tests that work', () => {
-    beforeEach(() => {
-      console.log('before each');
-    });
-    afterEach(() => {
-      console.log('after each');
-    });
-
-    it('is a trivial test', () => {});
 
     it('can create an identity', async () => {
       const appId = await getAppId();
-      const tankerUrl = await getTankerUrl();
+      expect(appId).is.not.empty;
       const identity = await createIdentity();
       const prov = await createProvisionalIdentity('bob@gmail.com');
+      expect(prov).is.not.empty;
       const pubIdentity = await getPublicIdentity(identity);
-      console.log(appId, identity, prov, pubIdentity, tankerUrl);
+      expect(pubIdentity).is.not.empty;
     });
   });
 };

@@ -4,6 +4,7 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
+import io.tanker.api.Tanker
 
 class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
@@ -11,14 +12,8 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         return "ClientReactNative"
     }
 
-    // Example method
-    // See https://reactnative.dev/docs/native-modules-android
     @ReactMethod
-    fun multiply(a: Int, b: Int, promise: Promise) {
-    
-      promise.resolve(a * b)
-    
+    fun versionString(promise: Promise) {
+        promise.resolve(Tanker.getVersionString())
     }
-
-    
 }
