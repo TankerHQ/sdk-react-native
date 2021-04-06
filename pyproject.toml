@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "sdk-react-native"
+version = "0.1.0"
+description = ""
+authors = ["The Taner Team <support@tanker.io>"]
+
+[[tool.poetry.source]]
+name = "gitlab"
+url = "https://gitlab.com/api/v4/projects/20917546/packages/pypi/simple"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+tankerci = { version = ">= 2020.12.3123", source = "gitlab" }
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.8.3"
+black = "^19.10b0"
+mypy = "^0.790"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
