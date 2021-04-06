@@ -20,7 +20,6 @@ export const generateTests = () => {
       const identity = await createIdentity();
       const prov = await createProvisionalIdentity('bob@gmail.com');
       const pubIdentity = await getPublicIdentity(identity);
-      expect(pubIdentity).to.equal('{}');
     });
   });
 };
