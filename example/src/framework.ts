@@ -7,6 +7,8 @@ type GroupDescription = {
   name: string,
   tests: Array<TestDescription>,
   onlyTests: Array<TestDescription>,
+  beforeEach: Function | null,
+  afterEach: Function | null,
 };
 
 const testRegistry = {
@@ -16,6 +18,20 @@ const testRegistry = {
 };
 
 let currentGroup: GroupDescription | null = null;
+
+export function beforeEach(func: Function) {
+  if (!currentGroup)
+    throw new Error("it() must be used in a describe");
+
+  currentGroup.beforeEach = func;
+}
+
+export function afterEach(func: Function) {
+  if (!currentGroup)
+    throw new Error("it() must be used in a describe");
+
+  currentGroup.afterEach = func;
+}
 
 export function it(name: string, test: Function) {
   if (!currentGroup)
@@ -32,6 +48,9 @@ it.only = (name: string, test: Function) => {
 };
 
 export function describe(name: string, registrer: Function) {
+  if (currentGroup)
+    throw new Error("nesting describe() blocks is not supported");
+
   currentGroup = {
     name,
     tests: [],
@@ -77,7 +96,11 @@ export async function runTests(): boolean {
       console.log("  ", test.name);
 
       try {
+        if (group.beforeEach)
+          await group.beforeEach();
         await test.test();
+        if (group.afterEach)
+          await group.afterEach();
       } catch (e) {
         console.error("Test failed:", e);
         success = false;

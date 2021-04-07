@@ -1,7 +1,7 @@
 import ClientReactNative from '@tanker/client-react-native';
 
 import { expect } from 'chai';
-import { describe, it } from './framework';
+import { describe, beforeEach, afterEach, it } from './framework';
 import { getAppId, createIdentity, createProvisionalIdentity, getPublicIdentity } from './admin';
 
 export const generateTests = () => {
@@ -13,6 +13,9 @@ export const generateTests = () => {
   });
 
   describe('tests that work', () => {
+    beforeEach(() => { console.log("before each"); });
+    afterEach(() => { console.log("after each"); });
+
     it('is a trivial test', () => {});
 
     it('can create an identity', async () => {
