@@ -56,4 +56,9 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     fun getStatus(handle: TankerHandle): Int {
         return getTanker(handle).getStatus().value
     }
+
+    @ReactMethod
+    fun prehashPassword(password: String, promise: Promise) {
+        promise.resolve(Tanker.prehashPassword(password))
+    }
 }

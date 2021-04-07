@@ -1,7 +1,7 @@
 // This file doesn't use jest's expect
 /* eslint-disable jest/valid-expect */
 
-import { Tanker } from '@tanker/client-react-native';
+import { Tanker, prehashPassword } from '@tanker/client-react-native';
 
 import { expect } from 'chai';
 import { describe, beforeEach, it } from './framework';
@@ -34,6 +34,13 @@ export const generateTests = () => {
       expect(prov).is.not.empty;
       const pubIdentity = await getPublicIdentity(identity);
       expect(pubIdentity).is.not.empty;
+    });
+
+    it('prehashPassword does something', async () => {
+      const password = 'Amiral de bateau-lavoir';
+      const hash = prehashPassword(password);
+      expect(hash).is.not.empty;
+      expect(hash).not.eq(password);
     });
   });
 };
