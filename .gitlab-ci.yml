@@ -1,6 +1,6 @@
 include:
   - project: TankerHQ/gitlab-ci-files
-    ref: f4fbb073851e9944d07179f3234d9c6035a98ade
+    ref: 838eb5d85ea9f41a4945c18e95f22b4c916da36f
     # TODO replace with react-native.yml later on
     file: /ios.yml
 
@@ -17,7 +17,6 @@ stages:
 
 default:
   before_script:
-    # TODO: should be done by the include script above I think
     - poetry install
 
 check/ios/deployed:
@@ -26,8 +25,7 @@ check/ios/deployed:
     - .tags/macos
     - .rules/mr/manual
   script:
-    - yarn
-    - yarn --cwd example react-native run-ios --verbose
+    - poetry run python run-ci.py build-and-test ios
 
 check/android/deployed:
   stage: check
@@ -36,7 +34,7 @@ check/android/deployed:
     - .rules/mr/manual
   script:
     - sudo chgrp 1000 -f /dev/kvm
-    - poetry run python run-ci.py build-and-test
+    - poetry run python run-ci.py build-and-test android
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/ios/downstream:
@@ -46,5 +44,22 @@ check/ios/downstream:
     - .before-script/download-artifacts
     - .rules/check/downstream/ios
   script:
-    - yarn
-    - yarn --cwd example react-native run-ios --verbose
+    - poetry run python run-ci.py build-and-test ios
+
+check/ios/from-sources:
+  stage: check
+  extends:
+    - .tags/macos
+    - .rules/mr/manual
+  script:
+    - poetry run python run-ci.py prepare ios --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
+    - poetry run python run-ci.py build-and-test ios
+
+check/ios/all-from-sources:
+  stage: check
+  extends:
+    - .tags/macos
+    - .rules/mr/manual
+  script:
+    - poetry run python run-ci.py prepare ios --use-tanker=same-as-branch
+    - poetry run python run-ci.py build-and-test ios
