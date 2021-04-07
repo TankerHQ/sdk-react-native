@@ -1,8 +1,16 @@
+// This file doesn't use jest's expect
+/* eslint-disable jest/valid-expect */
+
 import ClientReactNative from '@tanker/client-react-native';
 
 import { expect } from 'chai';
 import { describe, beforeEach, afterEach, it } from './framework';
-import { getAppId, createIdentity, createProvisionalIdentity, getPublicIdentity } from './admin';
+import {
+  getAppId,
+  createIdentity,
+  createProvisionalIdentity,
+  getPublicIdentity,
+} from './admin';
 
 export const generateTests = () => {
   describe('multiplication', () => {
@@ -13,8 +21,12 @@ export const generateTests = () => {
   });
 
   describe('tests that work', () => {
-    beforeEach(() => { console.log("before each"); });
-    afterEach(() => { console.log("after each"); });
+    beforeEach(() => {
+      console.log('before each');
+    });
+    afterEach(() => {
+      console.log('after each');
+    });
 
     it('is a trivial test', () => {});
 
@@ -23,6 +35,7 @@ export const generateTests = () => {
       const identity = await createIdentity();
       const prov = await createProvisionalIdentity('bob@gmail.com');
       const pubIdentity = await getPublicIdentity(identity);
+      console.log(appId, identity, prov, pubIdentity);
     });
   });
 };
