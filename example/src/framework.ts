@@ -19,55 +19,56 @@ const testRegistry = {
 
 let currentGroup: GroupDescription | null = null;
 
-export function beforeEach(func: Function) {
-  if (!currentGroup) throw new Error('it() must be used in a describe');
+function assertInDescribe(group: GroupDescription | null): asserts group is GroupDescription {
+  if (!group) throw new Error('this function must be used in a describe() block');
+}
 
+export function beforeEach(func: Function) {
+  assertInDescribe(currentGroup);
   currentGroup.beforeEach = func;
 }
 
 export function afterEach(func: Function) {
-  if (!currentGroup) throw new Error('it() must be used in a describe');
-
+  assertInDescribe(currentGroup);
   currentGroup.afterEach = func;
 }
 
 export function it(name: string, test: Function) {
-  if (!currentGroup) throw new Error('it() must be used in a describe');
-
+  assertInDescribe(currentGroup);
   currentGroup.tests.push({ name, test });
 }
 
 it.only = (name: string, test: Function) => {
-  if (!currentGroup) throw new Error('it() must be used in a describe');
-
+  assertInDescribe(currentGroup);
   currentGroup.onlyTests.push({ name, test });
 };
 
-export function describe(name: string, registrer: Function) {
-  if (currentGroup)
-    throw new Error('nesting describe() blocks is not supported');
-
-  currentGroup = {
+function makeNewGroup(name: string): GroupDescription {
+  return {
     name,
     tests: [],
     onlyTests: [],
     beforeEach: null,
     afterEach: null,
   };
-  registrer();
+}
+
+export function describe(name: string, registerer: Function) {
+  if (currentGroup)
+    throw new Error('nesting describe() blocks is not supported');
+
+  currentGroup = makeNewGroup(name);
+  registerer();
   testRegistry.groups.push(currentGroup);
   currentGroup = null;
 }
 
-describe.only = (name: string, registrer: Function) => {
-  currentGroup = {
-    name,
-    tests: [],
-    onlyTests: [],
-    beforeEach: null,
-    afterEach: null,
-  };
-  registrer();
+describe.only = (name: string, registerer: Function) => {
+  if (currentGroup)
+    throw new Error('nesting describe() blocks is not supported');
+
+  currentGroup = makeNewGroup(name);
+  registerer();
   testRegistry.onlyGroups.push(currentGroup);
   currentGroup = null;
 };
