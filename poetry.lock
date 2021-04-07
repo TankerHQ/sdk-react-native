@@ -630,7 +630,7 @@ reference = "gitlab"
 
 [[package]]
 name = "tankerci"
-version = "2021.4.3301"
+version = "2021.4.3312"
 description = "Tanker CI library"
 category = "main"
 optional = false
@@ -1241,8 +1241,8 @@ tankeradminsdk = [
     {file = "tankeradminsdk-0.2.1.tar.gz", hash = "sha256:20c4bb48db1485d7fc336a58362f1e45b3acd1aba21b9233a1abc89eb267856b"},
 ]
 tankerci = [
-    {file = "tankerci-2021.4.3301-py3-none-any.whl", hash = "sha256:051c5364a80719641decc2f53c2127e830adbe21647d1f3e26a8cf7ca75d9703"},
-    {file = "tankerci-2021.4.3301.tar.gz", hash = "sha256:5291353645b94e3a2092d474fb4c99ade3aa286be37778cfc4d3dc4f3c5eacc6"},
+    {file = "tankerci-2021.4.3312-py3-none-any.whl", hash = "sha256:08f868f0dd5f3348bd157a35ba3a024f7bd94082bb5cdc067301476be99ec3fc"},
+    {file = "tankerci-2021.4.3312.tar.gz", hash = "sha256:fcd9707d5680e9195c8d8307796d36bf15f1ff41618c3fd04ee991f184e597de"},
 ]
 tankersdk-identity = [
     {file = "tankersdk-identity-1.3.4.tar.gz", hash = "sha256:69bb1346e6940321161e7042a78840f6d9e91eecfe7c206c58057db8696df253"},
