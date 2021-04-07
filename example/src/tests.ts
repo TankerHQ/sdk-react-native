@@ -1,10 +1,10 @@
 // This file doesn't use jest's expect
 /* eslint-disable jest/valid-expect */
 
-import Tanker from '@tanker/client-react-native';
+import { Tanker } from '@tanker/client-react-native';
 
 import { expect } from 'chai';
-import { describe, it } from './framework';
+import { describe, beforeEach, it } from './framework';
 import {
   getAppId,
   getTankerUrl,
@@ -15,8 +15,15 @@ import {
 
 export const generateTests = () => {
   describe('Basic tests', () => {
+    let tanker: Tanker;
+    beforeEach(async () => {
+      tanker = new Tanker({
+        appId: await getAppId(),
+      });
+    });
+
     it('can get a valid version string', async () => {
-      expect(Tanker.version).to.match(/^2\.\d+\.\d+/);
+      expect(tanker.version).to.match(/^2\.\d+\.\d+/);
     });
 
     it('can create an identity', async () => {

@@ -1,4 +1,5 @@
-import { Native, TankerOptions, NativeTanker } from './native';
+import { Native } from './native';
+import type { Status, TankerOptions, NativeTanker } from './types';
 
 export class Tanker {
   private readonly instance: NativeTanker;
@@ -11,7 +12,7 @@ export class Tanker {
     return Native.getVersion();
   }
 
-  get appId(): string {
-    return Native.getAppId(this.instance);
+  get status(): Status {
+    return Native.getStatus(this.instance);
   }
 }

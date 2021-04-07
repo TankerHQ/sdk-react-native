@@ -1,2 +1,2 @@
-export type { TankerOptions } from './native';
+export { statuses, Status, TankerOptions, NativeTanker } from './types';
 export { Tanker } from './nativeWrapper';
