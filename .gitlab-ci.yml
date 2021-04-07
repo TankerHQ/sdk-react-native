@@ -24,15 +24,16 @@ check/ios/deployed:
   stage: check
   extends:
     - .tags/macos
-    - .rules/mr/auto
+    - .rules/mr/manual
   script:
+    - yarn
     - yarn --cwd example react-native run-ios --verbose
 
 check/android/deployed:
   stage: check
   extends:
     - .tags/linux
-    - .rules/mr/auto
+    - .rules/mr/manual
   script:
     - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py build-and-test
@@ -45,4 +46,5 @@ check/ios/downstream:
     - .before-script/download-artifacts
     - .rules/check/downstream/ios
   script:
+    - yarn
     - yarn --cwd example react-native run-ios --verbose
