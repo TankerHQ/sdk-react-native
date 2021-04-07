@@ -1,14 +1,16 @@
+type VoidAsyncFunction = () => (Promise<void> | void);
+
 type TestDescription = {
   name: string;
-  test: Function;
+  test: VoidAsyncFunction;
 };
 
 type GroupDescription = {
   name: string;
   tests: Array<TestDescription>;
   onlyTests: Array<TestDescription>;
-  beforeEach: Function | null;
-  afterEach: Function | null;
+  beforeEach: VoidAsyncFunction | null;
+  afterEach: VoidAsyncFunction | null;
 };
 
 const testRegistry = {
@@ -23,22 +25,22 @@ function assertInDescribe(group: GroupDescription | null): asserts group is Grou
   if (!group) throw new Error('this function must be used in a describe() block');
 }
 
-export function beforeEach(func: Function) {
+export function beforeEach(func: VoidAsyncFunction) {
   assertInDescribe(currentGroup);
   currentGroup.beforeEach = func;
 }
 
-export function afterEach(func: Function) {
+export function afterEach(func: VoidAsyncFunction) {
   assertInDescribe(currentGroup);
   currentGroup.afterEach = func;
 }
 
-export function it(name: string, test: Function) {
+export function it(name: string, test: VoidAsyncFunction) {
   assertInDescribe(currentGroup);
   currentGroup.tests.push({ name, test });
 }
 
-it.only = (name: string, test: Function) => {
+it.only = (name: string, test: VoidAsyncFunction) => {
   assertInDescribe(currentGroup);
   currentGroup.onlyTests.push({ name, test });
 };
@@ -53,7 +55,7 @@ function makeNewGroup(name: string): GroupDescription {
   };
 }
 
-export function describe(name: string, registerer: Function) {
+export function describe(name: string, registerer: () => void) {
   if (currentGroup)
     throw new Error('nesting describe() blocks is not supported');
 
@@ -63,7 +65,7 @@ export function describe(name: string, registerer: Function) {
   currentGroup = null;
 }
 
-describe.only = (name: string, registerer: Function) => {
+describe.only = (name: string, registerer: () => void) => {
   if (currentGroup)
     throw new Error('nesting describe() blocks is not supported');
 
