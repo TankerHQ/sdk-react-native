@@ -1,4 +1,4 @@
-type VoidAsyncFunction = () => (Promise<void> | void);
+type VoidAsyncFunction = () => Promise<void> | void;
 
 type TestDescription = {
   name: string;
@@ -21,8 +21,11 @@ const testRegistry = {
 
 let currentGroup: GroupDescription | null = null;
 
-function assertInDescribe(group: GroupDescription | null): asserts group is GroupDescription {
-  if (!group) throw new Error('this function must be used in a describe() block');
+function assertInDescribe(
+  group: GroupDescription | null
+): asserts group is GroupDescription {
+  if (!group)
+    throw new Error('this function must be used in a describe() block');
 }
 
 export function beforeEach(func: VoidAsyncFunction) {
