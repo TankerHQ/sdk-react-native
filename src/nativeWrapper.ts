@@ -15,4 +15,8 @@ export class Tanker {
   get status(): Status {
     return Native.getStatus(this.instance);
   }
+
+  get deviceId(): string {
+    return Native.getDeviceId(this.instance);
+  }
 }

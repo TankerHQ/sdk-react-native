@@ -61,4 +61,9 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     fun prehashPassword(password: String, promise: Promise) {
         promise.resolve(Tanker.prehashPassword(password))
     }
+
+    @ReactMethod(isBlockingSynchronousMethod = true)
+    fun getDeviceId(handle: TankerHandle): String {
+        return getTanker(handle).getDeviceId()
+    }
 }
