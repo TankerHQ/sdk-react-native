@@ -1,7 +1,11 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
+source 'https://github.com/CocoaPods/Specs.git'
+source 'https://github.com/TankerHQ/PodSpecs.git'
+
 platform :ios, '10.0'
+use_frameworks!
 
 target 'ClientReactNativeExample' do
   config = use_native_modules!
@@ -9,6 +13,9 @@ target 'ClientReactNativeExample' do
   use_react_native!(:path => config["reactNativePath"])
 
   pod 'tanker-client-react-native', :path => '../..'
+  if File.exist?("../../pod/Tanker.podspec")
+    pod 'Tanker', :path => "../../pod"
+  end
 end
 
 post_install do |installer|

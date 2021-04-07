@@ -19,6 +19,7 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
+  - POSInputStreamLibrary (2.3.5)
   - RCTRequired (0.63.4)
   - RCTTypeSafety (0.63.4):
     - FBLazyVector (= 0.63.4)
@@ -245,8 +246,14 @@ PODS:
     - React-Core (= 0.63.4)
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
+  - Tanker (2.11.1):
+    - POSInputStreamLibrary
+    - Tanker/core (= 2.11.1)
   - tanker-client-react-native (0.1.0):
     - React-Core
+    - Tanker
+  - Tanker/core (2.11.1):
+    - POSInputStreamLibrary
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -281,6 +288,10 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - POSInputStreamLibrary
+  https://github.com/TankerHQ/PodSpecs.git:
+    - Tanker
   trunk:
     - boost-for-react-native
 
@@ -347,6 +358,7 @@ SPEC CHECKSUMS:
   FBReactNativeSpec: f2c97f2529dd79c083355182cc158c9f98f4bd6e
   Folly: b73c3869541e86821df3c387eb0af5f65addfab4
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
+  POSInputStreamLibrary: fb9a671bb639c42f3f446f6ab0133164a4c273b8
   RCTRequired: 082f10cd3f905d6c124597fd1c14f6f2655ff65e
   RCTTypeSafety: 8c9c544ecbf20337d069e4ae7fd9a377aadf504b
   React: b0a957a2c44da4113b0c4c9853d8387f8e64e615
@@ -367,9 +379,10 @@ SPEC CHECKSUMS:
   React-RCTText: 5c51df3f08cb9dedc6e790161195d12bac06101c
   React-RCTVibration: ae4f914cfe8de7d4de95ae1ea6cc8f6315d73d9d
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
-  tanker-client-react-native: b936674a91589997b78a7242a129ac928637bdd9
+  Tanker: ae73da6d451cc900105a0157e4a295fa536c47cb
+  tanker-client-react-native: 018c78f79c37c8ba75870dcf8449162281df95b3
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
 
-PODFILE CHECKSUM: 330e1d3970eee49a7408704a13efe0d89d0f4cc9
+PODFILE CHECKSUM: 717039202d5e6a06dcd766c34761a3c69e110ada
 
 COCOAPODS: 1.10.1
