@@ -1,8 +1,7 @@
 // This file doesn't use jest's expect
 /* eslint-disable jest/valid-expect */
 
-import { Tanker, prehashPassword } from '@tanker/client-react-native';
-
+import { Tanker, prehashPassword, statuses } from '@tanker/client-react-native';
 import { expect } from 'chai';
 import { describe, beforeEach, it } from './framework';
 import {
@@ -24,6 +23,14 @@ export const generateTests = () => {
 
     it('can get a valid version string', async () => {
       expect(tanker.version).to.match(/^2\.\d+\.\d+/);
+    });
+
+    it('has a status', async () => {
+      expect(tanker.status).to.equal(statuses.STOPPED);
+    });
+
+    it('cannot call functions with a stopped device', async () => {
+      expect(() => tanker.deviceId).to.throw();
     });
 
     it('can create an identity', async () => {
