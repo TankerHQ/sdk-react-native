@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 import { runTests } from './framework';
 import { generateTests } from './tests';
@@ -10,7 +10,7 @@ export default function App() {
 
   React.useEffect(() => generateTests(), []);
 
-  const reportUnexpectedError = (e) => {
+  const reportUnexpectedError = (e: Error) => {
     console.error('Got an unexpected error:', e.message, "\n", e.stack);
     setResult('UNEXPECTED ERROR ' + e.message);
   }

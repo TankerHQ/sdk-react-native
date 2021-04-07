@@ -12,8 +12,8 @@ type GroupDescription = {
 };
 
 const testRegistry = {
-  groups: [],
-  onlyGroups: [],
+  groups: <GroupDescription[]>[],
+  onlyGroups: <GroupDescription[]>[],
   started: false,
 };
 
@@ -55,6 +55,8 @@ export function describe(name: string, registrer: Function) {
     name,
     tests: [],
     onlyTests: [],
+    beforeEach: null,
+    afterEach: null,
   };
   registrer();
   testRegistry.groups.push(currentGroup);
@@ -66,13 +68,15 @@ describe.only = (name: string, registrer: Function) => {
     name,
     tests: [],
     onlyTests: [],
+    beforeEach: null,
+    afterEach: null,
   };
   registrer();
   testRegistry.onlyGroups.push(currentGroup);
   currentGroup = null;
 }
 
-export async function runTests(): boolean {
+export async function runTests(): Promise<string> {
   if (testRegistry.groups.length === 0)
     throw new Error("There are no tests to run");
 
@@ -118,5 +122,5 @@ export async function runTests(): boolean {
 
   console.log('Tests result:', result);
 
-  return result
+  return result;
 }
