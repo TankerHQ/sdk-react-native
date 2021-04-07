@@ -2,6 +2,7 @@ import ClientReactNative from '@tanker/client-react-native';
 
 import { expect } from 'chai';
 import { describe, it } from './framework';
+import { getAppId, createIdentity, createProvisionalIdentity, getPublicIdentity } from './admin';
 
 export const generateTests = () => {
   describe('multiplication', () => {
@@ -13,5 +14,12 @@ export const generateTests = () => {
 
   describe('tests that work', () => {
     it('is a trivial test', () => {});
+
+    it('can create an identity', async () => {
+      const appId = await getAppId();
+      const identity = await createIdentity();
+      const prov = await createProvisionalIdentity('bob@gmail.com');
+      const pubIdentity = await getPublicIdentity(identity);
+    });
   });
 };
