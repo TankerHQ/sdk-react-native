@@ -1,0 +1,53 @@
+import {
+  InvalidArgument,
+  InternalError,
+  NetworkError,
+  PreconditionFailed,
+  OperationCanceled,
+  DecryptionFailed,
+  GroupTooBig,
+  InvalidVerification,
+  TooManyAttempts,
+  ExpiredVerification,
+  DeviceRevoked,
+  Conflict,
+  UpgradeRequired,
+} from '@tanker/errors';
+
+export function bridgeAsyncExceptions<T>(promise: Promise<T>): Promise<T> {
+  return promise.catch((e) => {
+    switch (e.code) {
+      case 'INVALID_ARGUMENT':
+        throw new InvalidArgument(e.message);
+      case 'INTERNAL_ERROR':
+        throw new InternalError(e.message);
+      case 'NETWORK_ERROR':
+        throw new NetworkError(e.message);
+      case 'PRECONDITION_FAILED':
+        throw new PreconditionFailed(e.message);
+      case 'OPERATION_CANCELED':
+        throw new OperationCanceled(e.message);
+      case 'DECRYPTION_FAILED':
+        throw new DecryptionFailed(e.message);
+      case 'GROUP_TOO_BIG':
+        throw new GroupTooBig(e.message);
+      case 'INVALID_VERIFICATION':
+        throw new InvalidVerification(e.message);
+      case 'TOO_MANY_ATTEMPTS':
+        throw new TooManyAttempts(e.message);
+      case 'EXPIRED_VERIFICATION':
+        throw new ExpiredVerification(e.message);
+      case 'IO_ERROR':
+        throw new InternalError('IoError', e.message); // IoError does not exist in pure Javascript!
+      case 'DEVICE_REVOKED':
+        throw new DeviceRevoked(e.message);
+      case 'CONFLICT':
+        throw new Conflict(e.message);
+      case 'UPGRADE_REQUIRED':
+        throw new UpgradeRequired(e.message);
+      default:
+        // This could be something else than a TankerException, do not wrap or convert to avoid losing information
+        throw e;
+    }
+  });
+}

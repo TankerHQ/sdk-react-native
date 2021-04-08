@@ -1,4 +1,5 @@
 import { Native } from './native';
+import { bridgeAsyncExceptions } from './errors';
 import type { Status, TankerOptions, NativeTanker } from './types';
 
 export class Tanker {
@@ -21,10 +22,10 @@ export class Tanker {
   }
 
   start(identity: String): Promise<Status> {
-    return Native.start(this.instance, identity);
+    return bridgeAsyncExceptions(Native.start(this.instance, identity));
   }
 
   stop(): Promise<void> {
-    return Native.stop(this.instance);
+    return bridgeAsyncExceptions(Native.stop(this.instance));
   }
 }

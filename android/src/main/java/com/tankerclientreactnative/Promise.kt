@@ -1,14 +1,18 @@
 package com.tankerclientreactnative
 
 import com.facebook.react.bridge.Promise
-import io.tanker.api.TankerCallback
+import io.tanker.api.TankerException
 import io.tanker.api.TankerFuture
 
 fun <T> TankerFuture<T>.bridge(promise: Promise) {
-    this.then<Unit>(TankerCallback {
+    this.then<Unit> {
         val e = it.getError()
         if (e != null) {
-            promise.reject(e)
+            if (e is TankerException) {
+                promise.reject(e.errorCode.name, e)
+            } else {
+                promise.reject(e)
+            }
         } else {
             val value = it.get()
             if (value is Unit)
@@ -16,20 +20,11 @@ fun <T> TankerFuture<T>.bridge(promise: Promise) {
             else
                 promise.resolve(value)
         }
-    })
+    }
 }
 
 fun <T, U> TankerFuture<T>.bridge(promise: Promise, convert: (result: T) -> U) {
-    this.then<Unit>(TankerCallback {
-        val e = it.getError()
-        if (e != null) {
-            promise.reject(e)
-        } else {
-            val bridgeableValue: U = convert(it.get())
-            if (bridgeableValue is Unit)
-                promise.resolve(null)
-            else
-                promise.resolve(bridgeableValue)
-        }
-    })
+    this.andThen<U> {
+        convert(it)
+    }.bridge(promise)
 }
