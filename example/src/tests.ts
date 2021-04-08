@@ -7,6 +7,7 @@ import { expect } from 'chai';
 import { describe, beforeEach, afterEach, it } from './framework';
 import {
   getAppId,
+  getTankerUrl,
   createIdentity,
   createProvisionalIdentity,
   getPublicIdentity,
@@ -32,10 +33,11 @@ export const generateTests = () => {
 
     it('can create an identity', async () => {
       const appId = await getAppId();
+      const tankerUrl = await getTankerUrl();
       const identity = await createIdentity();
       const prov = await createProvisionalIdentity('bob@gmail.com');
       const pubIdentity = await getPublicIdentity(identity);
-      console.log(appId, identity, prov, pubIdentity);
+      console.log(appId, identity, prov, pubIdentity, tankerUrl);
     });
   });
 };

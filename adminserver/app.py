@@ -41,6 +41,11 @@ def get_app_id() -> str:
     return tanker_app["id"]
 
 
+@app.route("/get_tanker_url")
+def get_tanker_url() -> str:
+    return assert_env("TANKER_APPD_URL")
+
+
 @app.route("/create_identity")
 def create_identity() -> str:
     return tankersdk_identity.create_identity(

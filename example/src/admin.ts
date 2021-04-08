@@ -4,6 +4,10 @@ export async function getAppId(): Promise<string> {
   return await (await fetch(`${SERVER_URL}/get_app_id`)).text();
 }
 
+export async function getTankerUrl(): Promise<string> {
+  return await (await fetch(`${SERVER_URL}/get_tanker_url`)).text();
+}
+
 export async function createIdentity(): Promise<string> {
   return await (await fetch(`${SERVER_URL}/create_identity`)).text();
 }
