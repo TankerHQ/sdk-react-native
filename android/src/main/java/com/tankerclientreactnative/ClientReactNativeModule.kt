@@ -66,4 +66,16 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     fun getDeviceId(handle: TankerHandle): String {
         return getTanker(handle).getDeviceId()
     }
+
+    @ReactMethod()
+    fun start(handle: TankerHandle, identity: String, promise: Promise) {
+        return getTanker(handle).start(identity).bridge(promise) {
+            it.value
+        }
+    }
+
+    @ReactMethod()
+    fun stop(handle: TankerHandle, promise: Promise) {
+        return getTanker(handle).stop().bridge(promise)
+    }
 }

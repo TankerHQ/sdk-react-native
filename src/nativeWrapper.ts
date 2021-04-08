@@ -19,4 +19,12 @@ export class Tanker {
   get deviceId(): string {
     return Native.getDeviceId(this.instance);
   }
+
+  start(identity: String): Promise<Status> {
+    return Native.start(this.instance, identity);
+  }
+
+  stop(): Promise<void> {
+    return Native.stop(this.instance);
+  }
 }

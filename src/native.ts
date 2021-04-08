@@ -7,6 +7,8 @@ type ClientReactNativeType = {
   prehashPassword(password: string): Promise<string>;
   getStatus(instance: NativeTanker): Status;
   getDeviceId(instance: NativeTanker): string;
+  start(instance: NativeTanker, identity: String): Promise<Status>;
+  stop(instance: NativeTanker): Promise<void>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;
