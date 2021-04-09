@@ -32,7 +32,7 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     // Cannot await in a JS constructor
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun create(jsOptions: ReadableMap, version: String): TankerHandle {
+    fun create(jsOptions: ReadableMap, version: String): Result<TankerHandle> {
         val options = TankerOptions()
         options.setAppId(jsOptions.getString("appId")!!)
         val writablePath = jsOptions.getString("writablePath") ?: androidFilesDir
@@ -47,7 +47,7 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
             options.sdkType = "client-react-native"
         options.sdkVersion = version
 
-        return createTanker(options)
+        return syncBridge { createTanker(options) }
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)
@@ -56,8 +56,8 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun getStatus(handle: TankerHandle): Int {
-        return getTanker(handle).getStatus().value
+    fun getStatus(handle: TankerHandle): Result<Int> {
+        return syncBridge { getTanker(handle).getStatus().value }
     }
 
     @ReactMethod
@@ -66,8 +66,8 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun getDeviceId(handle: TankerHandle): String {
-        return getTanker(handle).getDeviceId()
+    fun getDeviceId(handle: TankerHandle): Result<String> {
+        return syncBridge { getTanker(handle).getDeviceId() }
     }
 
     @ReactMethod()

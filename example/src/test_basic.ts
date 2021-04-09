@@ -2,6 +2,7 @@
 /* eslint-disable jest/valid-expect */
 
 import { Tanker, prehashPassword, statuses } from '@tanker/client-react-native';
+import { InvalidArgument, PreconditionFailed } from '@tanker/errors';
 import { expect } from 'chai';
 import { describe, beforeEach, it } from './framework';
 import { createTanker } from './tests';
@@ -31,8 +32,18 @@ export const basicTests = () => {
       expect(tanker.status).to.equal(statuses.STOPPED);
     });
 
+    it('cannot create Tanker with a bad appId', async () => {
+      expect(() => new Tanker({ appId: 'Bad' })).throws(
+        InvalidArgument,
+        'app_id'
+      );
+    });
+
     it('cannot call functions with a stopped device', async () => {
-      expect(() => tanker.deviceId).to.throw();
+      expect(() => tanker.deviceId).throws(
+        PreconditionFailed,
+        'session status'
+      );
     });
 
     it('can create an identity', async () => {

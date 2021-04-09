@@ -1,14 +1,15 @@
 import { NativeModules } from 'react-native';
 import type { TankerOptions, NativeTanker, Status } from './types';
+import type { Result } from './errors';
 
 export const VERSION = 'dev';
 
 type ClientReactNativeType = {
-  create(options: TankerOptions, version: String): NativeTanker;
+  create(options: TankerOptions, version: String): Result<NativeTanker>;
   prehashPassword(password: string): Promise<string>;
   getNativeVersion(): string;
-  getStatus(instance: NativeTanker): Status;
-  getDeviceId(instance: NativeTanker): string;
+  getStatus(instance: NativeTanker): Result<Status>;
+  getDeviceId(instance: NativeTanker): Result<string>;
   start(instance: NativeTanker, identity: String): Promise<Status>;
   stop(instance: NativeTanker): Promise<void>;
 };

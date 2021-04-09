@@ -1,12 +1,12 @@
 import { Native, VERSION } from './native';
-import { bridgeAsyncExceptions } from './errors';
+import { bridgeSyncResult, bridgeAsyncExceptions } from './errors';
 import type { Status, TankerOptions, NativeTanker } from './types';
 
 export class Tanker {
   private readonly instance: NativeTanker;
 
   constructor(options: TankerOptions) {
-    this.instance = Native.create(options, VERSION);
+    this.instance = bridgeSyncResult(() => Native.create(options, VERSION));
   }
 
   get version(): string {
@@ -18,11 +18,11 @@ export class Tanker {
   }
 
   get status(): Status {
-    return Native.getStatus(this.instance);
+    return bridgeSyncResult(() => Native.getStatus(this.instance));
   }
 
   get deviceId(): string {
-    return Native.getDeviceId(this.instance);
+    return bridgeSyncResult(() => Native.getDeviceId(this.instance));
   }
 
   start(identity: String): Promise<Status> {
