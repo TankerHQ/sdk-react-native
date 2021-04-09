@@ -5,8 +5,9 @@ import { Tanker, statuses } from '@tanker/client-react-native';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { describe, beforeEach, it } from './framework';
-import { getAppId, getTankerUrl, createIdentity } from './admin';
+import { createIdentity } from './admin';
 import { InvalidArgument } from '@tanker/errors';
+import { createTanker } from './tests';
 
 chai.use(chaiAsPromised);
 
@@ -15,11 +16,7 @@ export const tankerTests = () => {
     let tanker: Tanker;
     let identity: String;
     beforeEach(async () => {
-      const url = await getTankerUrl();
-      tanker = new Tanker({
-        appId: await getAppId(),
-        url,
-      });
+      tanker = await createTanker();
       identity = await createIdentity();
     });
 

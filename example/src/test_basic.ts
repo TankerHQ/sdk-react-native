@@ -4,6 +4,7 @@
 import { Tanker, prehashPassword, statuses } from '@tanker/client-react-native';
 import { expect } from 'chai';
 import { describe, beforeEach, it } from './framework';
+import { createTanker } from './tests';
 import {
   getAppId,
   createIdentity,
@@ -15,9 +16,7 @@ export const basicTests = () => {
   describe('Basic tests', () => {
     let tanker: Tanker;
     beforeEach(async () => {
-      tanker = new Tanker({
-        appId: await getAppId(),
-      });
+      tanker = await createTanker();
     });
 
     it('can get a version string', async () => {
