@@ -246,13 +246,13 @@ PODS:
     - React-Core (= 0.63.4)
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
-  - Tanker (9999):
+  - Tanker (2.11.1):
     - POSInputStreamLibrary
-    - Tanker/core (= 9999)
+    - Tanker/core (= 2.11.1)
   - tanker-client-react-native (0.1.0):
     - React-Core
     - Tanker
-  - Tanker/core (9999):
+  - Tanker/core (2.11.1):
     - POSInputStreamLibrary
   - Yoga (1.14.0)
 
@@ -284,13 +284,14 @@ DEPENDENCIES:
   - React-RCTText (from `../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - Tanker (from `../../pod`)
   - tanker-client-react-native (from `../..`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - POSInputStreamLibrary
+  https://github.com/TankerHQ/PodSpecs.git:
+    - Tanker
   trunk:
     - boost-for-react-native
 
@@ -345,8 +346,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/Vibration"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  Tanker:
-    :path: "../../pod"
   tanker-client-react-native:
     :path: "../.."
   Yoga:
@@ -380,7 +379,7 @@ SPEC CHECKSUMS:
   React-RCTText: 5c51df3f08cb9dedc6e790161195d12bac06101c
   React-RCTVibration: ae4f914cfe8de7d4de95ae1ea6cc8f6315d73d9d
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
-  Tanker: 90daafe17c3af5688866e6af441a4bb086108ae2
+  Tanker: ae73da6d451cc900105a0157e4a295fa536c47cb
   tanker-client-react-native: 018c78f79c37c8ba75870dcf8449162281df95b3
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
 

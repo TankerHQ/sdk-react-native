@@ -51,7 +51,7 @@ def create_identity() -> str:
     return tankersdk_identity.create_identity(
         tanker_app["id"],
         tanker_app["app_secret"],
-        random.randbytes(10).decode("latin1"),
+        str(random.random()),
     )
 
 
