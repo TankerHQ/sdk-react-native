@@ -1,3 +1,5 @@
+/* eslint-env detox/detox, mocha, jest/globals */
+
 describe('Example', () => {
   beforeAll(async () => {
     await device.launchApp();

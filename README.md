@@ -24,6 +24,12 @@ Then, start the application:
 yarn start # This will block your terminal. Test logs will be spit by this process, keep an eye on it
 ```
 
+And the admin server
+
+```sh
+yarn flask # Blocks your terminal too
+```
+
 Finally, run the tests:
 
 ```sh

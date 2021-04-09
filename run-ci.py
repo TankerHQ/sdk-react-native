@@ -58,11 +58,18 @@ def prepare(sdk: str, tanker_source: TankerSource, tanker_ref: Optional[str]) ->
     sdk_env = os.environ.copy()
     sdk_env.pop("VIRTUAL_ENV", None)
     tankerci.run(
-        "poetry", "install", cwd=sdk_path, env=sdk_env,
+        "poetry",
+        "install",
+        cwd=sdk_path,
+        env=sdk_env,
     )
     args = [
-        "poetry", "run", "python", "run-ci.py",
-        "build-and-test", f"--use-tanker={tanker_source.value}",
+        "poetry",
+        "run",
+        "python",
+        "run-ci.py",
+        "build-and-test",
+        f"--use-tanker={tanker_source.value}",
     ]
     if tanker_ref != None:
         args.append(f"--tanker-ref={tanker_ref}")
@@ -75,11 +82,15 @@ def prepare(sdk: str, tanker_source: TankerSource, tanker_ref: Optional[str]) ->
 
 def build_and_test(sdk: str) -> None:
     tankerci.run("yarn")
+    tankerci.run("yarn", "typescript")
+    tankerci.run("yarn", "lint")
     if sdk == "android":
         build_and_test_android()
     else:
         # TODO add real tests
-        tankerci.run("yarn", "--cwd", "example", "react-native", f"run-{sdk}", "--verbose")
+        tankerci.run(
+            "yarn", "--cwd", "example", "react-native", f"run-{sdk}", "--verbose"
+        )
 
 
 def main() -> None:
@@ -101,7 +112,11 @@ def main() -> None:
     prepare_parser.add_argument(
         "--use-tanker",
         type=tankerci.conan.TankerSource,
-        choices=[TankerSource.EDITABLE, TankerSource.DEPLOYED, TankerSource.SAME_AS_BRANCH],
+        choices=[
+            TankerSource.EDITABLE,
+            TankerSource.DEPLOYED,
+            TankerSource.SAME_AS_BRANCH,
+        ],
         default=TankerSource.EDITABLE,
         dest="tanker_source",
     )
