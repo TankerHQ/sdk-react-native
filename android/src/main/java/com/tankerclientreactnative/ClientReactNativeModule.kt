@@ -87,4 +87,16 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         val verification = Verification(verificationJson)
         return getTanker(handle).registerIdentity(verification).bridge(promise)
     }
+
+    @ReactMethod()
+    fun verifyIdentity(handle: TankerHandle, verificationJson: ReadableMap, promise: Promise) {
+        val verification = Verification(verificationJson)
+        return getTanker(handle).verifyIdentity(verification).bridge(promise)
+    }
+
+    @ReactMethod()
+    fun setVerificationMethod(handle: TankerHandle, verificationJson: ReadableMap, promise: Promise) {
+        val verification = Verification(verificationJson)
+        return getTanker(handle).setVerificationMethod(verification).bridge(promise)
+    }
 }

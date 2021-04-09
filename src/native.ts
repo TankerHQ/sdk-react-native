@@ -17,6 +17,14 @@ type ClientReactNativeType = {
     instance: NativeTanker,
     verification: Verification
   ): Promise<void>;
+  verifyIdentity(
+    instance: NativeTanker,
+    verification: Verification
+  ): Promise<void>;
+  setVerificationMethod(
+    instance: NativeTanker,
+    verification: Verification
+  ): Promise<void>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;

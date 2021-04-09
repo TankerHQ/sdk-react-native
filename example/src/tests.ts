@@ -14,6 +14,7 @@ export async function createTanker(): Promise<Tanker> {
     appId: await getAppId(),
     // @ts-ignore sdkType is not exposed publicly in the API, but the native module will forward it
     sdkType: 'sdk-react-native-test',
+    writablePath: ':memory:',
     url,
   });
 }

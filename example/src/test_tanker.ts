@@ -61,5 +61,32 @@ export const tankerTests = () => {
       await tanker.registerIdentity({ passphrase: 'foo' });
       expect(tanker.status).eq(statuses.READY);
     });
+
+    it('can use verifyIdentity to open a session', async () => {
+      await tanker.start(identity);
+      await tanker.registerIdentity({ passphrase: 'foo' });
+      expect(tanker.status).eq(statuses.READY);
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+      expect(secondDevice.status).eq(statuses.IDENTITY_VERIFICATION_NEEDED);
+
+      await secondDevice.verifyIdentity({ passphrase: 'foo' });
+      expect(secondDevice.status).eq(statuses.READY);
+    });
+
+    it('can use setVerificationMethod to change a passphrase', async () => {
+      const pass1 = { passphrase: 'foo' };
+      const pass2 = { passphrase: 'bar' };
+
+      await tanker.start(identity);
+      await tanker.registerIdentity(pass1);
+      await tanker.setVerificationMethod(pass2);
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+      await secondDevice.verifyIdentity(pass2);
+      expect(secondDevice.status).eq(statuses.READY);
+    });
   });
 };

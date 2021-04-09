@@ -40,4 +40,16 @@ export class Tanker {
       Native.registerIdentity(this.instance, verification)
     );
   }
+
+  verifyIdentity(verification: Verification): Promise<void> {
+    return bridgeAsyncExceptions(
+      Native.verifyIdentity(this.instance, verification)
+    );
+  }
+
+  setVerificationMethod(verification: Verification): Promise<void> {
+    return bridgeAsyncExceptions(
+      Native.setVerificationMethod(this.instance, verification)
+    );
+  }
 }
