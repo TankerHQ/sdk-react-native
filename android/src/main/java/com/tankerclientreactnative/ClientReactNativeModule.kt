@@ -2,6 +2,7 @@ package com.tankerclientreactnative
 
 import com.facebook.react.bridge.*
 import io.tanker.api.Tanker
+import io.tanker.api.TankerFuture
 import io.tanker.api.TankerOptions
 import kotlin.random.Random
 
@@ -62,7 +63,9 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     @ReactMethod
     fun prehashPassword(password: String, promise: Promise) {
-        promise.resolve(Tanker.prehashPassword(password))
+        TankerFuture<Unit>().andThen<String> {
+            Tanker.prehashPassword(password)
+        }.bridge(promise)
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)

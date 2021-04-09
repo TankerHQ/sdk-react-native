@@ -62,5 +62,28 @@ export const basicTests = () => {
       expect(hash).is.not.empty;
       expect(hash).not.eq(password);
     });
+
+    it('prehashPassword should be equal to the test vector', async () => {
+      const input = 'super secretive password';
+      const output = await prehashPassword(input);
+      const b64TestVector = 'UYNRgDLSClFWKsJ7dl9uPJjhpIoEzadksv/Mf44gSHI=';
+
+      expect(output).to.deep.equal(b64TestVector);
+    });
+
+    it('should be equal to the unicode test vector', async () => {
+      const input = 'test éå 한국어 😃';
+      const output = await prehashPassword(input);
+      const b64TestVector = 'Pkn/pjub2uwkBDpt2HUieWOXP5xLn0Zlen16ID4C7jI=';
+
+      expect(output).to.deep.equal(b64TestVector);
+    });
+
+    it('should throw when given an empty password', async () => {
+      await expect(prehashPassword('')).eventually.rejectedWith(
+        InvalidArgument,
+        'empty password'
+      );
+    });
   });
 };
