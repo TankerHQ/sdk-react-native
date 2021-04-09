@@ -32,7 +32,7 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     // Cannot await in a JS constructor
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun create(jsOptions: ReadableMap): TankerHandle {
+    fun create(jsOptions: ReadableMap, version: String): TankerHandle {
         val options = TankerOptions()
         options.setAppId(jsOptions.getString("appId")!!)
         val writablePath = jsOptions.getString("writablePath") ?: androidFilesDir
@@ -42,13 +42,16 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
             options.setUrl(url)
         val sdkType = jsOptions.getString("sdkType")
         if (sdkType != null)
-            options.setUrl(sdkType)
+            options.sdkType = sdkType
+        else
+            options.sdkType = "client-react-native"
+        options.sdkVersion = version
 
         return createTanker(options)
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun getVersion(): String {
+    fun getNativeVersion(): String {
         return Tanker.getVersionString()
     }
 

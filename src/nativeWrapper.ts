@@ -1,4 +1,4 @@
-import { Native } from './native';
+import { Native, VERSION } from './native';
 import { bridgeAsyncExceptions } from './errors';
 import type { Status, TankerOptions, NativeTanker } from './types';
 
@@ -6,11 +6,15 @@ export class Tanker {
   private readonly instance: NativeTanker;
 
   constructor(options: TankerOptions) {
-    this.instance = Native.create(options);
+    this.instance = Native.create(options, VERSION);
   }
 
   get version(): string {
-    return Native.getVersion();
+    return VERSION;
+  }
+
+  get nativeVersion(): string {
+    return Native.getNativeVersion();
   }
 
   get status(): Status {

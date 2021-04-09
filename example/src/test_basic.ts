@@ -20,8 +20,12 @@ export const basicTests = () => {
       });
     });
 
-    it('can get a valid version string', async () => {
-      expect(tanker.version).to.match(/^2\.\d+\.\d+/);
+    it('can get a version string', async () => {
+      expect(tanker.version).is.not.empty;
+    });
+
+    it('can get the native version string', async () => {
+      expect(tanker.nativeVersion).to.match(/^2\.\d+\.\d+/);
     });
 
     it('has a status', async () => {
