@@ -42,6 +42,29 @@ def build_and_test_android() -> None:
         )
 
 
+def build_and_test_ios() -> None:
+    tankerci.run(
+        "yarn", "detox", "build", "--configuration", "ios", cwd="example"
+    )
+
+    with tankerci.run_in_background(
+        "yarn",
+        "start",
+        cwd="example",
+        wait_for_process=5,
+        # yarn start forks things, we need to killpg
+        killpg=True,
+    ), tankerci.run_in_background(
+        "flask",
+        "run",
+        cwd="adminserver",
+        wait_for_process=5,
+        killpg=False,
+    ):
+        tankerci.run(
+            "yarn", "detox", "test", "--configuration", "ios", cwd="example"
+        )
+
 def prepare(sdk: str, tanker_source: TankerSource, tanker_ref: Optional[str]) -> None:
     sdk_folder = f"sdk-{sdk}"
     if "CI" in os.environ:
@@ -87,10 +110,7 @@ def build_and_test(sdk: str) -> None:
     if sdk == "android":
         build_and_test_android()
     else:
-        # TODO add real tests
-        tankerci.run(
-            "yarn", "--cwd", "example", "react-native", f"run-{sdk}", "--verbose"
-        )
+        build_and_test_ios()
 
 
 def main() -> None:

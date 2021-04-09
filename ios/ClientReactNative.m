@@ -12,7 +12,7 @@ RCT_REMAP_METHOD(multiply, multiplyWithA:(nonnull NSNumber*)a withB:(nonnull NSN
 {
   NSNumber *result = @([a floatValue] * [b floatValue]);
   NSLog(@"Tanker version: %@", [TKRTanker versionString]);
-  resolve(@[result]);
+  resolve(result);
 }
 
 

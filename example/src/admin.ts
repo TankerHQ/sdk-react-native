@@ -1,4 +1,7 @@
-const SERVER_URL = 'http://10.0.2.2:5000';
+import { Platform } from 'react-native';
+
+const SERVER_URL =
+  Platform.OS === 'ios' ? 'http://127.0.0.1:5000' : 'http://10.0.2.2:5000';
 
 export async function getAppId(): Promise<string> {
   return await (await fetch(`${SERVER_URL}/get_app_id`)).text();
