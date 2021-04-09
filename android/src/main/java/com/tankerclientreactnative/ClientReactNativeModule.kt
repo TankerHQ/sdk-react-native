@@ -81,4 +81,10 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     fun stop(handle: TankerHandle, promise: Promise) {
         return getTanker(handle).stop().bridge(promise)
     }
+
+    @ReactMethod()
+    fun registerIdentity(handle: TankerHandle, verificationJson: ReadableMap, promise: Promise) {
+        val verification = Verification(verificationJson)
+        return getTanker(handle).registerIdentity(verification).bridge(promise)
+    }
 }

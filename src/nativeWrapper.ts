@@ -1,6 +1,7 @@
 import { Native, VERSION } from './native';
 import { bridgeSyncResult, bridgeAsyncExceptions } from './errors';
 import type { Status, TankerOptions, NativeTanker } from './types';
+import { Verification, assertVerification } from './verification';
 
 export class Tanker {
   private readonly instance: NativeTanker;
@@ -31,5 +32,12 @@ export class Tanker {
 
   stop(): Promise<void> {
     return bridgeAsyncExceptions(Native.stop(this.instance));
+  }
+
+  registerIdentity(verification: Verification): Promise<void> {
+    assertVerification(verification);
+    return bridgeAsyncExceptions(
+      Native.registerIdentity(this.instance, verification)
+    );
   }
 }

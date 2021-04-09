@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native';
 import type { TankerOptions, NativeTanker, Status } from './types';
 import type { Result } from './errors';
+import type { Verification } from './verification';
 
 export const VERSION = 'dev';
 
@@ -12,6 +13,10 @@ type ClientReactNativeType = {
   getDeviceId(instance: NativeTanker): Result<string>;
   start(instance: NativeTanker, identity: String): Promise<Status>;
   stop(instance: NativeTanker): Promise<void>;
+  registerIdentity(
+    instance: NativeTanker,
+    verification: Verification
+  ): Promise<void>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;

@@ -3,11 +3,15 @@ package com.tankerclientreactnative
 import com.facebook.react.bridge.Promise
 import io.tanker.api.TankerException
 import io.tanker.api.TankerFuture
+import io.tanker.api.TankerFutureException
 
 fun <T> TankerFuture<T>.bridge(promise: Promise) {
     this.then<Unit> {
-        val e = it.getError()
+        var e = it.getError()
         if (e != null) {
+            while (e is TankerFutureException)
+                e = e.cause!!
+
             if (e is TankerException) {
                 promise.reject(e.errorCode.name, e)
             } else {

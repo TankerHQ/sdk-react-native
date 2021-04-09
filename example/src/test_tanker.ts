@@ -6,7 +6,7 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { describe, beforeEach, it } from './framework';
 import { createIdentity } from './admin';
-import { InvalidArgument } from '@tanker/errors';
+import { InvalidArgument, InvalidVerification } from '@tanker/errors';
 import { createTanker } from './tests';
 
 chai.use(chaiAsPromised);
@@ -34,6 +34,32 @@ export const tankerTests = () => {
         InvalidArgument,
         'identity format'
       );
+    });
+
+    it('gets a sensible error from a bad registerIdentity', async () => {
+      await tanker.start(identity);
+      await expect(
+        tanker.registerIdentity({
+          email: 'enoent@example.com',
+          verificationCode: 'xxxx',
+        })
+      ).is.eventually.rejectedWith(InvalidVerification, 'verification code');
+    });
+
+    it('gets a sensible error from a type error in registerIdentity', async () => {
+      await tanker.start(identity);
+      expect(() =>
+        tanker.registerIdentity({
+          // @ts-ignore Breaking things on purpose for the test =)
+          enoent: '',
+        })
+      ).throws(InvalidArgument);
+    });
+
+    it('can use registerIdentity to open a session', async () => {
+      await tanker.start(identity);
+      await tanker.registerIdentity({ passphrase: 'foo' });
+      expect(tanker.status).eq(statuses.READY);
     });
   });
 };
