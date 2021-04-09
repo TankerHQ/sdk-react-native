@@ -24,7 +24,7 @@ export default function App() {
       <TouchableOpacity testID="run_tests" onPress={startTests}>
         <Text>Run the tests</Text>
       </TouchableOpacity>
-      <Text testID="result">{result}</Text>
+      {result && <Text testID="result">{result}</Text>}
     </View>
   );
 }
