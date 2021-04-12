@@ -5,7 +5,7 @@ import { Tanker, statuses } from '@tanker/client-react-native';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { describe, beforeEach, afterEach, it } from './framework';
-import { createIdentity } from './admin';
+import { createIdentity, toggle2FA } from './admin';
 import { InvalidArgument, InvalidVerification } from '@tanker/errors';
 import { createTanker, clearTankerDataDirs } from './tests';
 
@@ -88,6 +88,18 @@ export const tankerTests = () => {
       await secondDevice.start(identity);
       await secondDevice.verifyIdentity(pass2);
       expect(secondDevice.status).eq(statuses.READY);
+    });
+
+    it('can request a session token with VerificationOptions', async () => {
+      await toggle2FA(true);
+      await tanker.start(identity);
+      const token = await tanker.registerIdentity(
+        { passphrase: 'foo' },
+        { withSessionToken: true }
+      );
+      await toggle2FA(false);
+      expect(tanker.status).eq(statuses.READY);
+      expect(token).is.not.empty;
     });
   });
 };

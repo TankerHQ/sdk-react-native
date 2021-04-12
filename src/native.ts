@@ -1,7 +1,7 @@
 import { NativeModules } from 'react-native';
 import type { TankerOptions, NativeTanker, Status } from './types';
 import type { Result } from './errors';
-import type { Verification } from './verification';
+import type { Verification, VerificationOptions } from './verification';
 
 export const VERSION = '0.1.0';
 
@@ -15,16 +15,19 @@ type ClientReactNativeType = {
   stop(instance: NativeTanker): Promise<void>;
   registerIdentity(
     instance: NativeTanker,
-    verification: Verification
-  ): Promise<void>;
+    verification: Verification,
+    options?: VerificationOptions
+  ): Promise<void | string>;
   verifyIdentity(
     instance: NativeTanker,
-    verification: Verification
-  ): Promise<void>;
+    verification: Verification,
+    options?: VerificationOptions
+  ): Promise<void | string>;
   setVerificationMethod(
     instance: NativeTanker,
-    verification: Verification
-  ): Promise<void>;
+    verification: Verification,
+    options?: VerificationOptions
+  ): Promise<void | string>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;

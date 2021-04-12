@@ -19,3 +19,12 @@ fun Verification(json: ReadableMap): Verification {
     }
     throw AssertionError("Invalid verification JS object received, check Typescript definitions match")
 }
+
+fun VerificationOptions(json: ReadableMap?): VerificationOptions {
+    val options = VerificationOptions()
+    if (json == null)
+        return options
+    if (json.hasKey("withSessionToken"))
+        options.withSessionToken(json.getBoolean("withSessionToken"))
+    return options
+}

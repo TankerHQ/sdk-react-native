@@ -11,6 +11,8 @@ export type Verification =
   | KeyVerification
   | OIDCVerification;
 
+export type VerificationOptions = { withSessionToken?: boolean };
+
 const validMethods = ['email', 'passphrase', 'verificationKey', 'oidcIdToken'];
 const validKeys = [...validMethods, 'verificationCode'];
 

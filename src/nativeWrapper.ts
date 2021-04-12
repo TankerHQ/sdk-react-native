@@ -1,7 +1,11 @@
 import { Native, VERSION } from './native';
 import { bridgeSyncResult, bridgeAsyncExceptions } from './errors';
 import type { Status, TankerOptions, NativeTanker } from './types';
-import { Verification, assertVerification } from './verification';
+import {
+  Verification,
+  assertVerification,
+  VerificationOptions,
+} from './verification';
 
 export class Tanker {
   private readonly instance: NativeTanker;
@@ -34,22 +38,31 @@ export class Tanker {
     return bridgeAsyncExceptions(Native.stop(this.instance));
   }
 
-  registerIdentity(verification: Verification): Promise<void> {
+  registerIdentity(
+    verification: Verification,
+    options?: VerificationOptions
+  ): Promise<void | string> {
     assertVerification(verification);
     return bridgeAsyncExceptions(
-      Native.registerIdentity(this.instance, verification)
+      Native.registerIdentity(this.instance, verification, options)
     );
   }
 
-  verifyIdentity(verification: Verification): Promise<void> {
+  verifyIdentity(
+    verification: Verification,
+    options?: VerificationOptions
+  ): Promise<void | string> {
     return bridgeAsyncExceptions(
-      Native.verifyIdentity(this.instance, verification)
+      Native.verifyIdentity(this.instance, verification, options)
     );
   }
 
-  setVerificationMethod(verification: Verification): Promise<void> {
+  setVerificationMethod(
+    verification: Verification,
+    options?: VerificationOptions
+  ): Promise<void | string> {
     return bridgeAsyncExceptions(
-      Native.setVerificationMethod(this.instance, verification)
+      Native.setVerificationMethod(this.instance, verification, options)
     );
   }
 }
