@@ -29,7 +29,7 @@ def build_and_test_android() -> None:
         cwd="example",
         wait_for_process=5,
         # yarn start forks things, we need to killpg
-        killpg=True,
+        killpg=False,
     ), tankerci.run_in_background(
         "flask",
         "run",
@@ -53,7 +53,7 @@ def build_and_test_ios() -> None:
         cwd="example",
         wait_for_process=5,
         # yarn start forks things, we need to killpg
-        killpg=True,
+        killpg=False,
     ), tankerci.run_in_background(
         "flask",
         "run",
