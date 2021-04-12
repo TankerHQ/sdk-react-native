@@ -64,6 +64,9 @@ def build_and_test_ios() -> None:
         tankerci.run(
             "yarn", "detox", "test", "--configuration", "ios", cwd="example"
         )
+    if "CI" in os.environ:
+        # this is needed to kill the React server launched by tests
+        tankerci.run("killall", "node")
 
 def prepare(sdk: str, tanker_source: TankerSource, tanker_ref: Optional[str]) -> None:
     sdk_folder = f"sdk-{sdk}"
