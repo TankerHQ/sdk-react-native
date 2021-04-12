@@ -1,8 +1,7 @@
 include:
   - project: TankerHQ/gitlab-ci-files
-    ref: 838eb5d85ea9f41a4945c18e95f22b4c916da36f
-    # TODO replace with react-native.yml later on
-    file: /ios.yml
+    ref: 2e85be62c4fe0d2291bc3a9ff153cd8e3edffaaf
+    file: /react-native.yml
 
 ##########
 # Stages #
@@ -32,6 +31,17 @@ check/android/deployed:
   extends:
     - .tags/linux
     - .rules/mr/manual
+  script:
+    - sudo chgrp 1000 -f /dev/kvm
+    - poetry run python run-ci.py build-and-test android
+  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
+
+check/android/downstream:
+  stage: check
+  extends:
+    - .tags/linux
+    - .before-script/download-artifacts
+    - .rules/check/downstream/android
   script:
     - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py build-and-test android
