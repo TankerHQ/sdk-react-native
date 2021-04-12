@@ -46,6 +46,12 @@ def get_tanker_url() -> str:
     return assert_env("TANKER_APPD_URL")
 
 
+@app.route("/toggle_2fa", methods=["POST"])
+def toggle_2fa() -> None:
+    enable = request.form["enable"].lower() == 'true'
+    return admin.update_app(tanker_app["id"], session_certificates=enable)
+
+
 @app.route("/create_identity")
 def create_identity() -> str:
     return tankersdk_identity.create_identity(

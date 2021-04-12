@@ -11,6 +11,15 @@ export async function getTankerUrl(): Promise<string> {
   return await (await fetch(`${SERVER_URL}/get_tanker_url`)).text();
 }
 
+export async function toggle2FA(enable: boolean): Promise<void> {
+  const form = new FormData();
+  form.append('enable', enable);
+  await fetch(`${SERVER_URL}/toggle_2fa`, {
+    method: 'POST',
+    body: form,
+  });
+}
+
 export async function createIdentity(): Promise<string> {
   return await (await fetch(`${SERVER_URL}/create_identity`)).text();
 }
