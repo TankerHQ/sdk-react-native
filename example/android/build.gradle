@@ -43,5 +43,9 @@ allprojects {
         maven {
           url 'https://storage.googleapis.com/maven.tanker.io'
         }
+        flatDir {
+            dirs 'libs'
+            dirs project(':tankerclientreactnative').file('libs')
+        }
     }
 }

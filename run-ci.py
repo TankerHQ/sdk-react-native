@@ -18,6 +18,12 @@ import tankerci.gitlab
 import cli_ui as ui
 
 
+def copy_local_aar(local_aar_path: Path) -> None:
+    dest_path = Path.cwd() / "android/libs"
+    shutil.rmtree(dest_path, ignore_errors=True)
+    dest_path.mkdir()
+    shutil.copy(local_aar_path, dest_path)
+
 def build_and_test_android() -> None:
     tankerci.run(
         "yarn", "detox", "build", "--configuration", "android-ci", cwd="example"
@@ -104,6 +110,10 @@ def prepare(sdk: str, tanker_source: TankerSource, tanker_ref: Optional[str]) ->
         dest_path = Path.cwd() / "pod"
         shutil.rmtree(dest_path, ignore_errors=True)
         shutil.copytree(sdk_path / "pod", dest_path)
+    else:
+        dest_path = Path.cwd() / "artifacts"
+        shutil.rmtree(dest_path, ignore_errors=True)
+        shutil.copytree(sdk_path / "artifacts", dest_path)
 
 
 def build_and_test(sdk: str) -> None:
@@ -111,6 +121,9 @@ def build_and_test(sdk: str) -> None:
     tankerci.run("yarn", "typescript")
     tankerci.run("yarn", "lint")
     if sdk == "android":
+        local_aar_path = Path.cwd() / "artifacts/tanker-bindings.aar"
+        if local_aar_path.exists():
+            copy_local_aar(local_aar_path)
         build_and_test_android()
     else:
         build_and_test_ios()
