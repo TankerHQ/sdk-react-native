@@ -1,9 +1,8 @@
-import { NativeModules } from 'react-native';
+import { Native } from './native';
+export { statuses, Status, TankerOptions, NativeTanker } from './types';
+export { Tanker } from './nativeWrapper';
+import { bridgeAsyncExceptions } from './errors';
 
-type ClientReactNativeType = {
-  multiply(a: number, b: number): Promise<number>;
-};
-
-const { ClientReactNative } = NativeModules;
-
-export default ClientReactNative as ClientReactNativeType;
+export async function prehashPassword(password: string): Promise<string> {
+  return bridgeAsyncExceptions(Native.prehashPassword(password));
+}

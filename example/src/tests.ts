@@ -1,43 +1,34 @@
-// This file doesn't use jest's expect
-/* eslint-disable jest/valid-expect */
+import { Tanker } from '@tanker/client-react-native';
+import { getAppId, getTankerUrl } from './admin';
+import { basicTests } from './test_basic';
+import { tankerTests } from './test_tanker';
+import RNFS from 'react-native-fs';
 
-import ClientReactNative from '@tanker/client-react-native';
-
-import { expect } from 'chai';
-import { describe, beforeEach, afterEach, it } from './framework';
-import {
-  getAppId,
-  getTankerUrl,
-  createIdentity,
-  createProvisionalIdentity,
-  getPublicIdentity,
-} from './admin';
+let pathsToClear: Array<string> = [];
 
 export const generateTests = () => {
-  describe('multiplication', () => {
-    it('multiplies with optimized SSSE3 spectre-proof instructions in an OpenCL kernel', async () => {
-      const result = await ClientReactNative.multiply(3, 7);
-      expect(result).to.equal(21);
-    });
-  });
-
-  describe('tests that work', () => {
-    beforeEach(() => {
-      console.log('before each');
-    });
-    afterEach(() => {
-      console.log('after each');
-    });
-
-    it('is a trivial test', () => {});
-
-    it('can create an identity', async () => {
-      const appId = await getAppId();
-      const tankerUrl = await getTankerUrl();
-      const identity = await createIdentity();
-      const prov = await createProvisionalIdentity('bob@gmail.com');
-      const pubIdentity = await getPublicIdentity(identity);
-      console.log(appId, identity, prov, pubIdentity, tankerUrl);
-    });
-  });
+  basicTests();
+  tankerTests();
 };
+
+export async function createTanker(): Promise<Tanker> {
+  const url = await getTankerUrl();
+  const path = RNFS.DocumentDirectoryPath + '/' + Math.random() + '/';
+  await RNFS.mkdir(path);
+  pathsToClear.push(path);
+  return new Tanker({
+    appId: await getAppId(),
+    // @ts-ignore sdkType is not exposed publicly in the API, but the native module will forward it
+    sdkType: 'sdk-react-native-test',
+    writablePath: path,
+    url,
+  });
+}
+
+export async function clearTankerDataDirs(): Promise<void> {
+  // RNFS.unlink is not unlink(), it actually rmdirs recursively!
+  for (const dir of pathsToClear) {
+    await RNFS.unlink(dir);
+  }
+  pathsToClear = [];
+}
