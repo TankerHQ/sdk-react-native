@@ -4,10 +4,10 @@
 import { Tanker, statuses } from '@tanker/client-react-native';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { describe, beforeEach, it } from './framework';
+import { describe, beforeEach, afterEach, it } from './framework';
 import { createIdentity } from './admin';
 import { InvalidArgument, InvalidVerification } from '@tanker/errors';
-import { createTanker } from './tests';
+import { createTanker, clearTankerDataDirs } from './tests';
 
 chai.use(chaiAsPromised);
 
@@ -19,6 +19,7 @@ export const tankerTests = () => {
       tanker = await createTanker();
       identity = await createIdentity();
     });
+    afterEach(clearTankerDataDirs);
 
     it('can start and stop', async () => {
       expect(tanker.status).eq(statuses.STOPPED);

@@ -4,8 +4,8 @@
 import { Tanker, prehashPassword, statuses } from '@tanker/client-react-native';
 import { InvalidArgument, PreconditionFailed } from '@tanker/errors';
 import { expect } from 'chai';
-import { describe, beforeEach, it } from './framework';
-import { createTanker } from './tests';
+import { describe, beforeEach, afterEach, it } from './framework';
+import { createTanker, clearTankerDataDirs } from './tests';
 import {
   getAppId,
   createIdentity,
@@ -19,6 +19,7 @@ export const basicTests = () => {
     beforeEach(async () => {
       tanker = await createTanker();
     });
+    afterEach(clearTankerDataDirs);
 
     it('can get a version string', async () => {
       expect(tanker.version).is.not.empty;

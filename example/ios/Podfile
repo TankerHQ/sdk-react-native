@@ -15,6 +15,8 @@ target 'ClientReactNativeExample' do
   pod 'tanker-client-react-native', :path => '../..'
   if File.exist?("../../pod/Tanker.podspec")
     pod 'Tanker', :path => "../../pod"
+    pod 'RNFS', :path => '../node_modules/react-native-fs'
+
   end
 end
 
