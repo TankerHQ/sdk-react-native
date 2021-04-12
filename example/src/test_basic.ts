@@ -26,7 +26,9 @@ export const basicTests = () => {
     });
 
     it('can get the native version string', async () => {
-      expect(tanker.nativeVersion).to.match(/^2\.\d+\.\d+/);
+      // Keep this log to help debugging job's output
+      console.log(tanker.nativeVersion);
+      expect(tanker.nativeVersion).is.not.empty;
     });
 
     it('has a status', async () => {
