@@ -1,4 +1,5 @@
 import { InvalidArgument } from '@tanker/errors';
+import { assertNotEmptyString } from './types';
 
 export type EmailVerification = { email: string; verificationCode: string };
 export type PassphraseVerification = { passphrase: string };
@@ -15,15 +16,6 @@ export type VerificationOptions = { withSessionToken?: boolean };
 
 const validMethods = ['email', 'passphrase', 'verificationKey', 'oidcIdToken'];
 const validKeys = [...validMethods, 'verificationCode'];
-
-const assertNotEmptyString = (arg: any, argName: string) => {
-  if (typeof arg !== 'string') {
-    throw new InvalidArgument(argName, `${argName} should be a string`, arg);
-  }
-  if (arg.length === 0) {
-    throw new InvalidArgument(argName, `${argName} should not be empty`, arg);
-  }
-};
 
 export const assertVerification = (verification: Verification) => {
   if (!verification || typeof verification !== 'object')

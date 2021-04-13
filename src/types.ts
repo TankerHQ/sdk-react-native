@@ -1,3 +1,5 @@
+import { InvalidArgument } from '@tanker/errors';
+
 export type NativeTanker = number;
 
 export type TankerOptions = {
@@ -22,3 +24,17 @@ export const statuses: { [name: string]: number } = (() => {
 })();
 
 export type Status = number;
+
+export const isObject = (val: Object) =>
+  !!val &&
+  typeof val === 'object' &&
+  Object.getPrototypeOf(val) === Object.prototype;
+
+export const assertNotEmptyString = (arg: any, argName: string) => {
+  if (typeof arg !== 'string') {
+    throw new InvalidArgument(argName, `${argName} should be a string`, arg);
+  }
+  if (arg.length === 0) {
+    throw new InvalidArgument(argName, `${argName} should not be empty`, arg);
+  }
+};

@@ -7,7 +7,8 @@ import {
   VerificationOptions,
 } from './verification';
 import type { EncryptionOptions } from './encryptionOptions';
-import { SharingOptions } from './sharingOptions';
+import { extractSharingOptions, SharingOptions } from './sharingOptions';
+import { extractEncryptionOptions } from './encryptionOptions';
 
 export class Tanker {
   private readonly instance: NativeTanker;
@@ -70,7 +71,11 @@ export class Tanker {
 
   encrypt(clearText: string, options?: EncryptionOptions): Promise<string> {
     return bridgeAsyncExceptions(
-      Native.encryptString(this.instance, clearText, options)
+      Native.encryptString(
+        this.instance,
+        clearText,
+        extractEncryptionOptions(options)
+      )
     );
   }
 
@@ -82,7 +87,11 @@ export class Tanker {
 
   encryptData(clearData: string, options?: EncryptionOptions): Promise<string> {
     return bridgeAsyncExceptions(
-      Native.encryptData(this.instance, clearData, options)
+      Native.encryptData(
+        this.instance,
+        clearData,
+        extractEncryptionOptions(options)
+      )
     );
   }
 
@@ -102,7 +111,7 @@ export class Tanker {
 
   share(resourceIds: Array<string>, options: SharingOptions): Promise<string> {
     return bridgeAsyncExceptions(
-      Native.share(this.instance, resourceIds, options)
+      Native.share(this.instance, resourceIds, extractSharingOptions(options))
     );
   }
 }
