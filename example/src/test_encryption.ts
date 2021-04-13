@@ -102,5 +102,23 @@ export const encryptionTests = () => {
       const resId = await tanker.getResourceId(encrypted);
       expect(resId).is.not.empty;
     });
+
+    it('can share encrypted data', async () => {
+      const other = await createTanker();
+      const otherPrivIdent = await createIdentity();
+      await other.start(otherPrivIdent);
+      await other.registerIdentity({ passphrase: 'otherpass' });
+      const otherIdent = await getPublicIdentity(otherPrivIdent);
+
+      const plaintext = 'foo';
+      const encrypted = await tanker.encrypt(plaintext);
+      const resId = await tanker.getResourceId(encrypted);
+      const options = { shareWithUsers: [otherIdent] };
+      await tanker.share([resId], options);
+
+      const decrypted = await other.decrypt(encrypted);
+      await other.stop();
+      expect(decrypted).eq(plaintext);
+    });
   });
 };

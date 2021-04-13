@@ -7,6 +7,7 @@ import {
   VerificationOptions,
 } from './verification';
 import type { EncryptionOptions } from './encryptionOptions';
+import { SharingOptions } from './sharingOptions';
 
 export class Tanker {
   private readonly instance: NativeTanker;
@@ -96,6 +97,12 @@ export class Tanker {
     // so we just pass the whole encrypted buffer in base64
     return bridgeAsyncExceptions(
       Native.getResourceId(this.instance, encrypted)
+    );
+  }
+
+  share(resourceIds: Array<string>, options: SharingOptions): Promise<string> {
+    return bridgeAsyncExceptions(
+      Native.share(this.instance, resourceIds, options)
     );
   }
 }

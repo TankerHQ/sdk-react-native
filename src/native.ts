@@ -3,6 +3,7 @@ import type { TankerOptions, NativeTanker, Status } from './types';
 import type { Result } from './errors';
 import type { Verification, VerificationOptions } from './verification';
 import type { EncryptionOptions } from './encryptionOptions';
+import type { SharingOptions } from './sharingOptions';
 
 export const VERSION = '0.1.0';
 
@@ -42,6 +43,11 @@ type ClientReactNativeType = {
   ): Promise<string>;
   decryptData(instance: NativeTanker, encryptedData: string): Promise<string>;
   getResourceId(instance: NativeTanker, encrypted: string): Promise<string>;
+  share(
+    instance: NativeTanker,
+    resourceIds: Array<string>,
+    options: SharingOptions
+  ): Promise<string>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;

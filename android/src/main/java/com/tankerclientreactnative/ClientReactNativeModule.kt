@@ -174,4 +174,14 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
             getTanker(handle).getResourceID(encryptedHeader)
         }.bridge(promise)
     }
+
+    @ReactMethod()
+    fun share(handle: TankerHandle, resourceIdsJson: ReadableArray, optionsJson: ReadableMap, promise: Promise) {
+        val resourceIds = ArrayList<String>()
+        for (i in 0 until resourceIdsJson.size()) {
+            resourceIds.add(resourceIdsJson.getString(i)!!)
+        }
+        val options = SharingOptions(optionsJson)
+        getTanker(handle).share(resourceIds.toTypedArray(), options).bridge(promise)
+    }
 }
