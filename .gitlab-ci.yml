@@ -47,6 +47,28 @@ check/android/downstream:
     - poetry run python run-ci.py build-and-test android
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
+check/android/from-sources:
+  stage: check
+  extends:
+    - .tags/linux
+    - .rules/mr/manual
+  script:
+    - sudo chgrp 1000 -f /dev/kvm
+    - poetry run python run-ci.py prepare android --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
+    - poetry run python run-ci.py build-and-test android
+  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
+
+check/android/all-from-sources:
+  stage: check
+  extends:
+    - .tags/linux
+    - .rules/mr/manual
+  script:
+    - sudo chgrp 1000 -f /dev/kvm
+    - poetry run python run-ci.py prepare android --use-tanker=same-as-branch
+    - poetry run python run-ci.py build-and-test android
+  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
+
 check/ios/downstream:
   stage: check
   extends:

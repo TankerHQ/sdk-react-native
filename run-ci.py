@@ -74,7 +74,7 @@ def build_and_test_ios() -> None:
         # this is needed to kill the React server launched by tests
         tankerci.run("killall", "node")
 
-def prepare(sdk: str, tanker_source: TankerSource, tanker_ref: Optional[str]) -> None:
+def prepare(sdk: str, tanker_source: TankerSource, tanker_ref: Optional[str], home_isolation: bool) -> None:
     sdk_folder = f"sdk-{sdk}"
     if "CI" in os.environ:
         repos = [sdk_folder]
@@ -103,6 +103,8 @@ def prepare(sdk: str, tanker_source: TankerSource, tanker_ref: Optional[str]) ->
         "build-and-test",
         f"--use-tanker={tanker_source.value}",
     ]
+    if home_isolation:
+        args.append("--isolate-conan-user-home")
     if tanker_ref != None:
         args.append(f"--tanker-ref={tanker_ref}")
     tankerci.run(*args, cwd=sdk_path, env=sdk_env)
@@ -144,7 +146,13 @@ def main() -> None:
     download_artifacts_parser.add_argument("--job-name", required=True)
 
     prepare_parser = subparsers.add_parser("prepare")
-    prepare_parser.add_argument("sdk", choices=["ios"])
+    prepare_parser.add_argument("sdk", choices=["ios", "android"])
+    prepare_parser.add_argument(
+        "--isolate-conan-user-home",
+        action="store_true",
+        dest="home_isolation",
+        default=False,
+    )
     prepare_parser.add_argument(
         "--use-tanker",
         type=tankerci.conan.TankerSource,
@@ -177,7 +185,7 @@ def main() -> None:
             job_name=args.job_name,
         )
     elif command == "prepare":
-        prepare(args.sdk, args.tanker_source, args.tanker_ref)
+        prepare(args.sdk, args.tanker_source, args.tanker_ref, args.home_isolation)
     elif command == "build-and-test":
         build_and_test(args.sdk)
     else:
