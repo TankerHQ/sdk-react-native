@@ -1,12 +1,20 @@
 package com.tankerclientreactnative
 
+import android.util.Base64
 import com.facebook.react.bridge.*
+import io.tanker.api.ErrorCode
 import io.tanker.api.Tanker
 import io.tanker.api.TankerFuture
 import io.tanker.api.TankerOptions
+import kotlin.collections.HashMap
 import kotlin.random.Random
 
 typealias TankerHandle = Int
+
+// NOTE: In the same spirit as PHP "helping" by silently casting text to numbers,
+//       by default Android "helps" by magically adding newlines ('wrapping') to its Base64.
+// (also note that, confusingly, "or" is not boolean or, it is bitor)
+const val BASE64_SANE_FLAGS = Base64.DEFAULT or Base64.NO_WRAP
 
 class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     private val tankerInstances = HashMap<TankerHandle, Tanker>()
@@ -104,5 +112,26 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         val verification = Verification(verificationJson)
         val options = VerificationOptions(optionsJson)
         return getTanker(handle).setVerificationMethod(verification, options).bridge(promise)
+    }
+
+    @ReactMethod()
+    fun encryptString(handle: TankerHandle, clearText: String, optionsJson: ReadableMap?, promise: Promise) {
+        val options = EncryptionOptions(optionsJson)
+        return getTanker(handle).encrypt(clearText.toByteArray(), options).bridge(promise) {
+            Base64.encodeToString(it, BASE64_SANE_FLAGS)
+        }
+    }
+
+    @ReactMethod()
+    fun decryptString(handle: TankerHandle, encryptedTextB64: String, promise: Promise) {
+        val encryptedText = try {
+            Base64.decode(encryptedTextB64, BASE64_SANE_FLAGS)
+        } catch (e: IllegalArgumentException) {
+            promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
+            return
+        }
+        return getTanker(handle).decrypt(encryptedText).bridge(promise) {
+            String(it)
+        }
     }
 }

@@ -2,6 +2,7 @@ import { Tanker } from '@tanker/client-react-native';
 import { getAppId, getTankerUrl } from './admin';
 import { basicTests } from './test_basic';
 import { tankerTests } from './test_tanker';
+import { encryptionTests } from './test_encryption';
 import RNFS from 'react-native-fs';
 
 let pathsToClear: Array<string> = [];
@@ -9,6 +10,7 @@ let pathsToClear: Array<string> = [];
 export const generateTests = () => {
   basicTests();
   tankerTests();
+  encryptionTests();
 };
 
 export async function createTanker(): Promise<Tanker> {

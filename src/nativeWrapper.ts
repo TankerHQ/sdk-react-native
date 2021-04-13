@@ -6,6 +6,7 @@ import {
   assertVerification,
   VerificationOptions,
 } from './verification';
+import type { EncryptionOptions } from './encryptionOptions';
 
 export class Tanker {
   private readonly instance: NativeTanker;
@@ -63,6 +64,18 @@ export class Tanker {
   ): Promise<void | string> {
     return bridgeAsyncExceptions(
       Native.setVerificationMethod(this.instance, verification, options)
+    );
+  }
+
+  encrypt(clearText: string, options?: EncryptionOptions): Promise<string> {
+    return bridgeAsyncExceptions(
+      Native.encryptString(this.instance, clearText, options)
+    );
+  }
+
+  decrypt(encryptedText: string): Promise<string> {
+    return bridgeAsyncExceptions(
+      Native.decryptString(this.instance, encryptedText)
     );
   }
 }

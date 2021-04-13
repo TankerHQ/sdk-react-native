@@ -2,6 +2,7 @@ import { NativeModules } from 'react-native';
 import type { TankerOptions, NativeTanker, Status } from './types';
 import type { Result } from './errors';
 import type { Verification, VerificationOptions } from './verification';
+import type { EncryptionOptions } from './encryptionOptions';
 
 export const VERSION = '0.1.0';
 
@@ -28,6 +29,12 @@ type ClientReactNativeType = {
     verification: Verification,
     options?: VerificationOptions
   ): Promise<void | string>;
+  encryptString(
+    instance: NativeTanker,
+    clearText: string,
+    options?: EncryptionOptions
+  ): Promise<string>;
+  decryptString(instance: NativeTanker, encryptedText: string): Promise<string>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;
