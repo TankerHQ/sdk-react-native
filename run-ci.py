@@ -131,10 +131,25 @@ def version_to_npm_tag(version: str) -> str:
     return "latest"
 
 
-def deploy(version: str) -> None:
+def replace_in_file(file: Path, old: str, new: str) -> None:
+    content = file.read_text()
+    new_content = content.replace(old, new)
+    file.write_text(new_content)
+
+
+def patch_versions(version: str, *, sdk_ios_version: str, sdk_android_version: str) -> None:
     tankerci.bump_files(version)
-    tankerci.run("yarn")
+    gradle_file = Path.cwd() / "android/build.gradle"
+    podspec_file = Path.cwd() / "tanker-client-react-native.podspec"
+    replace_in_file(gradle_file, "io.tanker:tanker-bindings:latest.release", f"io.tanker:tanker-bindings:{sdk_android_version}")
+    replace_in_file(podspec_file, '''s.dependency "Tanker"''', f'''s.dependency "Tanker", "{sdk_ios_version}"''')
+
+
+def deploy(version: str, *, sdk_ios_version: str, sdk_android_version: str) -> None:
+    patch_versions(version, sdk_ios_version=sdk_ios_version, sdk_android_version=sdk_android_version)
     npm_tag = version_to_npm_tag(version)
+
+    tankerci.run("yarn")
     tankerci.run("npm", "publish", "--access", "public", "--tag", npm_tag)
 
 
@@ -149,6 +164,8 @@ def main() -> None:
 
     deploy_parser = subparsers.add_parser("deploy")
     deploy_parser.add_argument("--version")
+    deploy_parser.add_argument("--sdk-ios-version")
+    deploy_parser.add_argument("--sdk-android-version")
 
     download_artifacts_parser = subparsers.add_parser("download-artifacts")
     download_artifacts_parser.add_argument("--project-id", required=True)
@@ -199,7 +216,7 @@ def main() -> None:
     elif command == "build-and-test":
         build_and_test(args.sdk)
     elif command == "deploy":
-        deploy(args.version)
+        deploy(args.version, sdk_ios_version=args.sdk_ios_version, sdk_android_version=args.sdk_android_version)
     else:
         parser.print_help()
         sys.exit()

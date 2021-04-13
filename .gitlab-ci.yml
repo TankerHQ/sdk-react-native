@@ -103,7 +103,7 @@ deploy:
     - .tags/linux
     - .rules/deploy/react-native
   script:
-    - poetry run python run-ci.py deploy --version $SDK_REACT_NATIVE_RELEASE_VERSION
+    - poetry run python run-ci.py deploy --version $SDK_REACT_NATIVE_RELEASE_VERSION --sdk-ios-version $SDK_IOS_RELEASE_VERSION --sdk-android-version $SDK_ANDROID_RELEASE_VERSION
   release:
     description: sdk-react-native v$SDK_REACT_NATIVE_RELEASE_VERSION
     tag_name: v$SDK_REACT_NATIVE_RELEASE_VERSION
