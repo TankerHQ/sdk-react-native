@@ -24,6 +24,7 @@ def copy_local_aar(local_aar_path: Path) -> None:
     dest_path.mkdir()
     shutil.copy(local_aar_path, dest_path)
 
+
 def build_and_test_android() -> None:
     tankerci.run(
         "yarn", "detox", "build", "--configuration", "android-ci", cwd="example"
@@ -37,11 +38,7 @@ def build_and_test_android() -> None:
         # yarn start forks things, we need to killpg
         killpg=False,
     ), tankerci.run_in_background(
-        "flask",
-        "run",
-        cwd="adminserver",
-        wait_for_process=5,
-        killpg=False,
+        "flask", "run", cwd="adminserver", wait_for_process=5, killpg=False,
     ), tankerci.android.emulator():
         tankerci.run(
             "yarn", "detox", "test", "--configuration", "android-ci", cwd="example"
@@ -49,9 +46,7 @@ def build_and_test_android() -> None:
 
 
 def build_and_test_ios() -> None:
-    tankerci.run(
-        "yarn", "detox", "build", "--configuration", "ios", cwd="example"
-    )
+    tankerci.run("yarn", "detox", "build", "--configuration", "ios", cwd="example")
 
     with tankerci.run_in_background(
         "yarn",
@@ -61,20 +56,20 @@ def build_and_test_ios() -> None:
         # yarn start forks things, we need to killpg
         killpg=False,
     ), tankerci.run_in_background(
-        "flask",
-        "run",
-        cwd="adminserver",
-        wait_for_process=5,
-        killpg=False,
+        "flask", "run", cwd="adminserver", wait_for_process=5, killpg=False,
     ):
-        tankerci.run(
-            "yarn", "detox", "test", "--configuration", "ios", cwd="example"
-        )
+        tankerci.run("yarn", "detox", "test", "--configuration", "ios", cwd="example")
     if "CI" in os.environ:
         # this is needed to kill the React server launched by tests
         tankerci.run("killall", "node")
 
-def prepare(sdk: str, tanker_source: TankerSource, tanker_ref: Optional[str], home_isolation: bool) -> None:
+
+def prepare(
+    sdk: str,
+    tanker_source: TankerSource,
+    tanker_ref: Optional[str],
+    home_isolation: bool,
+) -> None:
     sdk_folder = f"sdk-{sdk}"
     if "CI" in os.environ:
         repos = [sdk_folder]
@@ -90,10 +85,7 @@ def prepare(sdk: str, tanker_source: TankerSource, tanker_ref: Optional[str], ho
     sdk_env = os.environ.copy()
     sdk_env.pop("VIRTUAL_ENV", None)
     tankerci.run(
-        "poetry",
-        "install",
-        cwd=sdk_path,
-        env=sdk_env,
+        "poetry", "install", cwd=sdk_path, env=sdk_env,
     )
     args = [
         "poetry",
@@ -131,6 +123,20 @@ def build_and_test(sdk: str) -> None:
         build_and_test_ios()
 
 
+def version_to_npm_tag(version: str) -> str:
+    for tag in ["alpha", "beta"]:
+        if tag in version:
+            return tag
+
+    return "latest"
+
+
+def deploy(*, version: str) -> None:
+    tankerci.bump_files(version)
+    npm_tag = version_to_npm_tag(version)
+    tankerci.run("npm", "publish", "--access", "public", "--tag", npm_tag)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(title="subcommands", dest="command")
@@ -139,6 +145,9 @@ def main() -> None:
 
     reset_branch_parser = subparsers.add_parser("reset-branch")
     reset_branch_parser.add_argument("branch")
+
+    deploy_parser = subparsers.add_parser("deploy")
+    deploy_parser.add_argument("--version")
 
     download_artifacts_parser = subparsers.add_parser("download-artifacts")
     download_artifacts_parser.add_argument("--project-id", required=True)
@@ -188,6 +197,8 @@ def main() -> None:
         prepare(args.sdk, args.tanker_source, args.tanker_ref, args.home_isolation)
     elif command == "build-and-test":
         build_and_test(args.sdk)
+    elif command == "deploy":
+        deploy(args.version)
     else:
         parser.print_help()
         sys.exit()
