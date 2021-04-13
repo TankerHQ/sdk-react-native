@@ -131,8 +131,9 @@ def version_to_npm_tag(version: str) -> str:
     return "latest"
 
 
-def deploy(*, version: str) -> None:
+def deploy(version: str) -> None:
     tankerci.bump_files(version)
+    tankerci.run("yarn")
     npm_tag = version_to_npm_tag(version)
     tankerci.run("npm", "publish", "--access", "public", "--tag", npm_tag)
 
