@@ -90,4 +90,12 @@ export class Tanker {
       Native.decryptData(this.instance, encryptedData)
     );
   }
+
+  getResourceId(encrypted: string): Promise<string> {
+    // We know the header is either at the start or the end, but the slicing of both ends is too complicated,
+    // so we just pass the whole encrypted buffer in base64
+    return bridgeAsyncExceptions(
+      Native.getResourceId(this.instance, encrypted)
+    );
+  }
 }

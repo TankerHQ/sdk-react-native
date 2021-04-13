@@ -151,9 +151,27 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     @ReactMethod()
     fun decryptData(handle: TankerHandle, encryptedTextB64: String, promise: Promise) {
-        val encryptedText = Base64.decode(encryptedTextB64, BASE64_SANE_FLAGS)
+        val encryptedText = try {
+            Base64.decode(encryptedTextB64, BASE64_SANE_FLAGS)
+        } catch (e: IllegalArgumentException) {
+            promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
+            return
+        }
         return getTanker(handle).decrypt(encryptedText).bridge(promise) {
             Base64.encodeToString(it, BASE64_SANE_FLAGS)
         }
+    }
+
+    @ReactMethod()
+    fun getResourceId(handle: TankerHandle, encryptedHeaderB64: String, promise: Promise) {
+        val encryptedHeader = try {
+            Base64.decode(encryptedHeaderB64, BASE64_SANE_FLAGS)
+        } catch (e: IllegalArgumentException) {
+            promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
+            return
+        }
+        TankerFuture<Unit>().andThen<String> {
+            getTanker(handle).getResourceID(encryptedHeader)
+        }.bridge(promise)
     }
 }
