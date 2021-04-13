@@ -1,14 +1,7 @@
 include:
   - project: TankerHQ/gitlab-ci-files
-    ref: 2e85be62c4fe0d2291bc3a9ff153cd8e3edffaaf
+    ref: theo/react_native_deploy
     file: /react-native.yml
-
-##########
-# Stages #
-##########
-
-stages:
-  - check
 
 ########
 # Jobs #
@@ -19,8 +12,8 @@ default:
     - poetry install
 
 check/android/deployed:
-  stage: check
   extends:
+    - .check
     - .tags/linux
     - .rules/mr/manual
   script:
@@ -29,8 +22,8 @@ check/android/deployed:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/android/downstream:
-  stage: check
   extends:
+    - .check
     - .tags/linux
     - .before-script/download-artifacts
     - .rules/check/downstream/android
@@ -40,8 +33,8 @@ check/android/downstream:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/android/from-sources:
-  stage: check
   extends:
+    - .check
     - .tags/linux
     - .rules/mr/manual
   script:
@@ -51,8 +44,8 @@ check/android/from-sources:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/android/all-from-sources:
-  stage: check
   extends:
+    - .check
     - .tags/linux
     - .rules/mr/manual
   script:
@@ -62,8 +55,8 @@ check/android/all-from-sources:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/ios/deployed:
-  stage: check
   extends:
+    - .check
     - .tags/macos
     - .rules/mr/manual
   script:
@@ -71,8 +64,8 @@ check/ios/deployed:
     # - poetry run python run-ci.py build-and-test ios
 
 check/ios/downstream:
-  stage: check
   extends:
+    - .check
     - .tags/macos
     - .before-script/download-artifacts
     - .rules/check/downstream/ios
@@ -81,8 +74,8 @@ check/ios/downstream:
     # - poetry run python run-ci.py build-and-test ios
 
 check/ios/from-sources:
-  stage: check
   extends:
+    - .check
     - .tags/macos
     - .rules/mr/manual
   script:
@@ -91,11 +84,29 @@ check/ios/from-sources:
     # - poetry run python run-ci.py build-and-test ios
 
 check/ios/all-from-sources:
-  stage: check
   extends:
+    - .check
     - .tags/macos
     - .rules/mr/manual
   script:
     - echo "Disabled"
     # - poetry run python run-ci.py prepare ios --use-tanker=same-as-branch
     # - poetry run python run-ci.py build-and-test ios
+
+################
+# deploy stage #
+################
+
+deploy:
+  extends:
+    - .deploy
+    - .tags/linux
+    - .rules/deploy/react-native
+  script:
+    - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "${HOME}/.npmrc"
+    - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION 
+    - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION 
+    - poetry run python run-ci.py deploy --version $SDK_REACT_NATIVE_RELEASE_VERSION
+  release:
+    description: sdk-react-native v$SDK_REACT_NATIVE_RELEASE_VERSION
+    tag_name: v$SDK_REACT_NATIVE_RELEASE_VERSION
