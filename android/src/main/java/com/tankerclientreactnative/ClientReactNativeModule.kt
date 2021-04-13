@@ -134,4 +134,26 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
             String(it)
         }
     }
+
+    @ReactMethod()
+    fun encryptData(handle: TankerHandle, clearDataB64: String, optionsJson: ReadableMap?, promise: Promise) {
+        val clearData = try {
+            Base64.decode(clearDataB64, BASE64_SANE_FLAGS)
+        } catch (e: IllegalArgumentException) {
+            promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
+            return
+        }
+        val options = EncryptionOptions(optionsJson)
+        return getTanker(handle).encrypt(clearData, options).bridge(promise) {
+            Base64.encodeToString(it, BASE64_SANE_FLAGS)
+        }
+    }
+
+    @ReactMethod()
+    fun decryptData(handle: TankerHandle, encryptedTextB64: String, promise: Promise) {
+        val encryptedText = Base64.decode(encryptedTextB64, BASE64_SANE_FLAGS)
+        return getTanker(handle).decrypt(encryptedText).bridge(promise) {
+            Base64.encodeToString(it, BASE64_SANE_FLAGS)
+        }
+    }
 }

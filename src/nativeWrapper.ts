@@ -78,4 +78,16 @@ export class Tanker {
       Native.decryptString(this.instance, encryptedText)
     );
   }
+
+  encryptData(clearData: string, options?: EncryptionOptions): Promise<string> {
+    return bridgeAsyncExceptions(
+      Native.encryptData(this.instance, clearData, options)
+    );
+  }
+
+  decryptData(encryptedData: string): Promise<string> {
+    return bridgeAsyncExceptions(
+      Native.decryptData(this.instance, encryptedData)
+    );
+  }
 }

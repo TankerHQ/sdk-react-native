@@ -35,6 +35,12 @@ type ClientReactNativeType = {
     options?: EncryptionOptions
   ): Promise<string>;
   decryptString(instance: NativeTanker, encryptedText: string): Promise<string>;
+  encryptData(
+    instance: NativeTanker,
+    clearData: string,
+    options?: EncryptionOptions
+  ): Promise<string>;
+  decryptData(instance: NativeTanker, encryptedData: string): Promise<string>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;

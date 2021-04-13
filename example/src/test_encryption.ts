@@ -62,5 +62,32 @@ export const encryptionTests = () => {
 
       expect(decrypted).eq(plaintext);
     });
+
+    it('can roundtrip with encryptData', async () => {
+      const plaindata = 'dW5kZXIgY29vbCBtb29ubGlnaHQ=';
+      const encrypted = await tanker.encryptData(plaindata);
+      const decrypted = await tanker.decryptData(encrypted);
+      expect(decrypted).eq(plaindata);
+    });
+
+    it('cannot pass a non-base64 plaintext to encryptData', async () => {
+      // NOTE: Android cannot be told to reject unpadded Base64 (though if there is padding, it must be correct),
+      // that's why we explicitely pick a plaintext with a space (invalid charset) for this test
+      const plaintext = 'plain text';
+      await expect(tanker.encryptData(plaintext)).eventually.rejectedWith(
+        InvalidArgument
+      );
+    });
+
+    it('encryptData correctly un-base64-ifies before encrypt', async () => {
+      const plaindata = 'ZmlyZQ==';
+      const plaintext = 'fire';
+
+      // When we decrypt as a _string_ something encrypted as a _binary_, so the native module will try decoding the
+      // decrypted data as UTF-8. plaindata happens to be a string, so we get to observe if its behavior is correct
+      const encrypted = await tanker.encryptData(plaindata);
+      const decrypted = await tanker.decrypt(encrypted);
+      expect(decrypted).eq(plaintext);
+    });
   });
 };
