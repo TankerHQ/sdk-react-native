@@ -18,14 +18,6 @@ default:
   before_script:
     - poetry install
 
-check/ios/deployed:
-  stage: check
-  extends:
-    - .tags/macos
-    - .rules/mr/manual
-  script:
-    - poetry run python run-ci.py build-and-test ios
-
 check/android/deployed:
   stage: check
   extends:
@@ -69,6 +61,15 @@ check/android/all-from-sources:
     - poetry run python run-ci.py build-and-test android
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
+check/ios/deployed:
+  stage: check
+  extends:
+    - .tags/macos
+    - .rules/mr/manual
+  script:
+    - echo "Disabled"
+    # - poetry run python run-ci.py build-and-test ios
+
 check/ios/downstream:
   stage: check
   extends:
@@ -76,7 +77,8 @@ check/ios/downstream:
     - .before-script/download-artifacts
     - .rules/check/downstream/ios
   script:
-    - poetry run python run-ci.py build-and-test ios
+    - echo "Disabled"
+    # - poetry run python run-ci.py build-and-test ios
 
 check/ios/from-sources:
   stage: check
@@ -84,8 +86,9 @@ check/ios/from-sources:
     - .tags/macos
     - .rules/mr/manual
   script:
-    - poetry run python run-ci.py prepare ios --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
-    - poetry run python run-ci.py build-and-test ios
+    - echo "Disabled"
+    # - poetry run python run-ci.py prepare ios --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
+    # - poetry run python run-ci.py build-and-test ios
 
 check/ios/all-from-sources:
   stage: check
@@ -93,5 +96,6 @@ check/ios/all-from-sources:
     - .tags/macos
     - .rules/mr/manual
   script:
-    - poetry run python run-ci.py prepare ios --use-tanker=same-as-branch
-    - poetry run python run-ci.py build-and-test ios
+    - echo "Disabled"
+    # - poetry run python run-ci.py prepare ios --use-tanker=same-as-branch
+    # - poetry run python run-ci.py build-and-test ios
