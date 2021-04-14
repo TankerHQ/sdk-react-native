@@ -40,7 +40,7 @@ check/android/from-sources:
     - .rules/mr/manual
   script:
     - sudo chgrp 1000 -f /dev/kvm
-    - poetry run python run-ci.py prepare android --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
+    - poetry run python run-ci.py prepare android --isolate-conan-user-home --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
     - poetry run python run-ci.py build-and-test android
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
@@ -51,7 +51,7 @@ check/android/all-from-sources:
     - .rules/native-from-sources
   script:
     - sudo chgrp 1000 -f /dev/kvm
-    - poetry run python run-ci.py prepare android --use-tanker=same-as-branch
+    - poetry run python run-ci.py prepare android --isolate-conan-user-home --use-tanker=same-as-branch
     - poetry run python run-ci.py build-and-test android
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
@@ -82,7 +82,7 @@ check/ios/from-sources:
     - .rules/mr/manual
   script:
     - echo "Disabled"
-    # - poetry run python run-ci.py prepare ios --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
+    # - poetry run python run-ci.py prepare ios --isolate-conan-user-home --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
     # - poetry run python run-ci.py build-and-test ios
 
 check/ios/all-from-sources:
@@ -92,7 +92,7 @@ check/ios/all-from-sources:
     - .rules/native-from-sources
   script:
     - echo "Disabled"
-    # - poetry run python run-ci.py prepare ios --use-tanker=same-as-branch
+    # - poetry run python run-ci.py prepare ios --isolate-conan-user-home --use-tanker=same-as-branch
     # - poetry run python run-ci.py build-and-test ios
 
 ################
