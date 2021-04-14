@@ -47,3 +47,14 @@ export async function getPublicIdentity(identity: string): Promise<string> {
     })
   ).text();
 }
+
+export async function getVerificationCode(email: string): Promise<string> {
+  const form = new FormData();
+  form.append('email', email);
+  return await (
+    await fetch(`${SERVER_URL}/get_verification_code`, {
+      method: 'POST',
+      body: form,
+    })
+  ).text();
+}

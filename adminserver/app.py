@@ -76,8 +76,8 @@ def get_public_identity() -> str:
 @app.route("/get_verification_code", methods=["POST"])
 def get_verification_code() -> str:
     return tankeradminsdk.get_verification_code(
-        url=assert_env("TANKER_ADMIND_URL"),
+        url=assert_env("TANKER_TRUSTCHAIND_URL"),
         app_id=tanker_app["id"],
-        auth_token=assert_env("TANKER_ID_TOKEN"),
+        auth_token=tanker_app["auth_token"],
         email=request.form["email"],
     )
