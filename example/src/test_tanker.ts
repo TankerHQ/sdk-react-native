@@ -101,5 +101,15 @@ export const tankerTests = () => {
       expect(tanker.status).eq(statuses.READY);
       expect(token).is.not.empty;
     });
+
+    it('can use a verificationKey', async () => {
+      await tanker.start(identity);
+      const verifKey = await tanker.generateVerificationKey();
+      expect(verifKey).is.not.empty;
+      await tanker.registerIdentity({
+        verificationKey: verifKey,
+      });
+      expect(tanker.status).eq(statuses.READY);
+    });
   });
 };

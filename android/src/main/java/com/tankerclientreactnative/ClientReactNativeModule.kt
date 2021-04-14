@@ -184,4 +184,9 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         val options = SharingOptions(optionsJson)
         getTanker(handle).share(resourceIds.toTypedArray(), options).bridge(promise)
     }
+
+    @ReactMethod()
+    fun generateVerificationKey(handle: TankerHandle, promise: Promise) {
+        getTanker(handle).generateVerificationKey().bridge(promise)
+    }
 }

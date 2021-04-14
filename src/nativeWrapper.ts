@@ -114,4 +114,8 @@ export class Tanker {
       Native.share(this.instance, resourceIds, extractSharingOptions(options))
     );
   }
+
+  generateVerificationKey(): Promise<string> {
+    return bridgeAsyncExceptions(Native.generateVerificationKey(this.instance));
+  }
 }

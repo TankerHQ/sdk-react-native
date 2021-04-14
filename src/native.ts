@@ -48,6 +48,7 @@ type ClientReactNativeType = {
     resourceIds: Array<string>,
     options: SharingOptions
   ): Promise<string>;
+  generateVerificationKey(instance: NativeTanker): Promise<string>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;
