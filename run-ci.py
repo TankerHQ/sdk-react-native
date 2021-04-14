@@ -92,11 +92,10 @@ def prepare(
         "run",
         "python",
         "run-ci.py",
-        "build-and-test",
-        f"--use-tanker={tanker_source.value}",
     ]
     if home_isolation:
         args.append("--isolate-conan-user-home")
+    args.extend(["build-and-test", f"--use-tanker={tanker_source.value}"])
     if tanker_ref != None:
         args.append(f"--tanker-ref={tanker_ref}")
     tankerci.run(*args, cwd=sdk_path, env=sdk_env)
