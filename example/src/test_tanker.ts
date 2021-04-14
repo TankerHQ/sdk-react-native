@@ -141,6 +141,31 @@ export const tankerTests = () => {
       expect(groupId).is.not.empty;
     });
 
+    it('can update a group', async () => {
+      const other = await createTanker();
+      const otherIdent = await createIdentity();
+      const otherPubIdent = await getPublicIdentity(otherIdent);
+      await other.start(otherIdent);
+      await other.registerIdentity({ passphrase: 'otherpass' });
+
+      const plaintext = 'say it again';
+      await tanker.start(identity);
+      await tanker.registerIdentity({
+        passphrase: 'say it again',
+      });
+      const groupId = await tanker.createGroup([
+        await getPublicIdentity(identity),
+      ]);
+      const encrypted = await tanker.encrypt(plaintext, {
+        shareWithGroups: [groupId],
+      });
+
+      await tanker.updateGroupMembers(groupId, { usersToAdd: [otherPubIdent] });
+      const decrypted = await other.decrypt(encrypted);
+      await other.stop();
+      expect(decrypted).eq(plaintext);
+    });
+
     it('can attach a provisional identity', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({

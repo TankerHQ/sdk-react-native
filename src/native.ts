@@ -62,6 +62,11 @@ type ClientReactNativeType = {
     instance: NativeTanker
   ): Promise<Array<VerificationMethod>>;
   createGroup(instance: NativeTanker, userIds: Array<string>): Promise<string>;
+  updateGroupMembers(
+    instance: NativeTanker,
+    groupId: string,
+    args: { usersToAdd: Array<string> }
+  ): Promise<void>;
   attachProvisionalIdentity(
     instance: NativeTanker,
     identity: string

@@ -210,6 +210,16 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     }
 
     @ReactMethod()
+    fun updateGroupMembers(handle: TankerHandle, groupId: String, args: ReadableMap, promise: Promise) {
+        val usersToAddJson = args.getArray("usersToAdd")!!
+        val userToAdd = ArrayList<String>()
+        for (i in 0 until usersToAddJson.size()) {
+            userToAdd.add(usersToAddJson.getString(i)!!)
+        }
+        getTanker(handle).updateGroupMembers(groupId, userToAdd.toTypedArray()).bridge(promise)
+    }
+
+    @ReactMethod()
     fun attachProvisionalIdentity(handle: TankerHandle, identity: String, promise: Promise) {
         getTanker(handle).attachProvisionalIdentity(identity).bridge(promise) { attachResult ->
             val json = WritableNativeMap()

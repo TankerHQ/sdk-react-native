@@ -133,6 +133,15 @@ export class Tanker {
     return bridgeAsyncExceptions(Native.createGroup(this.instance, userIds));
   }
 
+  updateGroupMembers(
+    groupId: string,
+    args: { usersToAdd: Array<string> }
+  ): Promise<void> {
+    return bridgeAsyncExceptions(
+      Native.updateGroupMembers(this.instance, groupId, args)
+    );
+  }
+
   attachProvisionalIdentity(identity: string): Promise<AttachResult> {
     return bridgeAsyncExceptions(
       Native.attachProvisionalIdentity(this.instance, identity)
