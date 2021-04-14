@@ -1,6 +1,17 @@
 import { InvalidArgument } from '@tanker/errors';
 import { assertNotEmptyString } from './types';
 
+export type EmailVerificationMethod = { type: 'email'; email: string };
+export type PassphraseVerificationMethod = { type: 'passphrase' };
+export type KeyVerificationMethod = { type: 'verificationKey' };
+export type OIDCVerificationMethod = { type: 'oidcIdToken' };
+
+export type VerificationMethod =
+  | EmailVerificationMethod
+  | PassphraseVerificationMethod
+  | KeyVerificationMethod
+  | OIDCVerificationMethod;
+
 export type EmailVerification = { email: string; verificationCode: string };
 export type PassphraseVerification = { passphrase: string };
 export type KeyVerification = { verificationKey: string };

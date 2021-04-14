@@ -111,5 +111,18 @@ export const tankerTests = () => {
       });
       expect(tanker.status).eq(statuses.READY);
     });
+
+    it('can get verification methods', async () => {
+      await tanker.start(identity);
+      await tanker.registerIdentity({
+        passphrase: 'stickbug',
+      });
+      const methods = await tanker.getVerificationMethods();
+      expect(methods).deep.eq([
+        {
+          type: 'passphrase',
+        },
+      ]);
+    });
   });
 };

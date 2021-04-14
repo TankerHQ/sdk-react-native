@@ -5,6 +5,7 @@ import {
   Verification,
   assertVerification,
   VerificationOptions,
+  VerificationMethod,
 } from './verification';
 import type { EncryptionOptions } from './encryptionOptions';
 import { extractSharingOptions, SharingOptions } from './sharingOptions';
@@ -117,5 +118,9 @@ export class Tanker {
 
   generateVerificationKey(): Promise<string> {
     return bridgeAsyncExceptions(Native.generateVerificationKey(this.instance));
+  }
+
+  getVerificationMethods(): Promise<Array<VerificationMethod>> {
+    return bridgeAsyncExceptions(Native.getVerificationMethods(this.instance));
   }
 }

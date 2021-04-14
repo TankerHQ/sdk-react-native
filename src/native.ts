@@ -1,7 +1,11 @@
 import { NativeModules } from 'react-native';
 import type { TankerOptions, NativeTanker, Status } from './types';
 import type { Result } from './errors';
-import type { Verification, VerificationOptions } from './verification';
+import type {
+  Verification,
+  VerificationMethod,
+  VerificationOptions,
+} from './verification';
 import type { EncryptionOptions } from './encryptionOptions';
 import type { SharingOptions } from './sharingOptions';
 
@@ -49,6 +53,9 @@ type ClientReactNativeType = {
     options: SharingOptions
   ): Promise<string>;
   generateVerificationKey(instance: NativeTanker): Promise<string>;
+  getVerificationMethods(
+    instance: NativeTanker
+  ): Promise<Array<VerificationMethod>>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;

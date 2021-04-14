@@ -189,4 +189,14 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     fun generateVerificationKey(handle: TankerHandle, promise: Promise) {
         getTanker(handle).generateVerificationKey().bridge(promise)
     }
+
+    @ReactMethod()
+    fun getVerificationMethods(handle: TankerHandle, promise: Promise) {
+        getTanker(handle).getVerificationMethods().bridge(promise) {
+            val jsonMethods = WritableNativeArray()
+            for (method in it)
+                jsonMethods.pushMap(method.toWritableMap())
+            jsonMethods as WritableArray
+        }
+    }
 }
