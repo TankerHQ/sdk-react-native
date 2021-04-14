@@ -18,6 +18,7 @@ check/android/deployed:
     - .rules/deployed-native
   script:
     - sudo chgrp 1000 -f /dev/kvm
+    - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION 
     - poetry run python run-ci.py build-and-test android
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
@@ -60,6 +61,7 @@ check/ios/deployed:
     - .tags/macos
     - .rules/deployed-native
   script:
+    # - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION 
     - echo "Disabled"
     # - poetry run python run-ci.py build-and-test ios
 
