@@ -5,7 +5,7 @@ import { Tanker, statuses } from '@tanker/client-react-native';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { describe, beforeEach, afterEach, it } from './framework';
-import { createIdentity, toggle2FA } from './admin';
+import { createIdentity, getPublicIdentity, toggle2FA } from './admin';
 import { InvalidArgument, InvalidVerification } from '@tanker/errors';
 import { createTanker, clearTankerDataDirs } from './tests';
 
@@ -14,7 +14,7 @@ chai.use(chaiAsPromised);
 export const tankerTests = () => {
   describe('Tanker tests', () => {
     let tanker: Tanker;
-    let identity: String;
+    let identity: string;
     beforeEach(async () => {
       tanker = await createTanker();
       identity = await createIdentity();
@@ -123,6 +123,16 @@ export const tankerTests = () => {
           type: 'passphrase',
         },
       ]);
+    });
+
+    it('can create a basic group', async () => {
+      await tanker.start(identity);
+      await tanker.registerIdentity({
+        passphrase: 'stickbug',
+      });
+      const pubIdentity = await getPublicIdentity(identity);
+      const groupId = await tanker.createGroup([pubIdentity]);
+      expect(groupId).is.not.empty;
     });
   });
 };

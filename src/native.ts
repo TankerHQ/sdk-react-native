@@ -56,6 +56,7 @@ type ClientReactNativeType = {
   getVerificationMethods(
     instance: NativeTanker
   ): Promise<Array<VerificationMethod>>;
+  createGroup(instance: NativeTanker, userIds: Array<string>): Promise<string>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;

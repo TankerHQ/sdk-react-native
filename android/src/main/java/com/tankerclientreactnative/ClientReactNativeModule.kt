@@ -199,4 +199,13 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
             jsonMethods as WritableArray
         }
     }
+
+    @ReactMethod()
+    fun createGroup(handle: TankerHandle, userIdsJson: ReadableArray, promise: Promise) {
+        val userIds = ArrayList<String>()
+        for (i in 0 until userIdsJson.size()) {
+            userIds.add(userIdsJson.getString(i)!!)
+        }
+        getTanker(handle).createGroup(*userIds.toTypedArray()).bridge(promise)
+    }
 }

@@ -123,4 +123,8 @@ export class Tanker {
   getVerificationMethods(): Promise<Array<VerificationMethod>> {
     return bridgeAsyncExceptions(Native.getVerificationMethods(this.instance));
   }
+
+  createGroup(userIds: Array<string>): Promise<string> {
+    return bridgeAsyncExceptions(Native.createGroup(this.instance, userIds));
+  }
 }
