@@ -1,6 +1,6 @@
 {
   "name": "@tanker/client-react-native",
-  "version": "dev",
+  "version": "0.1.0",
   "description": "Tanker client SDK for React Native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

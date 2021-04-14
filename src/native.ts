@@ -3,7 +3,7 @@ import type { TankerOptions, NativeTanker, Status } from './types';
 import type { Result } from './errors';
 import type { Verification } from './verification';
 
-export const VERSION = 'dev';
+export const VERSION = '0.1.0';
 
 type ClientReactNativeType = {
   create(options: TankerOptions, version: String): Result<NativeTanker>;
