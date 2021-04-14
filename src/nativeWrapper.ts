@@ -1,6 +1,11 @@
 import { Native, VERSION } from './native';
 import { bridgeSyncResult, bridgeAsyncExceptions } from './errors';
-import type { Status, TankerOptions, NativeTanker } from './types';
+import type {
+  Status,
+  TankerOptions,
+  NativeTanker,
+  AttachResult,
+} from './types';
 import {
   Verification,
   assertVerification,
@@ -126,5 +131,18 @@ export class Tanker {
 
   createGroup(userIds: Array<string>): Promise<string> {
     return bridgeAsyncExceptions(Native.createGroup(this.instance, userIds));
+  }
+
+  attachProvisionalIdentity(identity: string): Promise<AttachResult> {
+    return bridgeAsyncExceptions(
+      Native.attachProvisionalIdentity(this.instance, identity)
+    );
+  }
+
+  verifyProvisionalIdentity(verification: Verification): Promise<void> {
+    assertVerification(verification);
+    return bridgeAsyncExceptions(
+      Native.verifyProvisionalIdentity(this.instance, verification)
+    );
   }
 }

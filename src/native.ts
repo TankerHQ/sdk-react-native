@@ -1,5 +1,10 @@
 import { NativeModules } from 'react-native';
-import type { TankerOptions, NativeTanker, Status } from './types';
+import type {
+  TankerOptions,
+  NativeTanker,
+  Status,
+  AttachResult,
+} from './types';
 import type { Result } from './errors';
 import type {
   Verification,
@@ -57,6 +62,14 @@ type ClientReactNativeType = {
     instance: NativeTanker
   ): Promise<Array<VerificationMethod>>;
   createGroup(instance: NativeTanker, userIds: Array<string>): Promise<string>;
+  attachProvisionalIdentity(
+    instance: NativeTanker,
+    identity: string
+  ): Promise<AttachResult>;
+  verifyProvisionalIdentity(
+    instance: NativeTanker,
+    verification: Verification
+  ): Promise<void>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;

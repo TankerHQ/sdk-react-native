@@ -5,7 +5,13 @@ import { Tanker, statuses } from '@tanker/client-react-native';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { describe, beforeEach, afterEach, it } from './framework';
-import { createIdentity, getPublicIdentity, toggle2FA } from './admin';
+import {
+  createIdentity,
+  createProvisionalIdentity,
+  getPublicIdentity,
+  getVerificationCode,
+  toggle2FA,
+} from './admin';
 import { InvalidArgument, InvalidVerification } from '@tanker/errors';
 import { createTanker, clearTankerDataDirs } from './tests';
 
@@ -133,6 +139,41 @@ export const tankerTests = () => {
       const pubIdentity = await getPublicIdentity(identity);
       const groupId = await tanker.createGroup([pubIdentity]);
       expect(groupId).is.not.empty;
+    });
+
+    it('can attach a provisional identity', async () => {
+      await tanker.start(identity);
+      await tanker.registerIdentity({
+        passphrase: 'ice cold water',
+      });
+      const email = 'bob@burger.io';
+      const provIdentity = await createProvisionalIdentity(email);
+      const result = await tanker.attachProvisionalIdentity(provIdentity);
+      expect(result.status).eq(statuses.IDENTITY_VERIFICATION_NEEDED);
+      expect(result.verificationMethod).deep.eq({ type: 'email', email });
+
+      const verificationCode = await getVerificationCode(email);
+      await tanker.verifyProvisionalIdentity({ email, verificationCode });
+    });
+
+    it('can skip provisional identity verification', async () => {
+      const email = 'bob@bargor.io';
+      const provIdentity = await createProvisionalIdentity(email);
+      const provPublicIdent = await getPublicIdentity(provIdentity);
+
+      // The server only learns about our prov identity if we _use_ it here!
+      const other = await createTanker();
+      await other.start(await createIdentity());
+      await other.registerIdentity({ passphrase: 'otherpass' });
+      await other.encrypt('bleh', { shareWithUsers: [provPublicIdent] });
+      await other.stop();
+
+      await tanker.start(identity);
+      const verificationCode = await getVerificationCode(email);
+      await tanker.registerIdentity({ email, verificationCode });
+      const result = await tanker.attachProvisionalIdentity(provIdentity);
+      expect(result.status).eq(statuses.READY);
+      expect(result.verificationMethod).is.undefined;
     });
   });
 };

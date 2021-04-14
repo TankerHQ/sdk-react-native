@@ -1,4 +1,5 @@
 import { InvalidArgument } from '@tanker/errors';
+import type { EmailVerificationMethod } from './verification';
 
 export type NativeTanker = number;
 
@@ -24,6 +25,11 @@ export const statuses: { [name: string]: number } = (() => {
 })();
 
 export type Status = number;
+
+export type AttachResult = {
+  status: Status;
+  verificationMethod?: EmailVerificationMethod;
+};
 
 export const isObject = (val: Object) =>
   !!val &&

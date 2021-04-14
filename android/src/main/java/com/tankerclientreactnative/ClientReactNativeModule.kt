@@ -196,7 +196,7 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
             val jsonMethods = WritableNativeArray()
             for (method in it)
                 jsonMethods.pushMap(method.toWritableMap())
-            jsonMethods as WritableArray
+            jsonMethods
         }
     }
 
@@ -207,5 +207,23 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
             userIds.add(userIdsJson.getString(i)!!)
         }
         getTanker(handle).createGroup(*userIds.toTypedArray()).bridge(promise)
+    }
+
+    @ReactMethod()
+    fun attachProvisionalIdentity(handle: TankerHandle, identity: String, promise: Promise) {
+        getTanker(handle).attachProvisionalIdentity(identity).bridge(promise) { attachResult ->
+            val json = WritableNativeMap()
+            json.putInt("status", attachResult.status.value)
+            attachResult.verificationMethod?.let { method ->
+                json.putMap("verificationMethod", method.toWritableMap())
+            }
+            json
+        }
+    }
+
+    @ReactMethod()
+    fun verifyProvisionalIdentity(handle: TankerHandle, verificationJson: ReadableMap, promise: Promise) {
+        val verification = Verification(verificationJson)
+        getTanker(handle).verifyProvisionalIdentity(verification).bridge(promise)
     }
 }
