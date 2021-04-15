@@ -4,6 +4,7 @@ import type {
   NativeTanker,
   Status,
   AttachResult,
+  NativeEncryptionSession,
 } from './types';
 import type { Result } from './errors';
 import type {
@@ -75,6 +76,22 @@ type ClientReactNativeType = {
     instance: NativeTanker,
     verification: Verification
   ): Promise<void>;
+  createEncryptionSession(
+    instance: NativeTanker,
+    options?: EncryptionOptions
+  ): Promise<NativeEncryptionSession>;
+  encryptionSessionDestroy(instance: NativeEncryptionSession): Result<void>;
+  encryptionSessionGetResourceId(
+    instance: NativeEncryptionSession
+  ): Result<string>;
+  encryptionSessionEncryptString(
+    instance: NativeEncryptionSession,
+    clearText: string
+  ): Promise<string>;
+  encryptionSessionEncryptData(
+    instance: NativeEncryptionSession,
+    clearData: string
+  ): Promise<string>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;

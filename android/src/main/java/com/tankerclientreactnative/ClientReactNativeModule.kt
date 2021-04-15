@@ -2,14 +2,12 @@ package com.tankerclientreactnative
 
 import android.util.Base64
 import com.facebook.react.bridge.*
-import io.tanker.api.ErrorCode
-import io.tanker.api.Tanker
-import io.tanker.api.TankerFuture
-import io.tanker.api.TankerOptions
+import io.tanker.api.*
 import kotlin.collections.HashMap
 import kotlin.random.Random
 
 typealias TankerHandle = Int
+typealias EncSessHandle = Int
 
 // NOTE: In the same spirit as PHP "helping" by silently casting text to numbers,
 //       by default Android "helps" by magically adding newlines ('wrapping') to its Base64.
@@ -18,6 +16,7 @@ const val BASE64_SANE_FLAGS = Base64.DEFAULT or Base64.NO_WRAP
 
 class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     private val tankerInstances = HashMap<TankerHandle, Tanker>()
+    private val encSessInstances = HashMap<EncSessHandle, EncryptionSession>()
     private val androidFilesDir = reactContext.applicationContext.filesDir.absolutePath
 
     override fun getName(): String {
@@ -37,6 +36,25 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     private fun getTanker(handle: TankerHandle): Tanker {
         return tankerInstances[handle]!!
+    }
+
+    private fun storeEncSess(encSess: EncryptionSession): EncSessHandle {
+        var key: Int
+        while (true) {
+            key = Random.nextInt()
+            if (!encSessInstances.containsKey(key))
+                break
+        }
+        encSessInstances[key] = encSess
+        return key
+    }
+
+    private fun getEncryptionSession(handle: EncSessHandle): EncryptionSession {
+        return encSessInstances[handle]!!
+    }
+
+    private fun destroyEncryptionSession(handle: EncSessHandle) {
+        encSessInstances.remove(handle)
     }
 
     // Cannot await in a JS constructor
@@ -235,5 +253,43 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     fun verifyProvisionalIdentity(handle: TankerHandle, verificationJson: ReadableMap, promise: Promise) {
         val verification = Verification(verificationJson)
         getTanker(handle).verifyProvisionalIdentity(verification).bridge(promise)
+    }
+
+    @ReactMethod()
+    fun createEncryptionSession(handle: TankerHandle, optionsJson: ReadableMap?, promise: Promise) {
+        val options = EncryptionOptions(optionsJson)
+        getTanker(handle).createEncryptionSession(options).bridge(promise) {
+            storeEncSess(it)
+        }
+    }
+
+    @ReactMethod(isBlockingSynchronousMethod = true)
+    fun encryptionSessionDestroy(handle: EncSessHandle): Result<Unit> {
+        return syncBridge { destroyEncryptionSession(handle) }
+    }
+
+    @ReactMethod(isBlockingSynchronousMethod = true)
+    fun encryptionSessionGetResourceId(handle: EncSessHandle): Result<String> {
+        return syncBridge { getEncryptionSession(handle).getResourceId() }
+    }
+
+    @ReactMethod()
+    fun encryptionSessionEncryptString(handle: EncSessHandle, clearText: String, promise: Promise) {
+        return getEncryptionSession(handle).encrypt(clearText.toByteArray()).bridge(promise) {
+            Base64.encodeToString(it, BASE64_SANE_FLAGS)
+        }
+    }
+
+    @ReactMethod()
+    fun encryptionSessionEncryptData(handle: EncSessHandle, clearDataB64: String, promise: Promise) {
+        val clearData = try {
+            Base64.decode(clearDataB64, BASE64_SANE_FLAGS)
+        } catch (e: IllegalArgumentException) {
+            promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
+            return
+        }
+        return getEncryptionSession(handle).encrypt(clearData).bridge(promise) {
+            Base64.encodeToString(it, BASE64_SANE_FLAGS)
+        }
     }
 }

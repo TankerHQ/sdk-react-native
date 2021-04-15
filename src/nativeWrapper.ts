@@ -15,6 +15,7 @@ import {
 import type { EncryptionOptions } from './encryptionOptions';
 import { extractSharingOptions, SharingOptions } from './sharingOptions';
 import { extractEncryptionOptions } from './encryptionOptions';
+import { EncryptionSession } from './encryptionSessionWrapper';
 
 export class Tanker {
   private readonly instance: NativeTanker;
@@ -153,5 +154,14 @@ export class Tanker {
     return bridgeAsyncExceptions(
       Native.verifyProvisionalIdentity(this.instance, verification)
     );
+  }
+
+  async createEncryptionSession(
+    options?: EncryptionOptions
+  ): Promise<EncryptionSession> {
+    const instance = await bridgeAsyncExceptions(
+      Native.createEncryptionSession(this.instance, options)
+    );
+    return new EncryptionSession(instance);
   }
 }
