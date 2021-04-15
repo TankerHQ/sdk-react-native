@@ -24,6 +24,11 @@ static TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id
   return opts;
 }
 
+static NSDictionary* invalidHandleError(TankerHandle _Nonnull handle)
+{
+  return  @{@"err" : @{@"code": @"INTERNAL_ERROR", @"message": [NSString stringWithFormat:@"invalid handle: %ul", handle.unsignedIntValue]}};
+}
+
 @implementation ClientReactNative
 
 RCT_EXPORT_MODULE()
@@ -52,5 +57,13 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(create, id, createWithOptions:(nonnull NSD
   {
     return @{@"err" : @{@"code": @"INVALID_ARGUMENT", @"message": e.reason}};
   }
+}
+
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(getStatus, id, getStatusWithTankerHandle:(nonnull NSNumber*)handle)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    return invalidHandleError(handle);
+  return @{@"ok": [NSNumber numberWithInt:(int)tanker.status]};
 }
 @end

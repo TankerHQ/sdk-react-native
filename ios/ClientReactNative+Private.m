@@ -30,4 +30,9 @@
   }
 }
 
+- (nonnull NSDictionary<TankerHandle, TKRTanker*>*)tankerInstanceMap
+{
+  return objc_getAssociatedObject(self, @selector(tankerInstanceMap));
+}
+
 @end

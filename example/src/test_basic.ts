@@ -34,7 +34,7 @@ export const basicTests = () => {
       expect(tanker.nativeVersion).is.not.empty;
     });
 
-    it('has a status', async () => {
+    it.only('has a status', async () => {
       expect(tanker.status).to.equal(statuses.STOPPED);
     });
 
