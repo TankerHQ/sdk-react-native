@@ -20,15 +20,15 @@ export const basicTests = () => {
       tanker = await createTanker();
     });
     afterEach(async () => {
-      await tanker.stop();
+      // await tanker.stop();
       await clearTankerDataDirs();
     });
 
-    it('can get a version string', async () => {
+    it.only('can get a version string', async () => {
       expect(tanker.version).is.not.empty;
     });
 
-    it('can get the native version string', async () => {
+    it.only('can get the native version string', async () => {
       // Keep this log to help debugging job's output
       console.log(tanker.nativeVersion);
       expect(tanker.nativeVersion).is.not.empty;
