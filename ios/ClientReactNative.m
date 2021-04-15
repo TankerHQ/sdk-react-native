@@ -1,6 +1,7 @@
 #import "ClientReactNative+Private.h"
 
 #import "Tanker/TKRTanker.h"
+#import "Tanker/TKRError.h"
 
 static TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id>* _Nonnull optionsDict)
 {
@@ -24,9 +25,46 @@ static TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id
   return opts;
 }
 
-static NSDictionary* invalidHandleError(TankerHandle _Nonnull handle)
+static NSDictionary* invalidHandleError(NSNumber* _Nonnull handle)
 {
   return  @{@"err" : @{@"code": @"INTERNAL_ERROR", @"message": [NSString stringWithFormat:@"invalid handle: %ul", handle.unsignedIntValue]}};
+}
+
+static NSString* errorCodeToString(TKRError err)
+{
+  switch (err)
+  {
+    case TKRErrorConflict:
+      return @"CONFLICT";
+    case TKRErrorInternalError:
+      return @"INTERNAL_ERROR";
+    case TKRErrorInvalidArgument:
+      return @"INVALID_ARGUMENT";
+    case TKRErrorNetworkError:
+      return @"NETWORK_ERROR";
+    case TKRErrorPreconditionFailed:
+      return @"PRECONDITION_FAILED";
+    case TKRErrorOperationCanceled:
+      return @"OPERATION_CANCELED";
+    case TKRErrorDecryptionFailed:
+      return @"DECRYPTION_FAILED";
+    case TKRErrorGroupTooBig:
+      return @"GROUP_TOO_BIG";
+    case TKRErrorInvalidVerification:
+      return @"INVALID_VERIFICATION";
+    case TKRErrorTooManyAttempts:
+      return @"TOO_MANY_ATTEMPTS";
+    case TKRErrorExpiredVerification:
+      return @"EXPIRED_VERIFICATION";
+    case TKRErrorIOError:
+      return @"IO_ERROR";
+    case TKRErrorDeviceRevoked:
+      return @"DEVICE_REVOKED";
+    case TKRErrorUpgradeRequired:
+      return @"UPGRADE_REQUIRED";
+    default:
+      return @"UNKNOWN_ERROR";
+  }
 }
 
 @implementation ClientReactNative
@@ -66,4 +104,21 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(getStatus, id, getStatusWithTankerHandle:(
     return invalidHandleError(handle);
   return @{@"ok": [NSNumber numberWithInt:(int)tanker.status]};
 }
+
+RCT_REMAP_METHOD(getDeviceId, getDeviceIdWithTankerHandle:(nonnull NSNumber*)handle resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+  {
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+    return;
+  }
+  [tanker deviceIDWithCompletionHandler:^(NSString* deviceId, NSError* err) {
+    if (err != nil)
+      reject(errorCodeToString(err.code), err.localizedDescription, err);
+    else
+      resolve(deviceId);
+  }];
+}
+
 @end

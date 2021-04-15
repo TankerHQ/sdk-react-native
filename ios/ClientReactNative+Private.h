@@ -1,13 +1,11 @@
 #import "ClientReactNative.h"
 #import <Tanker/TKRTanker.h>
 
-typedef NSNumber* TankerHandle;
-
 @interface ClientReactNative(Private)
 
-@property (readonly, nonnull) NSDictionary<TankerHandle, TKRTanker*>* tankerInstanceMap;
+@property (readonly, nonnull) NSDictionary<NSNumber*, TKRTanker*>* tankerInstanceMap;
 
 - (void) initInstanceMap;
-- (nonnull TankerHandle) insertTankerInstanceInMap:(nonnull TKRTanker*)instance;
+- (nonnull NSNumber*) insertTankerInstanceInMap:(nonnull TKRTanker*)instance;
 
 @end

@@ -38,14 +38,14 @@ export const basicTests = () => {
       expect(tanker.status).to.equal(statuses.STOPPED);
     });
 
-    it('cannot create Tanker with a bad appId', async () => {
+    it.only('cannot create Tanker with a bad appId', async () => {
       expect(() => new Tanker({ appId: 'Bad' })).throws(
         InvalidArgument,
         'app_id'
       );
     });
 
-    it('cannot call functions with a stopped device', async () => {
+    it.only('cannot call functions with a stopped device', async () => {
       await expect(tanker.deviceId()).eventually.rejectedWith(
         PreconditionFailed,
         'session status'
