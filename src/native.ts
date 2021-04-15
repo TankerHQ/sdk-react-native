@@ -19,6 +19,7 @@ export const VERSION = '0.1.0';
 
 type ClientReactNativeType = {
   create(options: TankerOptions, version: String): Result<NativeTanker>;
+  destroy(instance: NativeTanker): Result<void>;
   prehashPassword(password: string): Promise<string>;
   getNativeVersion(): string;
   getStatus(instance: NativeTanker): Result<Status>;

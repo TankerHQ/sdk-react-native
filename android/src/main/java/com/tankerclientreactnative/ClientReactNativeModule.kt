@@ -38,6 +38,10 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         return tankerInstances[handle]!!
     }
 
+    private fun destroyTanker(handle: TankerHandle) {
+        tankerInstances.remove(handle)
+    }
+
     private fun storeEncSess(encSess: EncryptionSession): EncSessHandle {
         var key: Int
         while (true) {
@@ -75,6 +79,11 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         options.sdkVersion = version
 
         return syncBridge { createTanker(options) }
+    }
+
+    @ReactMethod(isBlockingSynchronousMethod = true)
+    fun destroy(handle: EncSessHandle): Result<Unit> {
+        return syncBridge { destroyTanker(handle) }
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)

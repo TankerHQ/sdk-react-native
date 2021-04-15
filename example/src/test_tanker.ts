@@ -25,7 +25,10 @@ export const tankerTests = () => {
       tanker = await createTanker();
       identity = await createIdentity();
     });
-    afterEach(clearTankerDataDirs);
+    afterEach(async () => {
+      await tanker.stop();
+      await clearTankerDataDirs();
+    });
 
     it('can start and stop', async () => {
       expect(tanker.status).eq(statuses.STOPPED);
@@ -33,6 +36,13 @@ export const tankerTests = () => {
       expect(tanker.status).eq(statuses.IDENTITY_REGISTRATION_NEEDED);
       await tanker.stop();
       expect(tanker.status).eq(statuses.STOPPED);
+    });
+
+    it('can reuse the Tanker object after stop', async () => {
+      await tanker.start(identity);
+      await tanker.stop();
+      await tanker.start(identity);
+      expect(tanker.status).eq(statuses.IDENTITY_REGISTRATION_NEEDED);
     });
 
     it('fails to start with an invalid identity', async () => {
@@ -80,6 +90,7 @@ export const tankerTests = () => {
 
       await secondDevice.verifyIdentity({ passphrase: 'foo' });
       expect(secondDevice.status).eq(statuses.READY);
+      await secondDevice.stop();
     });
 
     it('can use setVerificationMethod to change a passphrase', async () => {
@@ -94,6 +105,7 @@ export const tankerTests = () => {
       await secondDevice.start(identity);
       await secondDevice.verifyIdentity(pass2);
       expect(secondDevice.status).eq(statuses.READY);
+      await secondDevice.stop();
     });
 
     it('can request a session token with VerificationOptions', async () => {

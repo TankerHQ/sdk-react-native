@@ -19,7 +19,10 @@ export const basicTests = () => {
     beforeEach(async () => {
       tanker = await createTanker();
     });
-    afterEach(clearTankerDataDirs);
+    afterEach(async () => {
+      await tanker.stop();
+      await clearTankerDataDirs();
+    });
 
     it('can get a version string', async () => {
       expect(tanker.version).is.not.empty;

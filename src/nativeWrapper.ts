@@ -18,10 +18,22 @@ import { extractEncryptionOptions } from './encryptionOptions';
 import { EncryptionSession } from './encryptionSessionWrapper';
 
 export class Tanker {
-  private readonly instance: NativeTanker;
+  private readonly options: TankerOptions;
+  private instance: NativeTanker | null;
 
   constructor(options: TankerOptions) {
-    this.instance = bridgeSyncResult(() => Native.create(options, VERSION));
+    this.options = Object.assign({}, options);
+    this.instance = null;
+    this.getInstance();
+  }
+
+  private getInstance(): NativeTanker {
+    if (!this.instance) {
+      this.instance = bridgeSyncResult(() =>
+        Native.create(this.options, VERSION)
+      );
+    }
+    return this.instance;
   }
 
   get version(): string {
@@ -33,19 +45,23 @@ export class Tanker {
   }
 
   get status(): Status {
-    return bridgeSyncResult(() => Native.getStatus(this.instance));
+    return bridgeSyncResult(() => Native.getStatus(this.getInstance()));
   }
 
   get deviceId(): string {
-    return bridgeSyncResult(() => Native.getDeviceId(this.instance));
+    return bridgeSyncResult(() => Native.getDeviceId(this.getInstance()));
   }
 
   start(identity: String): Promise<Status> {
-    return bridgeAsyncExceptions(Native.start(this.instance, identity));
+    return bridgeAsyncExceptions(Native.start(this.getInstance(), identity));
   }
 
-  stop(): Promise<void> {
-    return bridgeAsyncExceptions(Native.stop(this.instance));
+  async stop(): Promise<void> {
+    const instance = this.getInstance(); // "You need to be logged in to log out. Please log in to log out."
+    const result = await bridgeAsyncExceptions(Native.stop(instance));
+    bridgeSyncResult(() => Native.destroy(instance));
+    this.instance = null;
+    return result;
   }
 
   registerIdentity(
@@ -54,7 +70,7 @@ export class Tanker {
   ): Promise<void | string> {
     assertVerification(verification);
     return bridgeAsyncExceptions(
-      Native.registerIdentity(this.instance, verification, options)
+      Native.registerIdentity(this.getInstance(), verification, options)
     );
   }
 
@@ -63,7 +79,7 @@ export class Tanker {
     options?: VerificationOptions
   ): Promise<void | string> {
     return bridgeAsyncExceptions(
-      Native.verifyIdentity(this.instance, verification, options)
+      Native.verifyIdentity(this.getInstance(), verification, options)
     );
   }
 
@@ -72,14 +88,14 @@ export class Tanker {
     options?: VerificationOptions
   ): Promise<void | string> {
     return bridgeAsyncExceptions(
-      Native.setVerificationMethod(this.instance, verification, options)
+      Native.setVerificationMethod(this.getInstance(), verification, options)
     );
   }
 
   encrypt(clearText: string, options?: EncryptionOptions): Promise<string> {
     return bridgeAsyncExceptions(
       Native.encryptString(
-        this.instance,
+        this.getInstance(),
         clearText,
         extractEncryptionOptions(options)
       )
@@ -88,14 +104,14 @@ export class Tanker {
 
   decrypt(encryptedText: string): Promise<string> {
     return bridgeAsyncExceptions(
-      Native.decryptString(this.instance, encryptedText)
+      Native.decryptString(this.getInstance(), encryptedText)
     );
   }
 
   encryptData(clearData: string, options?: EncryptionOptions): Promise<string> {
     return bridgeAsyncExceptions(
       Native.encryptData(
-        this.instance,
+        this.getInstance(),
         clearData,
         extractEncryptionOptions(options)
       )
@@ -104,7 +120,7 @@ export class Tanker {
 
   decryptData(encryptedData: string): Promise<string> {
     return bridgeAsyncExceptions(
-      Native.decryptData(this.instance, encryptedData)
+      Native.decryptData(this.getInstance(), encryptedData)
     );
   }
 
@@ -112,26 +128,36 @@ export class Tanker {
     // We know the header is either at the start or the end, but the slicing of both ends is too complicated,
     // so we just pass the whole encrypted buffer in base64
     return bridgeAsyncExceptions(
-      Native.getResourceId(this.instance, encrypted)
+      Native.getResourceId(this.getInstance(), encrypted)
     );
   }
 
   share(resourceIds: Array<string>, options: SharingOptions): Promise<string> {
     return bridgeAsyncExceptions(
-      Native.share(this.instance, resourceIds, extractSharingOptions(options))
+      Native.share(
+        this.getInstance(),
+        resourceIds,
+        extractSharingOptions(options)
+      )
     );
   }
 
   generateVerificationKey(): Promise<string> {
-    return bridgeAsyncExceptions(Native.generateVerificationKey(this.instance));
+    return bridgeAsyncExceptions(
+      Native.generateVerificationKey(this.getInstance())
+    );
   }
 
   getVerificationMethods(): Promise<Array<VerificationMethod>> {
-    return bridgeAsyncExceptions(Native.getVerificationMethods(this.instance));
+    return bridgeAsyncExceptions(
+      Native.getVerificationMethods(this.getInstance())
+    );
   }
 
   createGroup(userIds: Array<string>): Promise<string> {
-    return bridgeAsyncExceptions(Native.createGroup(this.instance, userIds));
+    return bridgeAsyncExceptions(
+      Native.createGroup(this.getInstance(), userIds)
+    );
   }
 
   updateGroupMembers(
@@ -139,20 +165,20 @@ export class Tanker {
     args: { usersToAdd: Array<string> }
   ): Promise<void> {
     return bridgeAsyncExceptions(
-      Native.updateGroupMembers(this.instance, groupId, args)
+      Native.updateGroupMembers(this.getInstance(), groupId, args)
     );
   }
 
   attachProvisionalIdentity(identity: string): Promise<AttachResult> {
     return bridgeAsyncExceptions(
-      Native.attachProvisionalIdentity(this.instance, identity)
+      Native.attachProvisionalIdentity(this.getInstance(), identity)
     );
   }
 
   verifyProvisionalIdentity(verification: Verification): Promise<void> {
     assertVerification(verification);
     return bridgeAsyncExceptions(
-      Native.verifyProvisionalIdentity(this.instance, verification)
+      Native.verifyProvisionalIdentity(this.getInstance(), verification)
     );
   }
 
@@ -160,7 +186,7 @@ export class Tanker {
     options?: EncryptionOptions
   ): Promise<EncryptionSession> {
     const instance = await bridgeAsyncExceptions(
-      Native.createEncryptionSession(this.instance, options)
+      Native.createEncryptionSession(this.getInstance(), options)
     );
     return new EncryptionSession(instance);
   }
