@@ -32,6 +32,14 @@ export type AttachResult = {
   verificationMethod?: EmailVerificationMethod;
 };
 
+export type LogRecord = {
+  category: string;
+  level: number;
+  file: string;
+  line: number;
+  message: string;
+};
+
 export const isObject = (val: Object) =>
   !!val &&
   typeof val === 'object' &&

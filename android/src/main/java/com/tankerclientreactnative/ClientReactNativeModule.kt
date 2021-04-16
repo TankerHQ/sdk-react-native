@@ -2,9 +2,10 @@ package com.tankerclientreactnative
 
 import android.util.Base64
 import com.facebook.react.bridge.*
+import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import io.tanker.api.*
-import kotlin.collections.HashMap
 import kotlin.random.Random
+
 
 typealias TankerHandle = Int
 typealias EncSessHandle = Int
@@ -18,6 +19,21 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     private val tankerInstances = HashMap<TankerHandle, Tanker>()
     private val encSessInstances = HashMap<EncSessHandle, EncryptionSession>()
     private val androidFilesDir = reactContext.applicationContext.filesDir.absolutePath
+
+    init {
+        Tanker.setLogHandler(object : LogHandlerCallback {
+            override fun callback(logRecord: LogRecord) {
+                val json = WritableNativeMap()
+                json.putString("category", logRecord.category)
+                json.putInt("level", logRecord.level)
+                json.putString("file", logRecord.file)
+                json.putInt("line", logRecord.line)
+                json.putString("message", logRecord.message)
+                reactContext.getJSModule(RCTDeviceEventEmitter::class.java)
+                    .emit("tankerLogHandlerEvent", json);
+            }
+        })
+    }
 
     override fun getName(): String {
         return "ClientReactNative"
