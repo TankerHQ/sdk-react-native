@@ -25,6 +25,40 @@ static TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id
   return opts;
 }
 
+static TKRVerificationOptions* _Nonnull dictToTankerVerificationOptions(NSDictionary<NSString*, id>* _Nullable optionsDict)
+{
+  TKRVerificationOptions* ret = [TKRVerificationOptions options];
+   if (!optionsDict)
+     return ret;
+  NSNumber* withSessionToken = optionsDict[@"withSessionToken"];
+
+  if (withSessionToken)
+    ret.withSessionToken = withSessionToken.boolValue;
+  return ret;
+}
+
+static TKRVerification* _Nonnull dictToTankerVerification(NSDictionary<NSString*, id>* _Nonnull verificationDict)
+{
+  NSString* email = verificationDict[@"email"];
+  NSString* passphrase = verificationDict[@"passphrase"];
+  NSString* verificationKey = verificationDict[@"verificationKey"];
+  NSString* oidcIdToken = verificationDict[@"oidcIdToken"];
+  
+  if (email)
+    return [TKRVerification verificationFromEmail:email verificationCode:verificationDict[@"verificationCode"]];
+  if (passphrase)
+    return [TKRVerification verificationFromPassphrase:passphrase];
+  if (verificationKey)
+    return [TKRVerification verificationFromVerificationKey:[TKRVerificationKey verificationKeyFromValue:verificationKey]];
+  if (oidcIdToken)
+    return [TKRVerification verificationFromOIDCIDToken:oidcIdToken];
+  NSError* err;
+  NSData* data = [NSJSONSerialization dataWithJSONObject:verificationDict options:NSJSONWritingPrettyPrinted error:&err];
+  NSString* json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+  [NSException raise:NSInvalidArgumentException format:@"Invalid verification object: %@", json];
+  return nil;
+}
+
 static NSDictionary* invalidHandleError(NSNumber* _Nonnull handle)
 {
   return  @{@"err" : @{@"code": @"INTERNAL_ERROR", @"message": [NSString stringWithFormat:@"invalid handle: %ul", handle.unsignedIntValue]}};
@@ -170,6 +204,27 @@ RCT_REMAP_METHOD(stop, stopWithTankerHandle:(nonnull NSNumber*)handle resolver:(
   }
 }
 
-
+RCT_REMAP_METHOD(registerIdentity,
+                 registerIdentityWithTankerHandle:(nonnull NSNumber*)handle
+                 verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
+                 options:(nullable NSDictionary<NSString*, id>*)optionsDict
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    TKRVerification* tankerVerification = dictToTankerVerification(verificationDict);
+    TKRVerificationOptions* tankerOptions = dictToTankerVerificationOptions(optionsDict);
+    [tanker registerIdentityWithVerification:tankerVerification options:tankerOptions completionHandler:^(NSString * _Nullable sessionToken, NSError * _Nullable err) {
+       if (err != nil)
+         reject(errorCodeToString(err.code), err.localizedDescription, err);
+       else
+         resolve(sessionToken);
+    }];
+  }
+}
 
 @end
