@@ -8,7 +8,7 @@ import kotlin.random.Random
 
 
 typealias TankerHandle = Int
-typealias EncSessHandle = Int
+typealias EncryptionSessionHandle = Int
 
 // NOTE: In the same spirit as PHP "helping" by silently casting text to numbers,
 //       by default Android "helps" by magically adding newlines ('wrapping') to its Base64.
@@ -17,7 +17,7 @@ const val BASE64_SANE_FLAGS = Base64.DEFAULT or Base64.NO_WRAP
 
 class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     private val tankerInstances = HashMap<TankerHandle, Tanker>()
-    private val encSessInstances = HashMap<EncSessHandle, EncryptionSession>()
+    private val encryptionSessionInstances = HashMap<EncryptionSessionHandle, EncryptionSession>()
     private val androidFilesDir = reactContext.applicationContext.filesDir.absolutePath
 
     init {
@@ -58,23 +58,23 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         tankerInstances.remove(handle)
     }
 
-    private fun storeEncSess(encSess: EncryptionSession): EncSessHandle {
+    private fun storeEncryptionSession(encSess: EncryptionSession): EncryptionSessionHandle {
         var key: Int
         while (true) {
             key = Random.nextInt()
-            if (!encSessInstances.containsKey(key))
+            if (!encryptionSessionInstances.containsKey(key))
                 break
         }
-        encSessInstances[key] = encSess
+        encryptionSessionInstances[key] = encSess
         return key
     }
 
-    private fun getEncryptionSession(handle: EncSessHandle): EncryptionSession {
-        return encSessInstances[handle]!!
+    private fun getEncryptionSession(handle: EncryptionSessionHandle): EncryptionSession {
+        return encryptionSessionInstances[handle]!!
     }
 
-    private fun destroyEncryptionSession(handle: EncSessHandle) {
-        encSessInstances.remove(handle)
+    private fun destroyEncryptionSession(handle: EncryptionSessionHandle) {
+        encryptionSessionInstances.remove(handle)
     }
 
     // Cannot await in a JS constructor
@@ -98,7 +98,7 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun destroy(handle: EncSessHandle): Result<Unit> {
+    fun destroy(handle: EncryptionSessionHandle): Result<Unit> {
         return syncBridge { destroyTanker(handle) }
     }
 
@@ -276,29 +276,29 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     fun createEncryptionSession(handle: TankerHandle, optionsJson: ReadableMap?, promise: Promise) {
         val options = EncryptionOptions(optionsJson)
         getTanker(handle).createEncryptionSession(options).bridge(promise) {
-            storeEncSess(it)
+            storeEncryptionSession(it)
         }
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun encryptionSessionDestroy(handle: EncSessHandle): Result<Unit> {
+    fun encryptionSessionDestroy(handle: EncryptionSessionHandle): Result<Unit> {
         return syncBridge { destroyEncryptionSession(handle) }
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun encryptionSessionGetResourceId(handle: EncSessHandle): Result<String> {
+    fun encryptionSessionGetResourceId(handle: EncryptionSessionHandle): Result<String> {
         return syncBridge { getEncryptionSession(handle).getResourceId() }
     }
 
     @ReactMethod()
-    fun encryptionSessionEncryptString(handle: EncSessHandle, clearText: String, promise: Promise) {
+    fun encryptionSessionEncryptString(handle: EncryptionSessionHandle, clearText: String, promise: Promise) {
         return getEncryptionSession(handle).encrypt(clearText.toByteArray()).bridge(promise) {
             Base64.encodeToString(it, BASE64_SANE_FLAGS)
         }
     }
 
     @ReactMethod()
-    fun encryptionSessionEncryptData(handle: EncSessHandle, clearDataB64: String, promise: Promise) {
+    fun encryptionSessionEncryptData(handle: EncryptionSessionHandle, clearDataB64: String, promise: Promise) {
         val clearData = try {
             Base64.decode(clearDataB64, BASE64_SANE_FLAGS)
         } catch (e: IllegalArgumentException) {
