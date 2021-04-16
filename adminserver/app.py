@@ -46,8 +46,8 @@ def get_tanker_url() -> str:
     return assert_env("TANKER_APPD_URL")
 
 
-@app.route("/toggle_2fa", methods=["POST"])
-def toggle_2fa() -> None:
+@app.route("/toggle_session_certificates", methods=["POST"])
+def toggle_session_certificates() -> None:
     enable = request.form["enable"].lower() == 'true'
     return admin.update_app(tanker_app["id"], session_certificates=enable)
 

@@ -9,7 +9,7 @@ import {
   createProvisionalIdentity,
   getPublicIdentity,
   getVerificationCode,
-  toggle2FA,
+  toggleSessionCertificates,
 } from './admin';
 import { InvalidArgument, InvalidVerification } from '@tanker/errors';
 import { createTanker, clearTankerDataDirs } from './tests';
@@ -122,13 +122,13 @@ export const tankerTests = () => {
     });
 
     it('can request a session token with VerificationOptions', async () => {
-      await toggle2FA(true);
+      await toggleSessionCertificates(true);
       await tanker.start(identity);
       const token = await tanker.registerIdentity(
         { passphrase: 'foo' },
         { withSessionToken: true }
       );
-      await toggle2FA(false);
+      await toggleSessionCertificates(false);
       expect(tanker.status).eq(statuses.READY);
       expect(token).is.not.empty;
     });
