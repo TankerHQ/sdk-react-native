@@ -46,7 +46,7 @@ export const basicTests = () => {
     });
 
     it('cannot call functions with a stopped device', async () => {
-      expect(() => tanker.deviceId).throws(
+      await expect(tanker.deviceId()).eventually.rejectedWith(
         PreconditionFailed,
         'session status'
       );

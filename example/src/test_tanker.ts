@@ -73,6 +73,12 @@ export const tankerTests = () => {
       ).throws(InvalidArgument);
     });
 
+    it('can get a device ID', async () => {
+      await tanker.start(identity);
+      await tanker.registerIdentity({ passphrase: 'foo' });
+      expect(await tanker.deviceId()).is.not.empty;
+    });
+
     it('can use registerIdentity to open a session', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({ passphrase: 'foo' });

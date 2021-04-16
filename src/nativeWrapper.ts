@@ -48,8 +48,8 @@ export class Tanker {
     return bridgeSyncResult(() => Native.getStatus(this.getInstance()));
   }
 
-  get deviceId(): string {
-    return bridgeSyncResult(() => Native.getDeviceId(this.getInstance()));
+  deviceId(): Promise<string> {
+    return bridgeAsyncExceptions(Native.getDeviceId(this.getInstance()));
   }
 
   start(identity: String): Promise<Status> {

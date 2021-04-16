@@ -103,9 +103,11 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         }.bridge(promise)
     }
 
-    @ReactMethod(isBlockingSynchronousMethod = true)
-    fun getDeviceId(handle: TankerHandle): Result<String> {
-        return syncBridge { getTanker(handle).getDeviceId() }
+    @ReactMethod()
+    fun getDeviceId(handle: TankerHandle, promise: Promise) {
+        TankerFuture<Unit>().andThen<String> {
+            getTanker(handle).getDeviceId()
+        }.bridge(promise)
     }
 
     @ReactMethod()
