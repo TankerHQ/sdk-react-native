@@ -28,7 +28,7 @@ export const tankerTests = () => {
       await clearTankerDataDirs();
     });
 
-    it('can start and stop', async () => {
+    it.only('can start and stop', async () => {
       expect(tanker.status).eq(statuses.STOPPED);
       await tanker.start(identity);
       expect(tanker.status).eq(statuses.IDENTITY_REGISTRATION_NEEDED);
@@ -36,14 +36,14 @@ export const tankerTests = () => {
       expect(tanker.status).eq(statuses.STOPPED);
     });
 
-    it('can reuse the Tanker object after stop', async () => {
+    it.only('can reuse the Tanker object after stop', async () => {
       await tanker.start(identity);
       await tanker.stop();
       await tanker.start(identity);
       expect(tanker.status).eq(statuses.IDENTITY_REGISTRATION_NEEDED);
     });
 
-    it('fails to start with an invalid identity', async () => {
+    it.only('fails to start with an invalid identity', async () => {
       // If our exception bridge is working, the C error should have turned into the right JS class and message
       await expect(tanker.start('Invalid')).is.eventually.rejectedWith(
         InvalidArgument,

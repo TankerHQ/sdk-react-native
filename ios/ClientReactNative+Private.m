@@ -35,4 +35,10 @@
   return objc_getAssociatedObject(self, @selector(tankerInstanceMap));
 }
 
+- (void) removeTankerInstanceInMap:(nonnull NSNumber *)handle
+{
+  NSMutableDictionary<NSNumber*, TKRTanker*>* m = objc_getAssociatedObject(self, @selector(tankerInstanceMap));
+  [m removeObjectForKey:handle];
+}
+
 @end

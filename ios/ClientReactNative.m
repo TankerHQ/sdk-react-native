@@ -134,4 +134,42 @@ RCT_EXPORT_METHOD(prehashPassword:(nonnull NSString*)password resolver:(RCTPromi
     }
   });
 }
+
+RCT_REMAP_METHOD(start, startWithTankerHandle:(nonnull NSNumber*)handle identity:(nonnull NSString*)identity resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    [tanker startWithIdentity:identity completionHandler:^(TKRStatus status, NSError * _Nullable err) {
+      if (err != nil)
+        reject(errorCodeToString(err.code), err.localizedDescription, err);
+      else
+        resolve([NSNumber numberWithInt:(int)status]);
+    }];
+  }
+}
+
+RCT_REMAP_METHOD(stop, stopWithTankerHandle:(nonnull NSNumber*)handle resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    [tanker stopWithCompletionHandler:^(NSError * _Nullable err) {
+      if (err != nil)
+        reject(errorCodeToString(err.code), err.localizedDescription, err);
+      else
+      {
+        [self removeTankerInstanceInMap:handle];
+        resolve(nil);
+      }
+    }];
+  }
+}
+
+
+
 @end

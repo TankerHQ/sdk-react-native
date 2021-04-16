@@ -20,7 +20,7 @@ export const basicTests = () => {
       tanker = await createTanker();
     });
     afterEach(async () => {
-      // await tanker.stop();
+      await tanker.stop();
       await clearTankerDataDirs();
     });
 

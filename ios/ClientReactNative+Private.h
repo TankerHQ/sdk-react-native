@@ -7,5 +7,6 @@
 
 - (void) initInstanceMap;
 - (nonnull NSNumber*) insertTankerInstanceInMap:(nonnull TKRTanker*)instance;
+- (void) removeTankerInstanceInMap:(nonnull NSNumber*)handle;
 
 @end
