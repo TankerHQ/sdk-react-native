@@ -107,7 +107,7 @@ export const tankerTests = () => {
       await secondDevice.stop();
     });
 
-    it('can use setVerificationMethod to change a passphrase', async () => {
+    it.only('can use setVerificationMethod to change a passphrase', async () => {
       const pass1 = { passphrase: 'foo' };
       const pass2 = { passphrase: 'bar' };
 
