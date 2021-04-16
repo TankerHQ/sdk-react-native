@@ -222,12 +222,9 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     @ReactMethod()
     fun share(handle: TankerHandle, resourceIdsJson: ReadableArray, optionsJson: ReadableMap, promise: Promise) {
-        val resourceIds = ArrayList<String>()
-        for (i in 0 until resourceIdsJson.size()) {
-            resourceIds.add(resourceIdsJson.getString(i)!!)
-        }
+        val resourceIds = resourceIdsJson.toStringArray()
         val options = SharingOptions(optionsJson)
-        getTanker(handle).share(resourceIds.toTypedArray(), options).bridge(promise)
+        getTanker(handle).share(resourceIds, options).bridge(promise)
     }
 
     @ReactMethod()
@@ -247,21 +244,14 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     @ReactMethod()
     fun createGroup(handle: TankerHandle, userIdsJson: ReadableArray, promise: Promise) {
-        val userIds = ArrayList<String>()
-        for (i in 0 until userIdsJson.size()) {
-            userIds.add(userIdsJson.getString(i)!!)
-        }
-        getTanker(handle).createGroup(*userIds.toTypedArray()).bridge(promise)
+        val userIds = userIdsJson.toStringArray()
+        getTanker(handle).createGroup(*userIds).bridge(promise)
     }
 
     @ReactMethod()
     fun updateGroupMembers(handle: TankerHandle, groupId: String, args: ReadableMap, promise: Promise) {
-        val usersToAddJson = args.getArray("usersToAdd")!!
-        val userToAdd = ArrayList<String>()
-        for (i in 0 until usersToAddJson.size()) {
-            userToAdd.add(usersToAddJson.getString(i)!!)
-        }
-        getTanker(handle).updateGroupMembers(groupId, userToAdd.toTypedArray()).bridge(promise)
+        val usersToAdd = args.getArray("usersToAdd")!!.toStringArray()
+        getTanker(handle).updateGroupMembers(groupId, usersToAdd).bridge(promise)
     }
 
     @ReactMethod()
