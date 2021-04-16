@@ -24,28 +24,28 @@ export const basicTests = () => {
       await clearTankerDataDirs();
     });
 
-    it.only('can get a version string', async () => {
+    it('can get a version string', async () => {
       expect(tanker.version).is.not.empty;
     });
 
-    it.only('can get the native version string', async () => {
+    it('can get the native version string', async () => {
       // Keep this log to help debugging job's output
       console.log(tanker.nativeVersion);
       expect(tanker.nativeVersion).is.not.empty;
     });
 
-    it.only('has a status', async () => {
+    it('has a status', async () => {
       expect(tanker.status).to.equal(statuses.STOPPED);
     });
 
-    it.only('cannot create Tanker with a bad appId', async () => {
+    it('cannot create Tanker with a bad appId', async () => {
       expect(() => new Tanker({ appId: 'Bad' })).throws(
         InvalidArgument,
         'app_id'
       );
     });
 
-    it.only('cannot call functions with a stopped device', async () => {
+    it('cannot call functions with a stopped device', async () => {
       await expect(tanker.deviceId()).eventually.rejectedWith(
         PreconditionFailed,
         'session status'

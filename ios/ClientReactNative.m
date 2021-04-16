@@ -105,6 +105,7 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(getStatus, id, getStatusWithTankerHandle:(
   return @{@"ok": [NSNumber numberWithInt:(int)tanker.status]};
 }
 
+
 RCT_REMAP_METHOD(getDeviceId, getDeviceIdWithTankerHandle:(nonnull NSNumber*)handle resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
@@ -121,4 +122,16 @@ RCT_REMAP_METHOD(getDeviceId, getDeviceIdWithTankerHandle:(nonnull NSNumber*)han
   }];
 }
 
+RCT_EXPORT_METHOD(prehashPassword:(nonnull NSString*)password resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    @try
+    {
+      resolve([TKRTanker prehashPassword:password]);
+    } @catch (NSException * e)
+    {
+      reject(@"INVALID_ARGUMENT", e.reason, nil);
+    }
+  });
+}
 @end
