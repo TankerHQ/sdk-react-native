@@ -38,7 +38,7 @@ export const encryptionTests = () => {
       );
     });
 
-    it('encryption options control sharing', async () => {
+    it('can use encryption options to share', async () => {
       const other = await createTanker();
       const otherPrivIdent = await createIdentity();
       await other.start(otherPrivIdent);
