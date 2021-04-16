@@ -11,7 +11,9 @@ export async function getTankerUrl(): Promise<string> {
   return await (await fetch(`${SERVER_URL}/get_tanker_url`)).text();
 }
 
-export async function toggleSessionCertificates(enable: boolean): Promise<void> {
+export async function toggleSessionCertificates(
+  enable: boolean
+): Promise<void> {
   const form = new FormData();
   form.append('enable', enable);
   await fetch(`${SERVER_URL}/toggle_session_certificates`, {

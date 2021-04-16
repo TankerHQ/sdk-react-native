@@ -13,6 +13,7 @@ import {
 } from './admin';
 import { InvalidArgument, InvalidVerification } from '@tanker/errors';
 import { createTanker, clearTankerDataDirs } from './tests';
+import base64 from 'react-native-base64';
 
 export const tankerTests = () => {
   describe('Tanker tests', () => {
@@ -131,6 +132,9 @@ export const tankerTests = () => {
       await toggleSessionCertificates(false);
       expect(tanker.status).eq(statuses.READY);
       expect(token).is.not.empty;
+      // @ts-ignore is.not.empty checks that the token is not undefined
+      const tokenData = base64.decode(token);
+      expect(tokenData).length.greaterThanOrEqual(32);
     });
 
     it('can use a verificationKey', async () => {
