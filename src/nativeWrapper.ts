@@ -1,3 +1,4 @@
+import { InvalidArgument } from '@tanker/errors';
 import { Native, VERSION } from './native';
 import { bridgeSyncResult, bridgeAsyncExceptions } from './errors';
 import type {
@@ -12,11 +13,13 @@ import {
   assertVerification,
   VerificationOptions,
   VerificationMethod,
+  assertVerificationOptions,
 } from './verification';
 import type { EncryptionOptions } from './encryptionOptions';
 import { extractSharingOptions, SharingOptions } from './sharingOptions';
 import { extractEncryptionOptions } from './encryptionOptions';
 import { EncryptionSession } from './encryptionSessionWrapper';
+import { assertNotEmptyString } from './types';
 
 export class Tanker {
   private readonly options: TankerOptions;
@@ -54,6 +57,7 @@ export class Tanker {
   }
 
   start(identity: String): Promise<Status> {
+    assertNotEmptyString(identity, 'identity');
     return bridgeAsyncExceptions(Native.start(this.getInstance(), identity));
   }
 
@@ -70,6 +74,7 @@ export class Tanker {
     options?: VerificationOptions
   ): Promise<void | string> {
     assertVerification(verification);
+    assertVerificationOptions(options);
     return bridgeAsyncExceptions(
       Native.registerIdentity(this.getInstance(), verification, options)
     );
@@ -79,6 +84,8 @@ export class Tanker {
     verification: Verification,
     options?: VerificationOptions
   ): Promise<void | string> {
+    assertVerification(verification);
+    assertVerificationOptions(options);
     return bridgeAsyncExceptions(
       Native.verifyIdentity(this.getInstance(), verification, options)
     );
@@ -88,12 +95,18 @@ export class Tanker {
     verification: Verification,
     options?: VerificationOptions
   ): Promise<void | string> {
+    assertVerification(verification);
+    assertVerificationOptions(options);
     return bridgeAsyncExceptions(
       Native.setVerificationMethod(this.getInstance(), verification, options)
     );
   }
 
   encrypt(clearText: string, options?: EncryptionOptions): Promise<b64string> {
+    // noinspection SuspiciousTypeOfGuard
+    if (typeof clearText !== 'string') {
+      throw new InvalidArgument('clearText', `clearText should be a string`);
+    }
     return bridgeAsyncExceptions(
       Native.encryptString(
         this.getInstance(),
@@ -104,6 +117,13 @@ export class Tanker {
   }
 
   decrypt(encryptedText: b64string): Promise<string> {
+    // noinspection SuspiciousTypeOfGuard
+    if (typeof encryptedText !== 'string') {
+      throw new InvalidArgument(
+        'encryptedText',
+        `encryptedText should be a string`
+      );
+    }
     return bridgeAsyncExceptions(
       Native.decryptString(this.getInstance(), encryptedText)
     );
@@ -113,6 +133,10 @@ export class Tanker {
     clearData: b64string,
     options?: EncryptionOptions
   ): Promise<b64string> {
+    // noinspection SuspiciousTypeOfGuard
+    if (typeof clearData !== 'string') {
+      throw new InvalidArgument('clearData', `clearData should be a string`);
+    }
     return bridgeAsyncExceptions(
       Native.encryptData(
         this.getInstance(),
@@ -123,12 +147,20 @@ export class Tanker {
   }
 
   decryptData(encryptedData: b64string): Promise<b64string> {
+    // noinspection SuspiciousTypeOfGuard
+    if (typeof encryptedData !== 'string') {
+      throw new InvalidArgument(
+        'encryptedData',
+        `encryptedData should be a string`
+      );
+    }
     return bridgeAsyncExceptions(
       Native.decryptData(this.getInstance(), encryptedData)
     );
   }
 
   getResourceId(encrypted: string): Promise<string> {
+    assertNotEmptyString(encrypted, 'encrypted');
     // We know the header is either at the start or the end, but the slicing of both ends is too complicated,
     // so we just pass the whole encrypted buffer in base64
     return bridgeAsyncExceptions(
@@ -137,6 +169,7 @@ export class Tanker {
   }
 
   share(resourceIds: Array<string>, options: SharingOptions): Promise<string> {
+    resourceIds.forEach((e) => assertNotEmptyString(e, `resourceIds`));
     return bridgeAsyncExceptions(
       Native.share(
         this.getInstance(),
@@ -159,6 +192,7 @@ export class Tanker {
   }
 
   createGroup(userIds: Array<string>): Promise<string> {
+    userIds.forEach((e) => assertNotEmptyString(e, `userIds`));
     return bridgeAsyncExceptions(
       Native.createGroup(this.getInstance(), userIds)
     );
@@ -168,12 +202,23 @@ export class Tanker {
     groupId: string,
     args: { usersToAdd: Array<string> }
   ): Promise<void> {
+    assertNotEmptyString(groupId, 'groupId');
+    const { usersToAdd } = args;
+    if (
+      !usersToAdd ||
+      !(usersToAdd instanceof Array) ||
+      usersToAdd.length === 0
+    )
+      throw new InvalidArgument('usersToAdd', 'Array<string>', usersToAdd);
+    usersToAdd.forEach((user) => assertNotEmptyString(user, 'usersToAdd'));
+
     return bridgeAsyncExceptions(
       Native.updateGroupMembers(this.getInstance(), groupId, args)
     );
   }
 
   attachProvisionalIdentity(identity: string): Promise<AttachResult> {
+    assertNotEmptyString(identity, 'identity');
     return bridgeAsyncExceptions(
       Native.attachProvisionalIdentity(this.getInstance(), identity)
     );
@@ -190,7 +235,10 @@ export class Tanker {
     options?: EncryptionOptions
   ): Promise<EncryptionSession> {
     const instance = await bridgeAsyncExceptions(
-      Native.createEncryptionSession(this.getInstance(), options)
+      Native.createEncryptionSession(
+        this.getInstance(),
+        extractEncryptionOptions(options)
+      )
     );
     return new EncryptionSession(instance);
   }

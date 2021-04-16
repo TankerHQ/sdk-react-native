@@ -27,6 +27,7 @@ export type VerificationOptions = { withSessionToken?: boolean };
 
 const validMethods = ['email', 'passphrase', 'verificationKey', 'oidcIdToken'];
 const validKeys = [...validMethods, 'verificationCode'];
+const validVerifOptionsKeys = ['withSessionToken'];
 
 export const assertVerification = (verification: Verification) => {
   if (!verification || typeof verification !== 'object')
@@ -81,4 +82,30 @@ export const assertVerification = (verification: Verification) => {
     // $FlowIgnore[prop-missing]
     assertNotEmptyString(verification.oidcIdToken, 'verification.oidcIdToken');
   }
+};
+
+export const assertVerificationOptions = (options?: VerificationOptions) => {
+  if (!options) return;
+
+  // noinspection SuspiciousTypeOfGuard
+  if (typeof options !== 'object' || options instanceof Array) {
+    throw new InvalidArgument('options', 'object', options);
+  }
+
+  if (Object.keys(options).some((k) => !validVerifOptionsKeys.includes(k)))
+    throw new InvalidArgument(
+      'options',
+      `should only contain keys in ${JSON.stringify(validVerifOptionsKeys)}`,
+      options
+    );
+
+  if (
+    'withSessionToken' in options &&
+    typeof options.withSessionToken !== 'boolean'
+  )
+    throw new InvalidArgument(
+      'options',
+      'withSessionToken must be a boolean',
+      options
+    );
 };
