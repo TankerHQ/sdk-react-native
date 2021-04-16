@@ -93,7 +93,7 @@ export const tankerTests = () => {
       expect(tanker.status).eq(statuses.READY);
     });
 
-    it('can use verifyIdentity to open a session', async () => {
+    it.only('can use verifyIdentity to open a session', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({ passphrase: 'foo' });
       expect(tanker.status).eq(statuses.READY);

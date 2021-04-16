@@ -227,4 +227,27 @@ RCT_REMAP_METHOD(registerIdentity,
   }
 }
 
+RCT_REMAP_METHOD(verifyIdentity,
+                 verifyIdentityWithTankerHandle:(nonnull NSNumber*)handle
+                 verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
+                 options:(nullable NSDictionary<NSString*, id>*)optionsDict
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    TKRVerification* tankerVerification = dictToTankerVerification(verificationDict);
+    TKRVerificationOptions* tankerOptions = dictToTankerVerificationOptions(optionsDict);
+    [tanker verifyIdentityWithVerification:tankerVerification options:tankerOptions completionHandler:^(NSString * _Nullable sessionToken, NSError * _Nullable err) {
+       if (err != nil)
+         reject(errorCodeToString(err.code), err.localizedDescription, err);
+       else
+         resolve(sessionToken);
+    }];
+  }
+}
+
 @end
