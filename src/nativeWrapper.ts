@@ -5,6 +5,7 @@ import type {
   TankerOptions,
   NativeTanker,
   AttachResult,
+  b64string,
 } from './types';
 import {
   Verification,
@@ -92,7 +93,7 @@ export class Tanker {
     );
   }
 
-  encrypt(clearText: string, options?: EncryptionOptions): Promise<string> {
+  encrypt(clearText: string, options?: EncryptionOptions): Promise<b64string> {
     return bridgeAsyncExceptions(
       Native.encryptString(
         this.getInstance(),
@@ -102,13 +103,16 @@ export class Tanker {
     );
   }
 
-  decrypt(encryptedText: string): Promise<string> {
+  decrypt(encryptedText: b64string): Promise<string> {
     return bridgeAsyncExceptions(
       Native.decryptString(this.getInstance(), encryptedText)
     );
   }
 
-  encryptData(clearData: string, options?: EncryptionOptions): Promise<string> {
+  encryptData(
+    clearData: b64string,
+    options?: EncryptionOptions
+  ): Promise<b64string> {
     return bridgeAsyncExceptions(
       Native.encryptData(
         this.getInstance(),
@@ -118,7 +122,7 @@ export class Tanker {
     );
   }
 
-  decryptData(encryptedData: string): Promise<string> {
+  decryptData(encryptedData: b64string): Promise<b64string> {
     return bridgeAsyncExceptions(
       Native.decryptData(this.getInstance(), encryptedData)
     );

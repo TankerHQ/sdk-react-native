@@ -5,6 +5,7 @@ import type {
   Status,
   AttachResult,
   NativeEncryptionSession,
+  b64string,
 } from './types';
 import type { Result } from './errors';
 import type {
@@ -45,14 +46,20 @@ type ClientReactNativeType = {
     instance: NativeTanker,
     clearText: string,
     options?: EncryptionOptions
+  ): Promise<b64string>;
+  decryptString(
+    instance: NativeTanker,
+    encryptedText: b64string
   ): Promise<string>;
-  decryptString(instance: NativeTanker, encryptedText: string): Promise<string>;
   encryptData(
     instance: NativeTanker,
-    clearData: string,
+    clearData: b64string,
     options?: EncryptionOptions
-  ): Promise<string>;
-  decryptData(instance: NativeTanker, encryptedData: string): Promise<string>;
+  ): Promise<b64string>;
+  decryptData(
+    instance: NativeTanker,
+    encryptedData: b64string
+  ): Promise<b64string>;
   getResourceId(instance: NativeTanker, encrypted: string): Promise<string>;
   share(
     instance: NativeTanker,
@@ -88,11 +95,11 @@ type ClientReactNativeType = {
   encryptionSessionEncryptString(
     instance: NativeEncryptionSession,
     clearText: string
-  ): Promise<string>;
+  ): Promise<b64string>;
   encryptionSessionEncryptData(
     instance: NativeEncryptionSession,
-    clearData: string
-  ): Promise<string>;
+    clearData: b64string
+  ): Promise<b64string>;
 };
 
 export const Native: ClientReactNativeType = NativeModules.ClientReactNative;

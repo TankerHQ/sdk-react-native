@@ -1,6 +1,7 @@
 import { InvalidArgument } from '@tanker/errors';
 import type { EmailVerificationMethod } from './verification';
 
+export type b64string = string;
 export type NativeTanker = number;
 export type NativeEncryptionSession = number;
 

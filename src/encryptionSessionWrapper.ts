@@ -1,4 +1,4 @@
-import type { NativeEncryptionSession } from './types';
+import type { b64string, NativeEncryptionSession } from './types';
 import { bridgeAsyncExceptions, bridgeSyncResult } from './errors';
 import { Native } from './native';
 
@@ -23,13 +23,13 @@ export class EncryptionSession {
     );
   }
 
-  encrypt(clearText: string): Promise<string> {
+  encrypt(clearText: string): Promise<b64string> {
     return bridgeAsyncExceptions(
       Native.encryptionSessionEncryptString(this.instance, clearText)
     );
   }
 
-  encryptData(clearData: string): Promise<string> {
+  encryptData(clearData: b64string): Promise<b64string> {
     return bridgeAsyncExceptions(
       Native.encryptionSessionEncryptData(this.instance, clearData)
     );
