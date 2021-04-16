@@ -2,8 +2,7 @@
 /* eslint-disable jest/valid-expect */
 
 import { Tanker, statuses, setLogHandler } from '@tanker/client-react-native';
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { expect } from 'chai';
 import { describe, beforeEach, afterEach, it } from './framework';
 import {
   createIdentity,
@@ -14,8 +13,6 @@ import {
 } from './admin';
 import { InvalidArgument, InvalidVerification } from '@tanker/errors';
 import { createTanker, clearTankerDataDirs } from './tests';
-
-chai.use(chaiAsPromised);
 
 export const tankerTests = () => {
   describe('Tanker tests', () => {

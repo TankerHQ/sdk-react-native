@@ -1,16 +1,13 @@
 // This file doesn't use jest's expect
 /* eslint-disable jest/valid-expect */
 
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { expect } from 'chai';
 import type { Tanker } from '@tanker/client-react-native';
 import { describe, beforeEach, afterEach, it } from './framework';
 import { createIdentity, getPublicIdentity } from './admin';
 import { InvalidArgument } from '@tanker/errors';
 import { createTanker, clearTankerDataDirs } from './tests';
 import type { EncryptionSession } from '../../src/encryptionSessionWrapper';
-
-chai.use(chaiAsPromised);
 
 export const encryptionSessionTests = () => {
   describe('Encryption session tests', () => {
