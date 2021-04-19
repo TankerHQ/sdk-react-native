@@ -1,4 +1,5 @@
 #import "ClientReactNative+Private.h"
+#import "Utils+Private.h"
 
 #import <objc/runtime.h>
 #import <stdlib.h>
