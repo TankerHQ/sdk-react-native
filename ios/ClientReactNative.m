@@ -101,6 +101,39 @@ static NSString* errorCodeToString(TKRError err)
   }
 }
 
+static NSArray<NSDictionary<NSString*, id> *>* verificationMethodsToJson(NSArray<TKRVerificationMethod*> *methods, NSError* _Nullable * _Nonnull err)
+{
+  *err = nil;
+  
+  NSMutableArray<NSDictionary<NSString*, id> *>* ret = [NSMutableArray array];
+ 
+  for (int i = 0; i < methods.count; ++i)
+  {
+    NSMutableDictionary<NSString*, id> * field = [NSMutableDictionary dictionary];
+    switch (methods[i].type) {
+      case TKRVerificationMethodTypeEmail:
+        field[@"type"] = @"email";
+        field[@"email"] = methods[i].email;
+        break;
+      case TKRVerificationMethodTypeOIDCIDToken:
+        field[@"type"] = @"oidcIdToken";
+        break;
+      case TKRVerificationMethodTypePassphrase:
+        field[@"type"] = @"passphrase";
+        break;
+      case TKRVerificationMethodTypeVerificationKey:
+        field[@"type"] = @"verificationKey";
+      default:
+        *err = [NSError errorWithDomain:TKRErrorDomain code:TKRErrorInternalError userInfo:@{
+          NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Unknown verification method type: %d", (int)methods[i].type]
+        }];
+        return nil;
+    }
+    [ret addObject:field];
+  }
+  return ret;
+}
+
 @implementation ClientReactNative
 
 RCT_EXPORT_MODULE()
@@ -288,6 +321,32 @@ RCT_REMAP_METHOD(generateVerificationKey,
          reject(errorCodeToString(err.code), err.localizedDescription, err);
        else
          resolve(key.value);
+    }];
+  }
+}
+
+RCT_REMAP_METHOD(getVerificationMethods,
+                 getVerificationMethodsWithTankerHandle:(nonnull NSNumber*)handle
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    [tanker verificationMethodsWithCompletionHandler:^(NSArray<TKRVerificationMethod *> * _Nullable methods, NSError * _Nullable err) {
+       if (err != nil)
+         reject(errorCodeToString(err.code), err.localizedDescription, err);
+       else
+       {
+         NSError* err;
+         NSArray<NSDictionary<NSString*, id>*>* jsonMethods = verificationMethodsToJson(methods, &err);
+         if (err != nil)
+           reject(errorCodeToString(err.code), err.localizedDescription, err);
+         else
+           resolve(jsonMethods);
+       }
     }];
   }
 }
