@@ -122,7 +122,7 @@ export const tankerTests = () => {
       await secondDevice.stop();
     });
 
-    it('can request a session token with VerificationOptions', async () => {
+    it.only('can request a session token with VerificationOptions', async () => {
       await toggleSessionCertificates(true);
       await tanker.start(identity);
       const token = await tanker.registerIdentity(
@@ -137,7 +137,7 @@ export const tankerTests = () => {
       expect(tokenData).length.greaterThanOrEqual(32);
     });
 
-    it('can use a verificationKey', async () => {
+    it.only('can use a verificationKey', async () => {
       await tanker.start(identity);
       const verifKey = await tanker.generateVerificationKey();
       expect(verifKey).is.not.empty;
