@@ -553,4 +553,32 @@ RCT_REMAP_METHOD(share,
     }];
   }
 }
+
+RCT_REMAP_METHOD(updateGroupMembers,
+                 updateGroupMembersWithTankerHandle:(nonnull NSNumber*)handle
+                 groupId:(nonnull NSString*)groupId
+                 options:(nonnull NSDictionary<NSString*, id>*)optionsDict
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    NSArray<NSString*>* usersToAdd = optionsDict[@"usersToAdd"];
+    if (!usersToAdd || usersToAdd.count == 0)
+      reject(@"INVALID_ARGUMENT", @"usersToAdd cannot be nil nor empty", nil);
+    else
+    {
+      [tanker updateMembersOfGroup:groupId usersToAdd:usersToAdd completionHandler:^(NSError * _Nullable err) {
+        if (err != nil)
+          reject(errorCodeToString(err.code), err.localizedDescription, err);
+        else
+          resolve(nil);
+      }];
+    }
+  }
+}
+
 @end

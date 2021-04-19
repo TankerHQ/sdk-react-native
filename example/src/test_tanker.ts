@@ -170,7 +170,7 @@ export const tankerTests = () => {
       expect(groupId).is.not.empty;
     });
 
-    it('can add members to a group', async () => {
+    it.only('can add members to a group', async () => {
       const other = await createTanker();
       const otherIdent = await createIdentity();
       const otherPubIdent = await getPublicIdentity(otherIdent);
