@@ -100,7 +100,7 @@ export const encryptionTests = () => {
       expect(resId).is.not.empty;
     });
 
-    it('can share encrypted data', async () => {
+    it.only('can share encrypted data', async () => {
       const other = await createTanker();
       const otherPrivIdent = await createIdentity();
       await other.start(otherPrivIdent);

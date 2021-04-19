@@ -77,6 +77,22 @@ static TKREncryptionOptions* _Nonnull dictToTankerEncryptionOptions(NSDictionary
   return ret;
 }
 
+static TKRSharingOptions* _Nonnull dictToTankerSharingOptions(NSDictionary<NSString*, id>* _Nullable optionsDict)
+{
+  TKRSharingOptions* ret = [TKRSharingOptions options];
+   if (!optionsDict)
+     return ret;
+  NSArray<NSString*>* shareWithUsers = optionsDict[@"shareWithUsers"];
+  NSArray<NSString*>* shareWithGroups = optionsDict[@"shareWithGroups"];
+  
+  if (shareWithUsers)
+    ret.shareWithUsers = shareWithUsers;
+  if (shareWithGroups)
+    ret.shareWithGroups = shareWithGroups;
+  return ret;
+}
+
+
 static NSDictionary* invalidHandleError(NSNumber* _Nonnull handle)
 {
   return  @{@"err" : @{@"code": @"INTERNAL_ERROR", @"message": [NSString stringWithFormat:@"invalid handle: %ul", handle.unsignedIntValue]}};
@@ -516,4 +532,25 @@ RCT_REMAP_METHOD(getResourceId,
   }
 }
 
+RCT_REMAP_METHOD(share,
+                 shareWithTankerHandle:(nonnull NSNumber*)handle
+                 resourceIds:(nonnull NSArray<NSString*>*)resourceIds
+                 options:(nonnull NSDictionary<NSString*, id>*)optionsDict
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    TKRSharingOptions* options = dictToTankerSharingOptions(optionsDict);
+    [tanker shareResourceIDs:resourceIds options:options completionHandler:^(NSError * _Nullable err) {
+       if (err != nil)
+         reject(errorCodeToString(err.code), err.localizedDescription, err);
+       else
+        resolve(nil);
+    }];
+  }
+}
 @end
