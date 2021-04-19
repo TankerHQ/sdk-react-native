@@ -27,7 +27,7 @@ export const encryptionSessionTests = () => {
       await clearTankerDataDirs();
     });
 
-    it.only('can get the resource ID', async () => {
+    it('can get the resource ID', async () => {
       const encrypted = await session.encrypt('less than three');
       const resId = await tanker.getResourceId(encrypted);
       const sessResId = session.resourceId;
@@ -36,14 +36,14 @@ export const encryptionSessionTests = () => {
       expect(sessResId).eq(resId);
     });
 
-    it.only('can roundtrip a basic encrypt', async () => {
+    it('can roundtrip a basic encrypt', async () => {
       const plaintext = 'foo';
       const encrypted = await session.encrypt(plaintext);
       const decrypted = await tanker.decrypt(encrypted);
       expect(decrypted).eq(plaintext);
     });
 
-    it.only('can use encryption options to share', async () => {
+    it('can use encryption options to share', async () => {
       const other = await createTanker();
       const otherPrivIdent = await createIdentity();
       await other.start(otherPrivIdent);

@@ -28,7 +28,7 @@ export const tankerTests = () => {
       await clearTankerDataDirs();
     });
 
-    it.only('can start and stop', async () => {
+    it('can start and stop', async () => {
       expect(tanker.status).eq(statuses.STOPPED);
       await tanker.start(identity);
       expect(tanker.status).eq(statuses.IDENTITY_REGISTRATION_NEEDED);
@@ -36,14 +36,14 @@ export const tankerTests = () => {
       expect(tanker.status).eq(statuses.STOPPED);
     });
 
-    it.only('can reuse the Tanker object after stop', async () => {
+    it('can reuse the Tanker object after stop', async () => {
       await tanker.start(identity);
       await tanker.stop();
       await tanker.start(identity);
       expect(tanker.status).eq(statuses.IDENTITY_REGISTRATION_NEEDED);
     });
 
-    it.only('fails to start with an invalid identity', async () => {
+    it('fails to start with an invalid identity', async () => {
       // If our exception bridge is working, the C error should have turned into the right JS class and message
       await expect(tanker.start('Invalid')).is.eventually.rejectedWith(
         InvalidArgument,
@@ -51,7 +51,7 @@ export const tankerTests = () => {
       );
     });
 
-    it.only('gets a sensible error from a bad registerIdentity', async () => {
+    it('gets a sensible error from a bad registerIdentity', async () => {
       await tanker.start(identity);
       await expect(
         tanker.registerIdentity({
@@ -61,7 +61,7 @@ export const tankerTests = () => {
       ).is.eventually.rejectedWith(InvalidVerification, 'verification code');
     });
 
-    it.only('gets a sensible error from a type error in registerIdentity', async () => {
+    it('gets a sensible error from a type error in registerIdentity', async () => {
       await tanker.start(identity);
       expect(
         tanker.registerIdentity({
@@ -81,19 +81,19 @@ export const tankerTests = () => {
     //   expect(prom).eventually.is.not.empty;
     // });
 
-    it.only('can get a device ID', async () => {
+    it('can get a device ID', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({ passphrase: 'foo' });
       expect(await tanker.deviceId()).is.not.empty;
     });
 
-    it.only('can use registerIdentity to open a session', async () => {
+    it('can use registerIdentity to open a session', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({ passphrase: 'foo' });
       expect(tanker.status).eq(statuses.READY);
     });
 
-    it.only('can use verifyIdentity to open a session', async () => {
+    it('can use verifyIdentity to open a session', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({ passphrase: 'foo' });
       expect(tanker.status).eq(statuses.READY);
@@ -107,7 +107,7 @@ export const tankerTests = () => {
       await secondDevice.stop();
     });
 
-    it.only('can use setVerificationMethod to change a passphrase', async () => {
+    it('can use setVerificationMethod to change a passphrase', async () => {
       const pass1 = { passphrase: 'foo' };
       const pass2 = { passphrase: 'bar' };
 
@@ -122,7 +122,7 @@ export const tankerTests = () => {
       await secondDevice.stop();
     });
 
-    it.only('can request a session token with VerificationOptions', async () => {
+    it('can request a session token with VerificationOptions', async () => {
       await toggleSessionCertificates(true);
       await tanker.start(identity);
       const token = await tanker.registerIdentity(
@@ -137,7 +137,7 @@ export const tankerTests = () => {
       expect(tokenData).length.greaterThanOrEqual(32);
     });
 
-    it.only('can use a verificationKey', async () => {
+    it('can use a verificationKey', async () => {
       await tanker.start(identity);
       const verifKey = await tanker.generateVerificationKey();
       expect(verifKey).is.not.empty;
@@ -147,7 +147,7 @@ export const tankerTests = () => {
       expect(tanker.status).eq(statuses.READY);
     });
 
-    it.only('can get verification methods', async () => {
+    it('can get verification methods', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({
         passphrase: 'stickbug',
@@ -160,7 +160,7 @@ export const tankerTests = () => {
       ]);
     });
 
-    it.only('can create a basic group', async () => {
+    it('can create a basic group', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({
         passphrase: 'stickbug',
@@ -170,7 +170,7 @@ export const tankerTests = () => {
       expect(groupId).is.not.empty;
     });
 
-    it.only('can add members to a group', async () => {
+    it('can add members to a group', async () => {
       const other = await createTanker();
       const otherIdent = await createIdentity();
       const otherPubIdent = await getPublicIdentity(otherIdent);
@@ -195,7 +195,7 @@ export const tankerTests = () => {
       expect(decrypted).eq(plaintext);
     });
 
-    it.only('can attach a provisional identity', async () => {
+    it('can attach a provisional identity', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({
         passphrase: 'ice cold water',
@@ -210,7 +210,7 @@ export const tankerTests = () => {
       await tanker.verifyProvisionalIdentity({ email, verificationCode });
     });
 
-    it.only('can skip provisional identity verification', async () => {
+    it('can skip provisional identity verification', async () => {
       const email = 'bob@bargor.io';
       const provIdentity = await createProvisionalIdentity(email);
       const provPublicIdent = await getPublicIdentity(provIdentity);

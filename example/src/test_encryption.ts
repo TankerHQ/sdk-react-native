@@ -23,14 +23,14 @@ export const encryptionTests = () => {
       await clearTankerDataDirs();
     });
 
-    it.only('can roundtrip a basic encrypt', async () => {
+    it('can roundtrip a basic encrypt', async () => {
       const plaintext = 'foo';
       const encrypted = await tanker.encrypt(plaintext);
       const decrypted = await tanker.decrypt(encrypted);
       expect(decrypted).eq(plaintext);
     });
 
-    it.only('fails to decrypt bad base64', async () => {
+    it('fails to decrypt bad base64', async () => {
       // This kind of basic error handling test is not as trivial as it looks, because there are
       // _many_ kinds of errors in a native module that result in a hang, not an exception (JS promise not resolved)
       await expect(tanker.decrypt('Not base 64!')).eventually.rejectedWith(
@@ -38,7 +38,7 @@ export const encryptionTests = () => {
       );
     });
 
-    it.only('can use encryption options to share', async () => {
+    it('can use encryption options to share', async () => {
       const other = await createTanker();
       const otherPrivIdent = await createIdentity();
       await other.start(otherPrivIdent);
@@ -60,14 +60,14 @@ export const encryptionTests = () => {
       expect(decrypted).eq(plaintext);
     });
 
-    it.only('can roundtrip with encryptData', async () => {
+    it('can roundtrip with encryptData', async () => {
       const plaindata = 'dW5kZXIgY29vbCBtb29ubGlnaHQ=';
       const encrypted = await tanker.encryptData(plaindata);
       const decrypted = await tanker.decryptData(encrypted);
       expect(decrypted).eq(plaindata);
     });
 
-    it.only('cannot pass a non-base64 plaintext to encryptData', async () => {
+    it('cannot pass a non-base64 plaintext to encryptData', async () => {
       // NOTE: Android cannot be told to reject unpadded Base64 (though if there is padding, it must be correct),
       // that's why we explicitely pick a plaintext with a space (invalid charset) for this test
       const plaintext = 'plain text';
@@ -76,7 +76,7 @@ export const encryptionTests = () => {
       );
     });
 
-    it.only('encryptData correctly un-base64-ifies before encrypt', async () => {
+    it('encryptData correctly un-base64-ifies before encrypt', async () => {
       const plaindata = 'ZmlyZQ==';
       const plaintext = 'fire';
 
@@ -87,20 +87,20 @@ export const encryptionTests = () => {
       expect(decrypted).eq(plaintext);
     });
 
-    it.only('can get the resourceId for a small encrypted data', async () => {
+    it('can get the resourceId for a small encrypted data', async () => {
       const encrypted = await tanker.encrypt('Principalities');
       const resId = await tanker.getResourceId(encrypted);
       expect(resId).is.not.empty;
     });
 
-    it.only('can get the resourceId for a longer encrypted data', async () => {
+    it('can get the resourceId for a longer encrypted data', async () => {
       const plaintext = `Heap dump: 0x${'41'.repeat(1025)}`;
       const encrypted = await tanker.encrypt(plaintext);
       const resId = await tanker.getResourceId(encrypted);
       expect(resId).is.not.empty;
     });
 
-    it.only('can share encrypted data', async () => {
+    it('can share encrypted data', async () => {
       const other = await createTanker();
       const otherPrivIdent = await createIdentity();
       await other.start(otherPrivIdent);

@@ -702,6 +702,32 @@ RCT_REMAP_METHOD(encryptionSessionEncryptString,
   }
 }
 
+RCT_REMAP_METHOD(encryptionSessionEncryptData,
+                 encryptDataWithEncryptionSessionHandle:(nonnull NSNumber*)handle
+                 b64ClearData:(nonnull NSString*)b64ClearData
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
+  if (!session)
+    reject(@"INTERNAL_ERROR", @"Invalid encryption session handle", nil);
+  else
+  {
+    NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
+    if (!clearData)
+      reject(@"INVALID_ARGUMENT", @"Invalid base64 clear data", nil);
+    else
+    {
+      [session encryptData:clearData completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+        if (err != nil)
+          reject(errorCodeToString(err.code), err.localizedDescription, err);
+        else
+          resolve([encryptedData base64EncodedStringWithOptions:0]);
+      }];
+    }
+  }
+}
+
 RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionGetResourceId, id, getResourceIdWithEncryptionSessionHandle:(nonnull NSNumber*)handle)
 {
   TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
