@@ -490,4 +490,30 @@ RCT_REMAP_METHOD(decryptData,
   }
 }
 
+RCT_REMAP_METHOD(getResourceId,
+                 getResourceIdWithTankerHandle:(nonnull NSNumber*)handle
+                 b64EncryptedData:(nonnull NSString*)b64EncryptedData
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedData options:0];
+    if (!encryptedData)
+      reject(@"INVALID_ARGUMENT", @"Invalid base64 encrypted data", nil);
+    else
+    {
+      NSError* err;
+      NSString* resourceId = [tanker resourceIDOfEncryptedData:encryptedData error:&err];
+      if (err != nil)
+        reject(errorCodeToString(err.code), err.localizedDescription, err);
+      else
+        resolve(resourceId);
+    }
+  }
+}
+
 @end

@@ -87,13 +87,13 @@ export const encryptionTests = () => {
       expect(decrypted).eq(plaintext);
     });
 
-    it('can get the resourceId for a small encrypted data', async () => {
+    it.only('can get the resourceId for a small encrypted data', async () => {
       const encrypted = await tanker.encrypt('Principalities');
       const resId = await tanker.getResourceId(encrypted);
       expect(resId).is.not.empty;
     });
 
-    it('can get the resourceId for a longer encrypted data', async () => {
+    it.only('can get the resourceId for a longer encrypted data', async () => {
       const plaintext = `Heap dump: 0x${'41'.repeat(1025)}`;
       const encrypted = await tanker.encrypt(plaintext);
       const resId = await tanker.getResourceId(encrypted);
