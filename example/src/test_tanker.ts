@@ -160,7 +160,7 @@ export const tankerTests = () => {
       ]);
     });
 
-    it('can create a basic group', async () => {
+    it.only('can create a basic group', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({
         passphrase: 'stickbug',

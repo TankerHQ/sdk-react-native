@@ -351,4 +351,23 @@ RCT_REMAP_METHOD(getVerificationMethods,
   }
 }
 
+RCT_REMAP_METHOD(createGroup,
+                 createGroupWithTankerHandle:(nonnull NSNumber*)handle publicIdentities:(nonnull NSArray<NSString*>*)identities
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    [tanker createGroupWithIdentities:identities completionHandler:^(NSString * _Nullable groupID, NSError * _Nullable err) {
+      if (err != nil)
+        reject(errorCodeToString(err.code), err.localizedDescription, err);
+      else
+        resolve(groupID);
+    }];
+  }
+}
+
 @end
