@@ -59,6 +59,24 @@ static TKRVerification* _Nonnull dictToTankerVerification(NSDictionary<NSString*
   return nil;
 }
 
+static TKREncryptionOptions* _Nonnull dictToTankerEncryptionOptions(NSDictionary<NSString*, id>* _Nullable optionsDict)
+{
+  TKREncryptionOptions* ret = [TKREncryptionOptions options];
+   if (!optionsDict)
+     return ret;
+  NSArray<NSString*>* shareWithUsers = optionsDict[@"shareWithUsers"];
+  NSArray<NSString*>* shareWithGroups = optionsDict[@"shareWithGroups"];
+  NSNumber* shareWithSelf = optionsDict[@"shareWithSelf"];
+  
+  if (shareWithUsers)
+    ret.shareWithUsers = shareWithUsers;
+  if (shareWithGroups)
+    ret.shareWithGroups = shareWithGroups;
+  if (shareWithSelf)
+    ret.shareWithSelf = shareWithSelf.boolValue;
+  return ret;
+}
+
 static NSDictionary* invalidHandleError(NSNumber* _Nonnull handle)
 {
   return  @{@"err" : @{@"code": @"INTERNAL_ERROR", @"message": [NSString stringWithFormat:@"invalid handle: %ul", handle.unsignedIntValue]}};
@@ -367,6 +385,54 @@ RCT_REMAP_METHOD(createGroup,
       else
         resolve(groupID);
     }];
+  }
+}
+
+RCT_REMAP_METHOD(encryptString,
+                 encryptStringWithTankerHandle:(nonnull NSNumber*)handle
+                 clearText:(nonnull NSString*)clearText
+                 options:(nullable NSDictionary<NSString*, id>*)optionsDict
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    TKREncryptionOptions* options = dictToTankerEncryptionOptions(optionsDict);
+    [tanker encryptString:clearText options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+      if (err != nil)
+        reject(errorCodeToString(err.code), err.localizedDescription, err);
+      else
+        resolve([encryptedData base64EncodedStringWithOptions:0]);
+    }];
+  }
+}
+
+RCT_REMAP_METHOD(decryptString,
+                 decryptStringWithTankerHandle:(nonnull NSNumber*)handle
+                 b64EncryptedText:(nonnull NSString*)b64EncryptedText
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedText options:0];
+    if (!encryptedData)
+      reject(@"INVALID_ARGUMENT", @"Invalid base64 encrypted data", nil);
+    else
+    {
+      [tanker decryptStringFromData:encryptedData completionHandler:^(NSString * _Nullable decryptedString, NSError * _Nullable err) {
+        if (err != nil)
+          reject(errorCodeToString(err.code), err.localizedDescription, err);
+        else
+          resolve(decryptedString);
+      }];
+    }
   }
 }
 

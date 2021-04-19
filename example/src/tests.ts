@@ -2,7 +2,7 @@ import { Tanker } from '@tanker/client-react-native';
 import { getAppId, getTankerUrl } from './admin';
 import { basicTests } from './test_basic';
 import { tankerTests } from './test_tanker';
-// import { encryptionTests } from './test_encryption';
+import { encryptionTests } from './test_encryption';
 // import { encryptionSessionTests } from './test_encryption_session';
 import RNFS from 'react-native-fs';
 import chai from 'chai';
@@ -15,7 +15,7 @@ let pathsToClear: Array<string> = [];
 export const generateTests = () => {
   basicTests();
   tankerTests();
-  // encryptionTests();
+  encryptionTests();
   // encryptionSessionTests();
 };
 

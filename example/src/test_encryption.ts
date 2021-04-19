@@ -23,14 +23,14 @@ export const encryptionTests = () => {
       await clearTankerDataDirs();
     });
 
-    it('can roundtrip a basic encrypt', async () => {
+    it.only('can roundtrip a basic encrypt', async () => {
       const plaintext = 'foo';
       const encrypted = await tanker.encrypt(plaintext);
       const decrypted = await tanker.decrypt(encrypted);
       expect(decrypted).eq(plaintext);
     });
 
-    it('fails to decrypt bad base64', async () => {
+    it.only('fails to decrypt bad base64', async () => {
       // This kind of basic error handling test is not as trivial as it looks, because there are
       // _many_ kinds of errors in a native module that result in a hang, not an exception (JS promise not resolved)
       await expect(tanker.decrypt('Not base 64!')).eventually.rejectedWith(
@@ -38,7 +38,7 @@ export const encryptionTests = () => {
       );
     });
 
-    it('can use encryption options to share', async () => {
+    it.only('can use encryption options to share', async () => {
       const other = await createTanker();
       const otherPrivIdent = await createIdentity();
       await other.start(otherPrivIdent);
