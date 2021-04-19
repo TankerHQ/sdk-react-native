@@ -3,7 +3,7 @@ import { getAppId, getTankerUrl } from './admin';
 import { basicTests } from './test_basic';
 import { tankerTests } from './test_tanker';
 import { encryptionTests } from './test_encryption';
-// import { encryptionSessionTests } from './test_encryption_session';
+import { encryptionSessionTests } from './test_encryption_session';
 import RNFS from 'react-native-fs';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -16,7 +16,7 @@ export const generateTests = () => {
   basicTests();
   tankerTests();
   encryptionTests();
-  // encryptionSessionTests();
+  encryptionSessionTests();
 };
 
 export async function createTanker(): Promise<Tanker> {

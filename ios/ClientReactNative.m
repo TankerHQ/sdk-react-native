@@ -3,6 +3,7 @@
 #import "Tanker/TKRTanker.h"
 #import "Tanker/TKRError.h"
 #import "Tanker/TKRAttachResult.h"
+#import "Tanker/TKREncryptionSession.h"
 
 static TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id>* _Nonnull optionsDict)
 {
@@ -183,7 +184,10 @@ RCT_EXPORT_MODULE()
 - (instancetype) init
 {
   if (self = [super init])
+  {
     [self initInstanceMap];
+    [self initEncryptionSessionMap];
+  }
   return self;
 }
 
@@ -652,6 +656,69 @@ RCT_REMAP_METHOD(verifyProvisionalIdentity,
       reject(@"INVALID_ARGUMENT", e.reason, nil);
     }
   }
+}
+
+RCT_REMAP_METHOD(createEncryptionSession,
+                 createEncryptionSessionWithTankerHandle:(nonnull NSNumber*)handle
+                 options:(nullable NSDictionary<NSString*, id>*)optionsDict
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    TKREncryptionOptions* options = dictToTankerEncryptionOptions(optionsDict);
+    [tanker createEncryptionSessionWithCompletionHandler:^(TKREncryptionSession * _Nullable session, NSError * _Nullable err) {
+      if (err != nil)
+        reject(errorCodeToString(err.code), err.localizedDescription, err);
+      else
+      {
+        NSNumber* handle = [self insertEncryptionSessionInMap:session];
+        resolve(handle);
+      }
+    } encryptionOptions:options];
+  }
+}
+
+RCT_REMAP_METHOD(encryptionSessionEncryptString,
+                 encryptStringWithEncryptionSessionHandle:(nonnull NSNumber*)handle
+                 clearText:(nonnull NSString*)text
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
+  if (!session)
+    reject(@"INTERNAL_ERROR", @"Invalid encryption session handle", nil);
+  else
+  {
+    [session encryptString:text completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+      if (err != nil)
+        reject(errorCodeToString(err.code), err.localizedDescription, err);
+      else
+        resolve([encryptedData base64EncodedStringWithOptions:0]);
+    }];
+  }
+}
+
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionGetResourceId, id, getResourceIdWithEncryptionSessionHandle:(nonnull NSNumber*)handle)
+{
+  TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
+  if (!session)
+    return invalidHandleError(handle);
+  else
+    return @{@"ok": session.resourceID};
+}
+
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionDestroy, id, destroyEncryptionSessionHandle:(nonnull NSNumber*)handle)
+{
+  if ([self.encryptionSessionMap objectForKey:handle] != nil)
+  {
+    [self removeEncryptionSessionInMap:handle];
+    return @{@"ok": @""};
+  }
+  return invalidHandleError(handle);
 }
 
 @end
