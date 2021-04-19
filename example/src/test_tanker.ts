@@ -195,7 +195,7 @@ export const tankerTests = () => {
       expect(decrypted).eq(plaintext);
     });
 
-    it('can attach a provisional identity', async () => {
+    it.only('can attach a provisional identity', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({
         passphrase: 'ice cold water',
@@ -210,7 +210,7 @@ export const tankerTests = () => {
       await tanker.verifyProvisionalIdentity({ email, verificationCode });
     });
 
-    it('can skip provisional identity verification', async () => {
+    it.only('can skip provisional identity verification', async () => {
       const email = 'bob@bargor.io';
       const provIdentity = await createProvisionalIdentity(email);
       const provPublicIdent = await getPublicIdentity(provIdentity);

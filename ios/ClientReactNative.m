@@ -2,6 +2,7 @@
 
 #import "Tanker/TKRTanker.h"
 #import "Tanker/TKRError.h"
+#import "Tanker/TKRAttachResult.h"
 
 static TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id>* _Nonnull optionsDict)
 {
@@ -135,6 +136,30 @@ static NSString* errorCodeToString(TKRError err)
   }
 }
 
+static NSDictionary<NSString*, id>* verificationMethodToJson(TKRVerificationMethod* method, NSError* _Nullable* _Nonnull err)
+{
+  NSMutableDictionary<NSString*, id> * field = [NSMutableDictionary dictionary];
+  switch (method.type) {
+    case TKRVerificationMethodTypeEmail:
+      field[@"type"] = @"email";
+      field[@"email"] = method.email;
+      break;
+    case TKRVerificationMethodTypeOIDCIDToken:
+      field[@"type"] = @"oidcIdToken";
+      break;
+    case TKRVerificationMethodTypePassphrase:
+      field[@"type"] = @"passphrase";
+      break;
+    case TKRVerificationMethodTypeVerificationKey:
+      field[@"type"] = @"verificationKey";
+    default:
+      *err = [NSError errorWithDomain:TKRErrorDomain code:TKRErrorInternalError userInfo:@{
+        NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Unknown verification method type: %d", (int)method.type]
+      }];
+  }
+  return field;
+}
+
 static NSArray<NSDictionary<NSString*, id> *>* verificationMethodsToJson(NSArray<TKRVerificationMethod*> *methods, NSError* _Nullable * _Nonnull err)
 {
   *err = nil;
@@ -143,26 +168,9 @@ static NSArray<NSDictionary<NSString*, id> *>* verificationMethodsToJson(NSArray
  
   for (int i = 0; i < methods.count; ++i)
   {
-    NSMutableDictionary<NSString*, id> * field = [NSMutableDictionary dictionary];
-    switch (methods[i].type) {
-      case TKRVerificationMethodTypeEmail:
-        field[@"type"] = @"email";
-        field[@"email"] = methods[i].email;
-        break;
-      case TKRVerificationMethodTypeOIDCIDToken:
-        field[@"type"] = @"oidcIdToken";
-        break;
-      case TKRVerificationMethodTypePassphrase:
-        field[@"type"] = @"passphrase";
-        break;
-      case TKRVerificationMethodTypeVerificationKey:
-        field[@"type"] = @"verificationKey";
-      default:
-        *err = [NSError errorWithDomain:TKRErrorDomain code:TKRErrorInternalError userInfo:@{
-          NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Unknown verification method type: %d", (int)methods[i].type]
-        }];
-        return nil;
-    }
+    NSDictionary<NSString*, id>* field = verificationMethodToJson(methods[i], err);
+    if (*err != nil)
+      return nil;
     [ret addObject:field];
   }
   return ret;
@@ -577,6 +585,71 @@ RCT_REMAP_METHOD(updateGroupMembers,
         else
           resolve(nil);
       }];
+    }
+  }
+}
+
+RCT_REMAP_METHOD(attachProvisionalIdentity,
+                 attachProvisionalIdentityWithTankerHandle:(nonnull NSNumber*)handle
+                 identity:(nonnull NSString*)identity
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    [tanker attachProvisionalIdentity:identity completionHandler:^(TKRAttachResult * _Nullable result, NSError * _Nullable err) {
+      if (err != nil)
+        reject(errorCodeToString(err.code), err.localizedDescription, err);
+      else
+      {
+        NSMutableDictionary<NSString*, id>* ret = [NSMutableDictionary dictionary];
+        ret[@"status"] = [NSNumber numberWithInt:(int)result.status];
+        if (result.method)
+        {
+          NSError* err;
+          NSDictionary<NSString*, id>* jsonMethod = verificationMethodToJson(result.method, &err);
+          if (err != nil)
+          {
+            reject(errorCodeToString(err.code), err.localizedDescription, err);
+            return;
+          }
+          else
+            ret[@"verificationMethod"] = jsonMethod;
+        }
+        resolve(ret);
+      }
+    }];
+  }
+}
+
+RCT_REMAP_METHOD(verifyProvisionalIdentity,
+                 verifyProvisionalIdentityWithTankerHandle:(nonnull NSNumber*)handle
+                 verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  // TODO use NSError everywhere
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    @try
+    {
+      TKRVerification* verification = dictToTankerVerification(verificationDict);
+      [tanker verifyProvisionalIdentityWithVerification:verification completionHandler:^(NSError * _Nullable err) {
+        if (err != nil)
+          reject(errorCodeToString(err.code), err.localizedDescription, err);
+        else
+          resolve(nil);
+      }];
+    }
+    @catch (NSException* e)
+    {
+      reject(@"INVALID_ARGUMENT", e.reason, nil);
     }
   }
 }
