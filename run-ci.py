@@ -36,7 +36,7 @@ def build_and_test_android() -> None:
         cwd="example",
         wait_for_process=5,
         # yarn start forks things, we need to killpg
-        killpg=False,
+        killpg=True,
     ), tankerci.run_in_background(
         "flask", "run", cwd="adminserver", wait_for_process=5, killpg=False,
     ), tankerci.android.emulator():

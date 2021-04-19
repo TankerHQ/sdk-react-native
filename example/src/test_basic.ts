@@ -19,7 +19,10 @@ export const basicTests = () => {
     beforeEach(async () => {
       tanker = await createTanker();
     });
-    afterEach(clearTankerDataDirs);
+    afterEach(async () => {
+      await tanker.stop();
+      await clearTankerDataDirs();
+    });
 
     it('can get a version string', async () => {
       expect(tanker.version).is.not.empty;
@@ -43,7 +46,7 @@ export const basicTests = () => {
     });
 
     it('cannot call functions with a stopped device', async () => {
-      expect(() => tanker.deviceId).throws(
+      await expect(tanker.deviceId()).eventually.rejectedWith(
         PreconditionFailed,
         'session status'
       );

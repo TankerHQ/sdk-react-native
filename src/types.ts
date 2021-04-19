@@ -1,4 +1,9 @@
+import { InvalidArgument } from '@tanker/errors';
+import type { EmailVerificationMethod } from './verification';
+
+export type b64string = string;
 export type NativeTanker = number;
+export type NativeEncryptionSession = number;
 
 export type TankerOptions = {
   appId: string;
@@ -22,3 +27,30 @@ export const statuses: { [name: string]: number } = (() => {
 })();
 
 export type Status = number;
+
+export type AttachResult = {
+  status: Status;
+  verificationMethod?: EmailVerificationMethod;
+};
+
+export type LogRecord = {
+  category: string;
+  level: number;
+  file: string;
+  line: number;
+  message: string;
+};
+
+export const isObject = (val: Object) =>
+  !!val &&
+  typeof val === 'object' &&
+  Object.getPrototypeOf(val) === Object.prototype;
+
+export const assertNotEmptyString = (arg: any, argName: string) => {
+  if (typeof arg !== 'string') {
+    throw new InvalidArgument(argName, `${argName} should be a string`, arg);
+  }
+  if (arg.length === 0) {
+    throw new InvalidArgument(argName, `${argName} should not be empty`, arg);
+  }
+};

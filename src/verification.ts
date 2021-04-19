@@ -1,4 +1,16 @@
 import { InvalidArgument } from '@tanker/errors';
+import { assertNotEmptyString } from './types';
+
+export type EmailVerificationMethod = { type: 'email'; email: string };
+export type PassphraseVerificationMethod = { type: 'passphrase' };
+export type KeyVerificationMethod = { type: 'verificationKey' };
+export type OIDCVerificationMethod = { type: 'oidcIdToken' };
+
+export type VerificationMethod =
+  | EmailVerificationMethod
+  | PassphraseVerificationMethod
+  | KeyVerificationMethod
+  | OIDCVerificationMethod;
 
 export type EmailVerification = { email: string; verificationCode: string };
 export type PassphraseVerification = { passphrase: string };
@@ -11,17 +23,11 @@ export type Verification =
   | KeyVerification
   | OIDCVerification;
 
+export type VerificationOptions = { withSessionToken?: boolean };
+
 const validMethods = ['email', 'passphrase', 'verificationKey', 'oidcIdToken'];
 const validKeys = [...validMethods, 'verificationCode'];
-
-const assertNotEmptyString = (arg: any, argName: string) => {
-  if (typeof arg !== 'string') {
-    throw new InvalidArgument(argName, `${argName} should be a string`, arg);
-  }
-  if (arg.length === 0) {
-    throw new InvalidArgument(argName, `${argName} should not be empty`, arg);
-  }
-};
+const validVerifOptionsKeys = ['withSessionToken'];
 
 export const assertVerification = (verification: Verification) => {
   if (!verification || typeof verification !== 'object')
@@ -76,4 +82,30 @@ export const assertVerification = (verification: Verification) => {
     // $FlowIgnore[prop-missing]
     assertNotEmptyString(verification.oidcIdToken, 'verification.oidcIdToken');
   }
+};
+
+export const assertVerificationOptions = (options?: VerificationOptions) => {
+  if (!options) return;
+
+  // noinspection SuspiciousTypeOfGuard
+  if (typeof options !== 'object' || options instanceof Array) {
+    throw new InvalidArgument('options', 'object', options);
+  }
+
+  if (Object.keys(options).some((k) => !validVerifOptionsKeys.includes(k)))
+    throw new InvalidArgument(
+      'options',
+      `should only contain keys in ${JSON.stringify(validVerifOptionsKeys)}`,
+      options
+    );
+
+  if (
+    'withSessionToken' in options &&
+    typeof options.withSessionToken !== 'boolean'
+  )
+    throw new InvalidArgument(
+      'options',
+      'withSessionToken must be a boolean',
+      options
+    );
 };
