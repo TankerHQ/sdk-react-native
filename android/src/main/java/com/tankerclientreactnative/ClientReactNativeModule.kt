@@ -98,11 +98,6 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun destroy(handle: EncryptionSessionHandle): Result<Unit> {
-        return syncBridge { destroyTanker(handle) }
-    }
-
-    @ReactMethod(isBlockingSynchronousMethod = true)
     fun getNativeVersion(): String {
         return Tanker.getVersionString()
     }
@@ -135,7 +130,9 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     @ReactMethod()
     fun stop(handle: TankerHandle, promise: Promise) {
-        return getTanker(handle).stop().bridge(promise)
+        val tanker = getTanker(handle)
+        destroyTanker(handle)
+        return tanker.stop().bridge(promise)
     }
 
     @ReactMethod()

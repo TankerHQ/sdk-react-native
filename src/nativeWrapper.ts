@@ -62,10 +62,9 @@ export class Tanker {
   }
 
   async stop(): Promise<void> {
-    const instance = this.getInstance(); // "You need to be logged in to log out. Please log in to log out."
-    const result = await bridgeAsyncExceptions(Native.stop(instance));
-    bridgeSyncResult(() => Native.destroy(instance));
+    const instance = this.getInstance();
     this.instance = null;
+    const result = await bridgeAsyncExceptions(Native.stop(instance));
     return result;
   }
 
