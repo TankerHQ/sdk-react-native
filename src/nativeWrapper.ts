@@ -52,11 +52,11 @@ export class Tanker {
     return bridgeSyncResult(() => Native.getStatus(this.getInstance()));
   }
 
-  deviceId(): Promise<string> {
+  async deviceId(): Promise<string> {
     return bridgeAsyncExceptions(Native.getDeviceId(this.getInstance()));
   }
 
-  start(identity: String): Promise<Status> {
+  async start(identity: String): Promise<Status> {
     assertNotEmptyString(identity, 'identity');
     return bridgeAsyncExceptions(Native.start(this.getInstance(), identity));
   }
@@ -69,7 +69,7 @@ export class Tanker {
     return result;
   }
 
-  registerIdentity(
+  async registerIdentity(
     verification: Verification,
     options?: VerificationOptions
   ): Promise<void | string> {
@@ -80,7 +80,7 @@ export class Tanker {
     );
   }
 
-  verifyIdentity(
+  async verifyIdentity(
     verification: Verification,
     options?: VerificationOptions
   ): Promise<void | string> {
@@ -91,7 +91,7 @@ export class Tanker {
     );
   }
 
-  setVerificationMethod(
+  async setVerificationMethod(
     verification: Verification,
     options?: VerificationOptions
   ): Promise<void | string> {
@@ -102,7 +102,10 @@ export class Tanker {
     );
   }
 
-  encrypt(clearText: string, options?: EncryptionOptions): Promise<b64string> {
+  async encrypt(
+    clearText: string,
+    options?: EncryptionOptions
+  ): Promise<b64string> {
     // noinspection SuspiciousTypeOfGuard
     if (typeof clearText !== 'string') {
       throw new InvalidArgument('clearText', `clearText should be a string`);
@@ -116,7 +119,7 @@ export class Tanker {
     );
   }
 
-  decrypt(encryptedText: b64string): Promise<string> {
+  async decrypt(encryptedText: b64string): Promise<string> {
     // noinspection SuspiciousTypeOfGuard
     if (typeof encryptedText !== 'string') {
       throw new InvalidArgument(
@@ -129,7 +132,7 @@ export class Tanker {
     );
   }
 
-  encryptData(
+  async encryptData(
     clearData: b64string,
     options?: EncryptionOptions
   ): Promise<b64string> {
@@ -146,7 +149,7 @@ export class Tanker {
     );
   }
 
-  decryptData(encryptedData: b64string): Promise<b64string> {
+  async decryptData(encryptedData: b64string): Promise<b64string> {
     // noinspection SuspiciousTypeOfGuard
     if (typeof encryptedData !== 'string') {
       throw new InvalidArgument(
@@ -159,7 +162,7 @@ export class Tanker {
     );
   }
 
-  getResourceId(encrypted: string): Promise<string> {
+  async getResourceId(encrypted: string): Promise<string> {
     assertNotEmptyString(encrypted, 'encrypted');
     // We know the header is either at the start or the end, but the slicing of both ends is too complicated,
     // so we just pass the whole encrypted buffer in base64
@@ -168,7 +171,10 @@ export class Tanker {
     );
   }
 
-  share(resourceIds: Array<string>, options: SharingOptions): Promise<string> {
+  async share(
+    resourceIds: Array<string>,
+    options: SharingOptions
+  ): Promise<string> {
     resourceIds.forEach((e) => assertNotEmptyString(e, `resourceIds`));
     return bridgeAsyncExceptions(
       Native.share(
@@ -179,26 +185,26 @@ export class Tanker {
     );
   }
 
-  generateVerificationKey(): Promise<string> {
+  async generateVerificationKey(): Promise<string> {
     return bridgeAsyncExceptions(
       Native.generateVerificationKey(this.getInstance())
     );
   }
 
-  getVerificationMethods(): Promise<Array<VerificationMethod>> {
+  async getVerificationMethods(): Promise<Array<VerificationMethod>> {
     return bridgeAsyncExceptions(
       Native.getVerificationMethods(this.getInstance())
     );
   }
 
-  createGroup(userIds: Array<string>): Promise<string> {
+  async createGroup(userIds: Array<string>): Promise<string> {
     userIds.forEach((e) => assertNotEmptyString(e, `userIds`));
     return bridgeAsyncExceptions(
       Native.createGroup(this.getInstance(), userIds)
     );
   }
 
-  updateGroupMembers(
+  async updateGroupMembers(
     groupId: string,
     args: { usersToAdd: Array<string> }
   ): Promise<void> {
@@ -217,14 +223,14 @@ export class Tanker {
     );
   }
 
-  attachProvisionalIdentity(identity: string): Promise<AttachResult> {
+  async attachProvisionalIdentity(identity: string): Promise<AttachResult> {
     assertNotEmptyString(identity, 'identity');
     return bridgeAsyncExceptions(
       Native.attachProvisionalIdentity(this.getInstance(), identity)
     );
   }
 
-  verifyProvisionalIdentity(verification: Verification): Promise<void> {
+  async verifyProvisionalIdentity(verification: Verification): Promise<void> {
     assertVerification(verification);
     return bridgeAsyncExceptions(
       Native.verifyProvisionalIdentity(this.getInstance(), verification)

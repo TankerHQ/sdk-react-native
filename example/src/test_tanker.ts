@@ -63,12 +63,12 @@ export const tankerTests = () => {
 
     it('gets a sensible error from a type error in registerIdentity', async () => {
       await tanker.start(identity);
-      expect(() =>
+      expect(
         tanker.registerIdentity({
           // @ts-ignore Breaking things on purpose for the test =)
           enoent: '',
         })
-      ).throws(InvalidArgument);
+      ).eventually.rejectedWith(InvalidArgument);
     });
 
     it('calls the log handler', async () => {
