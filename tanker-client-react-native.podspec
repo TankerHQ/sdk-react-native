@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/TankerHQ/sdk-react-native.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/*.{h,m,mm,swift}"
+  s.private_header_files = 'ios/*+Private.h'
 
   s.dependency "React-Core"
   s.dependency "Tanker"
