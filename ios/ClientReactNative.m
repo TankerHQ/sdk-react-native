@@ -436,4 +436,58 @@ RCT_REMAP_METHOD(decryptString,
   }
 }
 
+RCT_REMAP_METHOD(encryptData,
+                 encryptDataWithTankerHandle:(nonnull NSNumber*)handle
+                 b64ClearData:(nonnull NSString*)b64ClearData
+                 options:(nullable NSDictionary<NSString*, id>*)optionsDict
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
+    if (!clearData)
+      reject(@"INVALID_ARGUMENT", @"Invalid base64 clear data", nil);
+    else
+    {
+      TKREncryptionOptions* options = dictToTankerEncryptionOptions(optionsDict);
+      [tanker encryptData:clearData options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+        if (err != nil)
+          reject(errorCodeToString(err.code), err.localizedDescription, err);
+        else
+          resolve([encryptedData base64EncodedStringWithOptions:0]);
+      }];
+    }
+  }
+}
+
+RCT_REMAP_METHOD(decryptData,
+                 decryptDataWithTankerHandle:(nonnull NSNumber*)handle
+                 b64EncryptedData:(nonnull NSString*)b64EncryptedData
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+  if (!tanker)
+    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
+  else
+  {
+    NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedData options:0];
+    if (!encryptedData)
+      reject(@"INVALID_ARGUMENT", @"Invalid base64 encrypted data", nil);
+    else
+    {
+      [tanker decryptData:encryptedData completionHandler:^(NSData * _Nullable decryptedData, NSError * _Nullable err) {
+        if (err != nil)
+          reject(errorCodeToString(err.code), err.localizedDescription, err);
+        else
+          resolve([decryptedData base64EncodedStringWithOptions:0]);
+      }];
+    }
+  }
+}
+
 @end

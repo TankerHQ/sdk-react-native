@@ -60,14 +60,14 @@ export const encryptionTests = () => {
       expect(decrypted).eq(plaintext);
     });
 
-    it('can roundtrip with encryptData', async () => {
+    it.only('can roundtrip with encryptData', async () => {
       const plaindata = 'dW5kZXIgY29vbCBtb29ubGlnaHQ=';
       const encrypted = await tanker.encryptData(plaindata);
       const decrypted = await tanker.decryptData(encrypted);
       expect(decrypted).eq(plaindata);
     });
 
-    it('cannot pass a non-base64 plaintext to encryptData', async () => {
+    it.only('cannot pass a non-base64 plaintext to encryptData', async () => {
       // NOTE: Android cannot be told to reject unpadded Base64 (though if there is padding, it must be correct),
       // that's why we explicitely pick a plaintext with a space (invalid charset) for this test
       const plaintext = 'plain text';
@@ -76,7 +76,7 @@ export const encryptionTests = () => {
       );
     });
 
-    it('encryptData correctly un-base64-ifies before encrypt', async () => {
+    it.only('encryptData correctly un-base64-ifies before encrypt', async () => {
       const plaindata = 'ZmlyZQ==';
       const plaintext = 'fire';
 
