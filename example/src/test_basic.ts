@@ -25,7 +25,7 @@ export const basicTests = () => {
     });
 
     it('can get a version string', async () => {
-      expect(tanker.version).is.not.empty;
+      expect(Tanker.version).is.not.empty;
     });
 
     it('can get the native version string', async () => {
