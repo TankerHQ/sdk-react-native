@@ -1,7 +1,7 @@
 // This file doesn't use jest's expect
 /* eslint-disable jest/valid-expect */
 
-import { Tanker, statuses } from '@tanker/client-react-native';
+import { Tanker, statuses, setLogHandler } from '@tanker/client-react-native';
 import { expect } from 'chai';
 import { describe, beforeEach, afterEach, it } from './framework';
 import {
@@ -71,15 +71,15 @@ export const tankerTests = () => {
       ).eventually.rejectedWith(InvalidArgument);
     });
 
-    // it('calls the log handler', async () => {
-    //   const prom = new Promise((resolve) => {
-    //     setLogHandler((record) => {
-    //       resolve(record.message);
-    //     });
-    //   });
-    //   await tanker.start(identity);
-    //   expect(prom).eventually.is.not.empty;
-    // });
+    it('calls the log handler', async () => {
+      const prom = new Promise((resolve) => {
+        setLogHandler((record) => {
+          resolve(record.message);
+        });
+      });
+      await tanker.start(identity);
+      expect(prom).eventually.is.not.empty;
+    });
 
     it('can get a device ID', async () => {
       await tanker.start(identity);

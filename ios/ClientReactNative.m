@@ -3,10 +3,14 @@
 #import "Tanker/TKRTanker.h"
 #import "Tanker/TKRError.h"
 #import "Tanker/TKRAttachResult.h"
+#import "Tanker/TKRLogEntry.h"
 #import "Tanker/TKREncryptionSession.h"
 #import "Utils+Private.h"
 
 @implementation ClientReactNative
+{
+  bool hasListeners;
+}
 
 RCT_EXPORT_MODULE()
 
@@ -16,8 +20,27 @@ RCT_EXPORT_MODULE()
   {
     [self initInstanceMap];
     [self initEncryptionSessionMap];
+    [TKRTanker connectLogHandler:^(TKRLogEntry* _Nonnull entry) {
+      if (self->hasListeners) {
+        NSDictionary* body = @{@"category": entry.category, @"level": @(entry.level), @"file": entry.file, @"line": @(entry.line), @"message": entry.message};
+        [self sendEventWithName:@"tankerLogHandlerEvent" body:body];
+      }
+    }];
   }
   return self;
+}
+
+-(NSArray<NSString *> *)supportedEvents
+{
+  return @[@"tankerLogHandlerEvent"];
+}
+
+-(void) startObserving {
+    hasListeners = YES;
+}
+
+-(void) stopObserving {
+    hasListeners = NO;
 }
 
 RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getNativeVersion)
