@@ -3,6 +3,8 @@
 #import "Tanker/TKRVerificationOptions.h"
 #import "Tanker/TKRError.h"
 
+#import <React/RCTBridgeModule.h>
+
 TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id>* _Nonnull optionsDict);
 TKRVerificationOptions* _Nonnull dictToTankerVerificationOptions(NSDictionary<NSString*, id>* _Nullable optionsDict);
 TKRVerification* _Nonnull dictToTankerVerification(NSDictionary<NSString*, id>* _Nonnull verificationDict);
@@ -12,3 +14,5 @@ NSDictionary* _Nonnull invalidHandleError(NSNumber* _Nonnull handle);
 NSString* _Nonnull errorCodeToString(TKRError err);
 NSDictionary<NSString*, id>* _Nullable verificationMethodToJson(TKRVerificationMethod* _Nonnull method, NSError* _Nullable* _Nonnull err);
 NSArray<NSDictionary<NSString*, id> *>* _Nullable verificationMethodsToJson(NSArray<TKRVerificationMethod*> * _Nonnull methods, NSError* _Nullable * _Nonnull err);
+void rejectInvalidHandle(RCTPromiseRejectBlock _Nonnull reject, NSNumber* _Nonnull handle);
+void rejectWithError(RCTPromiseRejectBlock _Nonnull reject, NSError* _Nonnull err);

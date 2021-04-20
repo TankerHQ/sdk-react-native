@@ -52,15 +52,11 @@ RCT_REMAP_METHOD(getDeviceId, getDeviceIdWithTankerHandle:(nonnull NSNumber*)han
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-  {
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-    return;
-  }
+    return rejectInvalidHandle(reject, handle);
   [tanker deviceIDWithCompletionHandler:^(NSString* deviceId, NSError* err) {
     if (err != nil)
-      reject(errorCodeToString(err.code), err.localizedDescription, err);
-    else
-      resolve(deviceId);
+      return rejectWithError(reject, err);
+    resolve(deviceId);
   }];
 }
 
@@ -72,7 +68,7 @@ RCT_EXPORT_METHOD(prehashPassword:(nonnull NSString*)password resolver:(RCTPromi
       resolve([TKRTanker prehashPassword:password]);
     } @catch (NSException * e)
     {
-      reject(@"INVALID_ARGUMENT", e.reason, nil);
+      reject(errorCodeToString(TKRErrorInvalidArgument), e.reason, nil);
     }
   });
 }
@@ -81,35 +77,35 @@ RCT_REMAP_METHOD(start, startWithTankerHandle:(nonnull NSNumber*)handle identity
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    [tanker startWithIdentity:identity completionHandler:^(TKRStatus status, NSError * _Nullable err) {
-      if (err != nil)
-        reject(errorCodeToString(err.code), err.localizedDescription, err);
-      else
-        resolve([NSNumber numberWithInt:(int)status]);
-    }];
-  }
+    return rejectInvalidHandle(reject, handle);
+  [tanker startWithIdentity:identity completionHandler:^(TKRStatus status, NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    resolve([NSNumber numberWithInt:(int)status]);
+  }];
 }
 
 RCT_REMAP_METHOD(stop, stopWithTankerHandle:(nonnull NSNumber*)handle resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
+    return rejectInvalidHandle(reject, handle);
+  [tanker stopWithCompletionHandler:^(NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    [self removeTankerInstanceInMap:handle];
+    resolve(nil);
+  }];
+}
+
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(destroy, id, destroyWithTankerHandle:(nonnull NSNumber*)handle)
+{
+  if ([self.tankerInstanceMap objectForKey:handle] != nil)
   {
-    [tanker stopWithCompletionHandler:^(NSError * _Nullable err) {
-      if (err != nil)
-        reject(errorCodeToString(err.code), err.localizedDescription, err);
-      else
-      {
-        [self removeTankerInstanceInMap:handle];
-        resolve(nil);
-      }
-    }];
+    [self removeTankerInstanceInMap:handle];
+    return @{@"ok": @""};
   }
+  return invalidHandleError(handle);
 }
 
 RCT_REMAP_METHOD(registerIdentity,
@@ -121,18 +117,14 @@ RCT_REMAP_METHOD(registerIdentity,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    TKRVerification* tankerVerification = dictToTankerVerification(verificationDict);
-    TKRVerificationOptions* tankerOptions = dictToTankerVerificationOptions(optionsDict);
-    [tanker registerIdentityWithVerification:tankerVerification options:tankerOptions completionHandler:^(NSString * _Nullable sessionToken, NSError * _Nullable err) {
-       if (err != nil)
-         reject(errorCodeToString(err.code), err.localizedDescription, err);
-       else
-         resolve(sessionToken);
-    }];
-  }
+    return rejectInvalidHandle(reject, handle);
+  TKRVerification* tankerVerification = dictToTankerVerification(verificationDict);
+  TKRVerificationOptions* tankerOptions = dictToTankerVerificationOptions(optionsDict);
+  [tanker registerIdentityWithVerification:tankerVerification options:tankerOptions completionHandler:^(NSString * _Nullable sessionToken, NSError * _Nullable err) {
+      if (err != nil)
+        return rejectWithError(reject, err);
+      resolve(sessionToken);
+  }];
 }
 
 RCT_REMAP_METHOD(verifyIdentity,
@@ -144,18 +136,14 @@ RCT_REMAP_METHOD(verifyIdentity,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    TKRVerification* tankerVerification = dictToTankerVerification(verificationDict);
-    TKRVerificationOptions* tankerOptions = dictToTankerVerificationOptions(optionsDict);
-    [tanker verifyIdentityWithVerification:tankerVerification options:tankerOptions completionHandler:^(NSString * _Nullable sessionToken, NSError * _Nullable err) {
-       if (err != nil)
-         reject(errorCodeToString(err.code), err.localizedDescription, err);
-       else
-         resolve(sessionToken);
-    }];
-  }
+    return rejectInvalidHandle(reject, handle);
+  TKRVerification* tankerVerification = dictToTankerVerification(verificationDict);
+  TKRVerificationOptions* tankerOptions = dictToTankerVerificationOptions(optionsDict);
+  [tanker verifyIdentityWithVerification:tankerVerification options:tankerOptions completionHandler:^(NSString * _Nullable sessionToken, NSError * _Nullable err) {
+      if (err != nil)
+        return rejectWithError(reject, err);
+      resolve(sessionToken);
+  }];
 }
 
 RCT_REMAP_METHOD(setVerificationMethod,
@@ -167,18 +155,14 @@ RCT_REMAP_METHOD(setVerificationMethod,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    TKRVerification* tankerVerification = dictToTankerVerification(verificationDict);
-    TKRVerificationOptions* tankerOptions = dictToTankerVerificationOptions(optionsDict);
-    [tanker setVerificationMethod:tankerVerification options:tankerOptions completionHandler:^(NSString* _Nullable sessionToken, NSError * _Nullable err) {
-       if (err != nil)
-         reject(errorCodeToString(err.code), err.localizedDescription, err);
-       else
-         resolve(sessionToken);
-    }];
-  }
+    return rejectInvalidHandle(reject, handle);
+  TKRVerification* tankerVerification = dictToTankerVerification(verificationDict);
+  TKRVerificationOptions* tankerOptions = dictToTankerVerificationOptions(optionsDict);
+  [tanker setVerificationMethod:tankerVerification options:tankerOptions completionHandler:^(NSString* _Nullable sessionToken, NSError * _Nullable err) {
+      if (err != nil)
+        return rejectWithError(reject, err);
+      resolve(sessionToken);
+  }];
 }
 
 RCT_REMAP_METHOD(generateVerificationKey,
@@ -188,16 +172,12 @@ RCT_REMAP_METHOD(generateVerificationKey,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    [tanker generateVerificationKeyWithCompletionHandler:^(TKRVerificationKey * _Nullable key, NSError * _Nullable err) {
-       if (err != nil)
-         reject(errorCodeToString(err.code), err.localizedDescription, err);
-       else
-         resolve(key.value);
-    }];
-  }
+    return rejectInvalidHandle(reject, handle);
+  [tanker generateVerificationKeyWithCompletionHandler:^(TKRVerificationKey * _Nullable key, NSError * _Nullable err) {
+      if (err != nil)
+        return rejectWithError(reject, err);
+      resolve(key.value);
+  }];
 }
 
 RCT_REMAP_METHOD(getVerificationMethods,
@@ -207,23 +187,15 @@ RCT_REMAP_METHOD(getVerificationMethods,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    [tanker verificationMethodsWithCompletionHandler:^(NSArray<TKRVerificationMethod *> * _Nullable methods, NSError * _Nullable err) {
-       if (err != nil)
-         reject(errorCodeToString(err.code), err.localizedDescription, err);
-       else
-       {
-         NSError* err;
-         NSArray<NSDictionary<NSString*, id>*>* jsonMethods = verificationMethodsToJson(methods, &err);
-         if (err != nil)
-           reject(errorCodeToString(err.code), err.localizedDescription, err);
-         else
-           resolve(jsonMethods);
-       }
-    }];
-  }
+    return rejectInvalidHandle(reject, handle);
+  [tanker verificationMethodsWithCompletionHandler:^(NSArray<TKRVerificationMethod *> * _Nullable methods, NSError * _Nullable err) {
+      if (err != nil)
+        return rejectWithError(reject, err);
+      NSArray<NSDictionary<NSString*, id>*>* jsonMethods = verificationMethodsToJson(methods, &err);
+      if (err != nil)
+        return rejectWithError(reject, err);
+      resolve(jsonMethods);
+  }];
 }
 
 RCT_REMAP_METHOD(createGroup,
@@ -233,16 +205,12 @@ RCT_REMAP_METHOD(createGroup,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    [tanker createGroupWithIdentities:identities completionHandler:^(NSString * _Nullable groupID, NSError * _Nullable err) {
-      if (err != nil)
-        reject(errorCodeToString(err.code), err.localizedDescription, err);
-      else
-        resolve(groupID);
-    }];
-  }
+    return rejectInvalidHandle(reject, handle);
+  [tanker createGroupWithIdentities:identities completionHandler:^(NSString * _Nullable groupID, NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    resolve(groupID);
+  }];
 }
 
 RCT_REMAP_METHOD(encryptString,
@@ -254,17 +222,14 @@ RCT_REMAP_METHOD(encryptString,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    TKREncryptionOptions* options = dictToTankerEncryptionOptions(optionsDict);
-    [tanker encryptString:clearText options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
-      if (err != nil)
-        reject(errorCodeToString(err.code), err.localizedDescription, err);
-      else
-        resolve([encryptedData base64EncodedStringWithOptions:0]);
-    }];
-  }
+    return rejectInvalidHandle(reject, handle);
+
+  TKREncryptionOptions* options = dictToTankerEncryptionOptions(optionsDict);
+  [tanker encryptString:clearText options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    resolve([encryptedData base64EncodedStringWithOptions:0]);
+  }];
 }
 
 RCT_REMAP_METHOD(decryptString,
@@ -275,22 +240,15 @@ RCT_REMAP_METHOD(decryptString,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedText options:0];
-    if (!encryptedData)
-      reject(@"INVALID_ARGUMENT", @"Invalid base64 encrypted data", nil);
-    else
-    {
-      [tanker decryptStringFromData:encryptedData completionHandler:^(NSString * _Nullable decryptedString, NSError * _Nullable err) {
-        if (err != nil)
-          reject(errorCodeToString(err.code), err.localizedDescription, err);
-        else
-          resolve(decryptedString);
-      }];
-    }
-  }
+    return rejectInvalidHandle(reject, handle);
+  NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedText options:0];
+  if (!encryptedData)
+    return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 encrypted data", nil);
+  [tanker decryptStringFromData:encryptedData completionHandler:^(NSString * _Nullable decryptedString, NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    resolve(decryptedString);
+  }];
 }
 
 RCT_REMAP_METHOD(encryptData,
@@ -302,23 +260,16 @@ RCT_REMAP_METHOD(encryptData,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
-    if (!clearData)
-      reject(@"INVALID_ARGUMENT", @"Invalid base64 clear data", nil);
-    else
-    {
-      TKREncryptionOptions* options = dictToTankerEncryptionOptions(optionsDict);
-      [tanker encryptData:clearData options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
-        if (err != nil)
-          reject(errorCodeToString(err.code), err.localizedDescription, err);
-        else
-          resolve([encryptedData base64EncodedStringWithOptions:0]);
-      }];
-    }
-  }
+    return rejectInvalidHandle(reject, handle);
+  NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
+  if (!clearData)
+    return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 clear data", nil);
+  TKREncryptionOptions* options = dictToTankerEncryptionOptions(optionsDict);
+  [tanker encryptData:clearData options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    resolve([encryptedData base64EncodedStringWithOptions:0]);
+  }];
 }
 
 RCT_REMAP_METHOD(decryptData,
@@ -329,22 +280,15 @@ RCT_REMAP_METHOD(decryptData,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedData options:0];
-    if (!encryptedData)
-      reject(@"INVALID_ARGUMENT", @"Invalid base64 encrypted data", nil);
-    else
-    {
-      [tanker decryptData:encryptedData completionHandler:^(NSData * _Nullable decryptedData, NSError * _Nullable err) {
-        if (err != nil)
-          reject(errorCodeToString(err.code), err.localizedDescription, err);
-        else
-          resolve([decryptedData base64EncodedStringWithOptions:0]);
-      }];
-    }
-  }
+    return rejectInvalidHandle(reject, handle);
+  NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedData options:0];
+  if (!encryptedData)
+    return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 encrypted data", nil);
+  [tanker decryptData:encryptedData completionHandler:^(NSData * _Nullable decryptedData, NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    resolve([decryptedData base64EncodedStringWithOptions:0]);
+  }];
 }
 
 RCT_REMAP_METHOD(getResourceId,
@@ -355,22 +299,15 @@ RCT_REMAP_METHOD(getResourceId,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedData options:0];
-    if (!encryptedData)
-      reject(@"INVALID_ARGUMENT", @"Invalid base64 encrypted data", nil);
-    else
-    {
-      NSError* err;
-      NSString* resourceId = [tanker resourceIDOfEncryptedData:encryptedData error:&err];
-      if (err != nil)
-        reject(errorCodeToString(err.code), err.localizedDescription, err);
-      else
-        resolve(resourceId);
-    }
-  }
+    return rejectInvalidHandle(reject, handle);
+  NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedData options:0];
+  if (!encryptedData)
+    return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 encrypted data", nil);
+  NSError* err;
+  NSString* resourceId = [tanker resourceIDOfEncryptedData:encryptedData error:&err];
+  if (err != nil)
+    return rejectWithError(reject, err);
+  resolve(resourceId);
 }
 
 RCT_REMAP_METHOD(share,
@@ -382,17 +319,13 @@ RCT_REMAP_METHOD(share,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    TKRSharingOptions* options = dictToTankerSharingOptions(optionsDict);
-    [tanker shareResourceIDs:resourceIds options:options completionHandler:^(NSError * _Nullable err) {
-       if (err != nil)
-         reject(errorCodeToString(err.code), err.localizedDescription, err);
-       else
-        resolve(nil);
-    }];
-  }
+    return rejectInvalidHandle(reject, handle);
+  TKRSharingOptions* options = dictToTankerSharingOptions(optionsDict);
+  [tanker shareResourceIDs:resourceIds options:options completionHandler:^(NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    resolve(nil);
+  }];
 }
 
 RCT_REMAP_METHOD(updateGroupMembers,
@@ -404,22 +337,15 @@ RCT_REMAP_METHOD(updateGroupMembers,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    NSArray<NSString*>* usersToAdd = optionsDict[@"usersToAdd"];
-    if (!usersToAdd || usersToAdd.count == 0)
-      reject(@"INVALID_ARGUMENT", @"usersToAdd cannot be nil nor empty", nil);
-    else
-    {
-      [tanker updateMembersOfGroup:groupId usersToAdd:usersToAdd completionHandler:^(NSError * _Nullable err) {
-        if (err != nil)
-          reject(errorCodeToString(err.code), err.localizedDescription, err);
-        else
-          resolve(nil);
-      }];
-    }
-  }
+    return rejectInvalidHandle(reject, handle);
+  NSArray<NSString*>* usersToAdd = optionsDict[@"usersToAdd"];
+  if (!usersToAdd || usersToAdd.count == 0)
+    return reject(errorCodeToString(TKRErrorInvalidArgument), @"usersToAdd cannot be nil nor empty", nil);
+  [tanker updateMembersOfGroup:groupId usersToAdd:usersToAdd completionHandler:^(NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    resolve(nil);
+  }];
 }
 
 RCT_REMAP_METHOD(attachProvisionalIdentity,
@@ -430,32 +356,21 @@ RCT_REMAP_METHOD(attachProvisionalIdentity,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    [tanker attachProvisionalIdentity:identity completionHandler:^(TKRAttachResult * _Nullable result, NSError * _Nullable err) {
+    return rejectInvalidHandle(reject, handle);
+  [tanker attachProvisionalIdentity:identity completionHandler:^(TKRAttachResult * _Nullable result, NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    NSMutableDictionary<NSString*, id>* ret = [NSMutableDictionary dictionary];
+    ret[@"status"] = [NSNumber numberWithInt:(int)result.status];
+    if (result.method)
+    {
+      NSDictionary<NSString*, id>* jsonMethod = verificationMethodToJson(result.method, &err);
       if (err != nil)
-        reject(errorCodeToString(err.code), err.localizedDescription, err);
-      else
-      {
-        NSMutableDictionary<NSString*, id>* ret = [NSMutableDictionary dictionary];
-        ret[@"status"] = [NSNumber numberWithInt:(int)result.status];
-        if (result.method)
-        {
-          NSError* err;
-          NSDictionary<NSString*, id>* jsonMethod = verificationMethodToJson(result.method, &err);
-          if (err != nil)
-          {
-            reject(errorCodeToString(err.code), err.localizedDescription, err);
-            return;
-          }
-          else
-            ret[@"verificationMethod"] = jsonMethod;
-        }
-        resolve(ret);
-      }
-    }];
-  }
+        return rejectWithError(reject, err);
+      ret[@"verificationMethod"] = jsonMethod;
+    }
+    resolve(ret);
+  }];
 }
 
 RCT_REMAP_METHOD(verifyProvisionalIdentity,
@@ -464,26 +379,21 @@ RCT_REMAP_METHOD(verifyProvisionalIdentity,
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
-  // TODO use NSError everywhere
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
+    return rejectInvalidHandle(reject, handle);
+  @try
   {
-    @try
-    {
-      TKRVerification* verification = dictToTankerVerification(verificationDict);
-      [tanker verifyProvisionalIdentityWithVerification:verification completionHandler:^(NSError * _Nullable err) {
-        if (err != nil)
-          reject(errorCodeToString(err.code), err.localizedDescription, err);
-        else
-          resolve(nil);
-      }];
-    }
-    @catch (NSException* e)
-    {
-      reject(@"INVALID_ARGUMENT", e.reason, nil);
-    }
+    TKRVerification* verification = dictToTankerVerification(verificationDict);
+    [tanker verifyProvisionalIdentityWithVerification:verification completionHandler:^(NSError * _Nullable err) {
+      if (err != nil)
+        return rejectWithError(reject, err);
+      resolve(nil);
+    }];
+  }
+  @catch (NSException* e)
+  {
+    reject(errorCodeToString(TKRErrorInvalidArgument), e.reason, nil);
   }
 }
 
@@ -495,20 +405,13 @@ RCT_REMAP_METHOD(createEncryptionSession,
 {
   TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
   if (!tanker)
-    reject(@"INTERNAL_ERROR", @"Invalid handle", nil);
-  else
-  {
-    TKREncryptionOptions* options = dictToTankerEncryptionOptions(optionsDict);
-    [tanker createEncryptionSessionWithCompletionHandler:^(TKREncryptionSession * _Nullable session, NSError * _Nullable err) {
-      if (err != nil)
-        reject(errorCodeToString(err.code), err.localizedDescription, err);
-      else
-      {
-        NSNumber* handle = [self insertEncryptionSessionInMap:session];
-        resolve(handle);
-      }
-    } encryptionOptions:options];
-  }
+    return rejectInvalidHandle(reject, handle);
+  TKREncryptionOptions* options = dictToTankerEncryptionOptions(optionsDict);
+  [tanker createEncryptionSessionWithCompletionHandler:^(TKREncryptionSession * _Nullable session, NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    resolve([self insertEncryptionSessionInMap:session]);
+  } encryptionOptions:options];
 }
 
 RCT_REMAP_METHOD(encryptionSessionEncryptString,
@@ -519,16 +422,12 @@ RCT_REMAP_METHOD(encryptionSessionEncryptString,
 {
   TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
   if (!session)
-    reject(@"INTERNAL_ERROR", @"Invalid encryption session handle", nil);
-  else
-  {
-    [session encryptString:text completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
-      if (err != nil)
-        reject(errorCodeToString(err.code), err.localizedDescription, err);
-      else
-        resolve([encryptedData base64EncodedStringWithOptions:0]);
-    }];
-  }
+    return rejectInvalidHandle(reject, handle);
+  [session encryptString:text completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    resolve([encryptedData base64EncodedStringWithOptions:0]);
+  }];
 }
 
 RCT_REMAP_METHOD(encryptionSessionEncryptData,
@@ -539,22 +438,15 @@ RCT_REMAP_METHOD(encryptionSessionEncryptData,
 {
   TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
   if (!session)
-    reject(@"INTERNAL_ERROR", @"Invalid encryption session handle", nil);
-  else
-  {
-    NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
-    if (!clearData)
-      reject(@"INVALID_ARGUMENT", @"Invalid base64 clear data", nil);
-    else
-    {
-      [session encryptData:clearData completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
-        if (err != nil)
-          reject(errorCodeToString(err.code), err.localizedDescription, err);
-        else
-          resolve([encryptedData base64EncodedStringWithOptions:0]);
-      }];
-    }
-  }
+    return rejectInvalidHandle(reject, handle);
+  NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
+  if (!clearData)
+    return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 clear data", nil);
+  [session encryptData:clearData completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+    if (err != nil)
+      return rejectWithError(reject, err);
+    resolve([encryptedData base64EncodedStringWithOptions:0]);
+  }];
 }
 
 RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionGetResourceId, id, getResourceIdWithEncryptionSessionHandle:(nonnull NSNumber*)handle)
@@ -562,18 +454,15 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionGetResourceId, id, getRes
   TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
   if (!session)
     return invalidHandleError(handle);
-  else
-    return @{@"ok": session.resourceID};
+  return @{@"ok": session.resourceID};
 }
 
 RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionDestroy, id, destroyEncryptionSessionHandle:(nonnull NSNumber*)handle)
 {
-  if ([self.encryptionSessionMap objectForKey:handle] != nil)
-  {
-    [self removeEncryptionSessionInMap:handle];
-    return @{@"ok": @""};
-  }
-  return invalidHandleError(handle);
+  if (![self.encryptionSessionMap objectForKey:handle])
+    return invalidHandleError(handle);
+  [self removeEncryptionSessionInMap:handle];
+  return @{@"ok": @""};
 }
 
 @end

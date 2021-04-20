@@ -89,10 +89,19 @@ TKRSharingOptions* _Nonnull dictToTankerSharingOptions(NSDictionary<NSString*, i
   return ret;
 }
 
-
 NSDictionary* invalidHandleError(NSNumber* _Nonnull handle)
 {
-  return  @{@"err" : @{@"code": @"INTERNAL_ERROR", @"message": [NSString stringWithFormat:@"invalid handle: %ul", handle.unsignedIntValue]}};
+  return  @{@"err" : @{@"code": errorCodeToString(TKRErrorInternalError), @"message": [NSString stringWithFormat:@"invalid handle: %ul", handle.unsignedIntValue]}};
+}
+
+void rejectInvalidHandle(RCTPromiseRejectBlock _Nonnull reject, NSNumber* _Nonnull handle)
+{
+  reject(errorCodeToString(TKRErrorInternalError), [NSString stringWithFormat:@"invalid handle: %ul", handle.unsignedIntValue], nil);
+}
+
+void rejectWithError(RCTPromiseRejectBlock _Nonnull reject, NSError* _Nonnull err)
+{
+  reject(errorCodeToString(err.code), err.localizedDescription, err);
 }
 
 NSString* errorCodeToString(TKRError err)

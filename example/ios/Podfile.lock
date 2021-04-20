@@ -385,7 +385,7 @@ SPEC CHECKSUMS:
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
   RNFS: 93d5b5535eb39d98e6b19009faa8fe717f7ea45d
   Tanker: ae73da6d451cc900105a0157e4a295fa536c47cb
-  tanker-client-react-native: 018c78f79c37c8ba75870dcf8449162281df95b3
+  tanker-client-react-native: c1d01aaeac48911e7d47b1f6eac0695f15ed1c8b
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
 
 PODFILE CHECKSUM: fa837d6125d2efa5d79124158de2bd0e3c3003fc
