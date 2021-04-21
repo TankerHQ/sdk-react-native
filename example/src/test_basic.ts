@@ -1,8 +1,12 @@
 // This file doesn't use jest's expect
 /* eslint-disable jest/valid-expect */
 
-import { Tanker, prehashPassword, statuses } from '@tanker/client-react-native';
-import { InvalidArgument, PreconditionFailed } from '@tanker/errors';
+import {
+  Tanker,
+  prehashPassword,
+  errors,
+  statuses,
+} from '@tanker/client-react-native';
 import { expect } from 'chai';
 import { describe, beforeEach, afterEach, it } from './framework';
 import { createTanker, clearTankerDataDirs } from './tests';
@@ -40,14 +44,14 @@ export const basicTests = () => {
 
     it('cannot create Tanker with a bad appId', async () => {
       expect(() => new Tanker({ appId: 'Bad' })).throws(
-        InvalidArgument,
+        errors.InvalidArgument,
         'app_id'
       );
     });
 
     it('cannot call functions with a stopped device', async () => {
       await expect(tanker.deviceId()).eventually.rejectedWith(
-        PreconditionFailed,
+        errors.PreconditionFailed,
         'session status'
       );
     });
@@ -87,7 +91,7 @@ export const basicTests = () => {
 
     it('should throw when given an empty password', async () => {
       await expect(prehashPassword('')).eventually.rejectedWith(
-        InvalidArgument,
+        errors.InvalidArgument,
         'empty password'
       );
     });
