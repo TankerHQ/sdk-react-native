@@ -26,6 +26,8 @@ export class Tanker {
   private readonly options: TankerOptions;
   private instance: NativeTanker | null;
 
+  static version = VERSION;
+
   constructor(options: TankerOptions) {
     this.options = Object.assign({}, options);
     this.instance = null;
@@ -39,10 +41,6 @@ export class Tanker {
       );
     }
     return this.instance;
-  }
-
-  get version(): string {
-    return VERSION;
   }
 
   get nativeVersion(): string {
