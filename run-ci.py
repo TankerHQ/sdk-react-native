@@ -58,10 +58,12 @@ def build_and_test_ios() -> None:
     ), tankerci.run_in_background(
         "flask", "run", cwd="adminserver", wait_for_process=5, killpg=False,
     ):
-        tankerci.run("yarn", "detox", "test", "--configuration", "ios", cwd="example")
-    if "CI" in os.environ:
-        # this is needed to kill the React server launched by tests
-        tankerci.run("killall", "node")
+        try:
+            tankerci.run("yarn", "detox", "test", "--configuration", "ios", cwd="example")
+        finally:
+            if "CI" in os.environ:
+                # this is needed to kill the React server launched by tests
+                tankerci.run("killall", "node")
 
 
 def prepare(

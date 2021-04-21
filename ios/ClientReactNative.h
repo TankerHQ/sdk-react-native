@@ -1,7 +1,6 @@
 #import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 
-@interface ClientReactNative : NSObject <RCTBridgeModule>
-
--(void) multiplyWithA:(nonnull NSNumber*)a withB:(nonnull NSNumber*)b resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+@interface ClientReactNative : RCTEventEmitter <RCTBridgeModule>
 
 @end

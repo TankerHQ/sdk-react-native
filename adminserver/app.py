@@ -47,9 +47,10 @@ def get_tanker_url() -> str:
 
 
 @app.route("/toggle_session_certificates", methods=["POST"])
-def toggle_session_certificates() -> None:
+def toggle_session_certificates() -> str:
     enable = request.form["enable"].lower() == 'true'
-    return admin.update_app(tanker_app["id"], session_certificates=enable)
+    admin.update_app(tanker_app["id"], session_certificates=enable)
+    return ""
 
 
 @app.route("/create_identity")
