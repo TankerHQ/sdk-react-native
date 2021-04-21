@@ -12,11 +12,28 @@ import {
   DeviceRevoked,
   Conflict,
   UpgradeRequired,
+  TankerError,
 } from '@tanker/errors';
 
 export type Err = { err: Object };
 export type Ok<T> = { ok: T };
 export type Result<T> = Ok<T> | Err;
+
+export const errors = {
+  DecryptionFailed,
+  DeviceRevoked,
+  ExpiredVerification,
+  GroupTooBig,
+  InternalError,
+  InvalidArgument,
+  InvalidVerification,
+  NetworkError,
+  OperationCanceled,
+  PreconditionFailed,
+  TankerError,
+  TooManyAttempts,
+  UpgradeRequired,
+};
 
 function translateException(e: any): never {
   if (typeof e !== 'object') throw e;
