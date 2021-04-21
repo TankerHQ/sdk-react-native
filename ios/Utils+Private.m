@@ -5,7 +5,7 @@ TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id>* _Non
   TKRTankerOptions* opts = [TKRTankerOptions options];
   NSString* url = optionsDict[@"url"];
   NSString* writablePath = optionsDict[@"writablePath"];
-  //NSString* sdkType = optionsDict[@"sdkType"];
+  NSString* sdkType = optionsDict[@"sdkType"];
   
   opts.appID = optionsDict[@"appId"];
   if (url)
@@ -17,8 +17,8 @@ TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id>* _Non
     NSURL* path = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
     opts.writablePath = [path absoluteString];
   }
-  //if (sdkType)
-   // opts.type = sdkType; TODO add type in sdk-ios options??
+  if (sdkType)
+    opts.sdkType = sdkType;
   return opts;
 }
 
