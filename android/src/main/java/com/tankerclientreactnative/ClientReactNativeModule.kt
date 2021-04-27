@@ -131,8 +131,8 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     @ReactMethod()
     fun stop(handle: TankerHandle, promise: Promise) {
         val tanker = getTanker(handle)
-        destroyTanker(handle)
-        return tanker.stop().bridge(promise)
+        // It's important to keep Tanker alive until the end of the async stop
+        return tanker.stop().bridge(promise) { destroyTanker(handle) }
     }
 
     @ReactMethod()
