@@ -20,13 +20,14 @@ import type { EncryptionOptions } from './encryptionOptions';
 import { extractSharingOptions, SharingOptions } from './sharingOptions';
 import { extractEncryptionOptions } from './encryptionOptions';
 import { EncryptionSession } from './encryptionSessionWrapper';
-import { assertNotEmptyString } from './types';
+import { assertNotEmptyString, statuses } from './types';
 
 export class Tanker {
   private readonly options: TankerOptions;
   private instance: NativeTanker | null;
 
   static version = VERSION;
+  static statuses = statuses;
 
   constructor(options: TankerOptions) {
     this.options = Object.assign({}, options);
