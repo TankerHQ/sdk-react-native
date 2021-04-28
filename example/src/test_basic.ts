@@ -1,12 +1,7 @@
 // This file doesn't use jest's expect
 /* eslint-disable jest/valid-expect */
 
-import {
-  Tanker,
-  prehashPassword,
-  errors,
-  statuses,
-} from '@tanker/client-react-native';
+import { Tanker, prehashPassword, errors } from '@tanker/client-react-native';
 import { expect } from 'chai';
 import { describe, beforeEach, afterEach, it } from './framework';
 import { createTanker, clearTankerDataDirs } from './tests';
@@ -39,7 +34,7 @@ export const basicTests = () => {
     });
 
     it('has a status', async () => {
-      expect(tanker.status).to.equal(statuses.STOPPED);
+      expect(tanker.status).to.equal(Tanker.statuses.STOPPED);
     });
 
     it('cannot create Tanker with a bad appId', async () => {

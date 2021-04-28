@@ -1,5 +1,5 @@
 import { Native } from './native';
-export { statuses, Status, TankerOptions, NativeTanker } from './types';
+export { Status, TankerOptions, NativeTanker } from './types';
 export { Tanker } from './nativeWrapper';
 import { bridgeAsyncExceptions } from './errors';
 export { errors } from './errors';

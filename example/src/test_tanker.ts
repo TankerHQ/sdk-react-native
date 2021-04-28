@@ -1,7 +1,7 @@
 // This file doesn't use jest's expect
 /* eslint-disable jest/valid-expect */
 
-import { Tanker, statuses, setLogHandler } from '@tanker/client-react-native';
+import { Tanker, setLogHandler } from '@tanker/client-react-native';
 import { expect } from 'chai';
 import { describe, beforeEach, afterEach, it } from './framework';
 import {
@@ -29,18 +29,18 @@ export const tankerTests = () => {
     });
 
     it('can start and stop', async () => {
-      expect(tanker.status).eq(statuses.STOPPED);
+      expect(tanker.status).eq(Tanker.statuses.STOPPED);
       await tanker.start(identity);
-      expect(tanker.status).eq(statuses.IDENTITY_REGISTRATION_NEEDED);
+      expect(tanker.status).eq(Tanker.statuses.IDENTITY_REGISTRATION_NEEDED);
       await tanker.stop();
-      expect(tanker.status).eq(statuses.STOPPED);
+      expect(tanker.status).eq(Tanker.statuses.STOPPED);
     });
 
     it('can reuse the Tanker object after stop', async () => {
       await tanker.start(identity);
       await tanker.stop();
       await tanker.start(identity);
-      expect(tanker.status).eq(statuses.IDENTITY_REGISTRATION_NEEDED);
+      expect(tanker.status).eq(Tanker.statuses.IDENTITY_REGISTRATION_NEEDED);
     });
 
     it('fails to start with an invalid identity', async () => {
@@ -90,20 +90,22 @@ export const tankerTests = () => {
     it('can use registerIdentity to open a session', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({ passphrase: 'foo' });
-      expect(tanker.status).eq(statuses.READY);
+      expect(tanker.status).eq(Tanker.statuses.READY);
     });
 
     it('can use verifyIdentity to open a session', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({ passphrase: 'foo' });
-      expect(tanker.status).eq(statuses.READY);
+      expect(tanker.status).eq(Tanker.statuses.READY);
 
       let secondDevice = await createTanker();
       await secondDevice.start(identity);
-      expect(secondDevice.status).eq(statuses.IDENTITY_VERIFICATION_NEEDED);
+      expect(secondDevice.status).eq(
+        Tanker.statuses.IDENTITY_VERIFICATION_NEEDED
+      );
 
       await secondDevice.verifyIdentity({ passphrase: 'foo' });
-      expect(secondDevice.status).eq(statuses.READY);
+      expect(secondDevice.status).eq(Tanker.statuses.READY);
       await secondDevice.stop();
     });
 
@@ -118,7 +120,7 @@ export const tankerTests = () => {
       let secondDevice = await createTanker();
       await secondDevice.start(identity);
       await secondDevice.verifyIdentity(pass2);
-      expect(secondDevice.status).eq(statuses.READY);
+      expect(secondDevice.status).eq(Tanker.statuses.READY);
       await secondDevice.stop();
     });
 
@@ -130,7 +132,7 @@ export const tankerTests = () => {
         { withSessionToken: true }
       );
       await toggleSessionCertificates(false);
-      expect(tanker.status).eq(statuses.READY);
+      expect(tanker.status).eq(Tanker.statuses.READY);
       expect(token).is.not.empty;
       // @ts-ignore is.not.empty checks that the token is not undefined
       const tokenData = base64.decode(token);
@@ -144,7 +146,7 @@ export const tankerTests = () => {
       await tanker.registerIdentity({
         verificationKey: verifKey,
       });
-      expect(tanker.status).eq(statuses.READY);
+      expect(tanker.status).eq(Tanker.statuses.READY);
     });
 
     it('can get verification methods', async () => {
@@ -203,7 +205,7 @@ export const tankerTests = () => {
       const email = 'bob@burger.io';
       const provIdentity = await createProvisionalIdentity(email);
       const result = await tanker.attachProvisionalIdentity(provIdentity);
-      expect(result.status).eq(statuses.IDENTITY_VERIFICATION_NEEDED);
+      expect(result.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
       expect(result.verificationMethod).deep.eq({ type: 'email', email });
 
       const verificationCode = await getVerificationCode(email);
@@ -226,7 +228,7 @@ export const tankerTests = () => {
       const verificationCode = await getVerificationCode(email);
       await tanker.registerIdentity({ email, verificationCode });
       const result = await tanker.attachProvisionalIdentity(provIdentity);
-      expect(result.status).eq(statuses.READY);
+      expect(result.status).eq(Tanker.statuses.READY);
       expect(result.verificationMethod).is.undefined;
     });
   });
