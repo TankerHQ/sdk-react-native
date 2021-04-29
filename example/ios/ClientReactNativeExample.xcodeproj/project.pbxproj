@@ -568,11 +568,11 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-jsiexecutor\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-jsinspector\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactNativeTanker\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/Tanker\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/Yoga\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/glog\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactNativeTanker\"",
-					"\"${PODS_ROOT}/../../../pod/Libraries\"",
+					"\"${PODS_ROOT}/Tanker/Libraries\"",
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -619,11 +619,11 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-jsiexecutor\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/React-jsinspector\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactNativeTanker\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/Tanker\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/Yoga\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/glog\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactNativeTanker\"",
-					"\"${PODS_ROOT}/../../../pod/Libraries\"",
+					"\"${PODS_ROOT}/Tanker/Libraries\"",
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
