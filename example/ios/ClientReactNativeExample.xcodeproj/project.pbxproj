@@ -571,7 +571,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/Tanker\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/Yoga\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/glog\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/tanker-client-react-native\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactNativeTanker\"",
 					"\"${PODS_ROOT}/../../../pod/Libraries\"",
 				);
 				OTHER_LDFLAGS = (
@@ -622,7 +622,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/Tanker\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/Yoga\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/glog\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/tanker-client-react-native\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactNativeTanker\"",
 					"\"${PODS_ROOT}/../../../pod/Libraries\"",
 				);
 				OTHER_LDFLAGS = (

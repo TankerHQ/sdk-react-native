@@ -13,7 +13,7 @@
     "android",
     "ios",
     "cpp",
-    "tanker-client-react-native.podspec",
+    "ReactNativeTanker.podspec",
     "!lib/typescript/example",
     "!android/build",
     "!ios/build",

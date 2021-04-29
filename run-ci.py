@@ -147,7 +147,7 @@ def patch_sdk_version(*, sdk: str, version: str) -> None:
             new_line=f"    implementation 'io.tanker:tanker-bindings:{version}'"
         )
     else:
-        dest = Path.cwd() / "tanker-client-react-native.podspec"
+        dest = Path.cwd() / "ReactNativeTanker.podspec"
         replace_line_in_file(
             dest,
             pattern='''s.dependency "Tanker"''',
