@@ -1,6 +1,6 @@
 include:
   - project: TankerHQ/gitlab-ci-files
-    ref: 7567838f7e82019db51f2be429e52b46f0a79e21
+    ref: 92c595cc271c32b3d7cd014683de2641e1845b4a
     file: /react-native.yml
 
 ########
