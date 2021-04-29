@@ -39,7 +39,7 @@
   ],
   "repository": "https://github.com/TankerHQ/sdk-react-native",
   "author": "Tanker Team <tech@tanker.io> (https://tanker.io)",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/TankerHQ/sdk-react-native/issues"
   },
