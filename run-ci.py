@@ -112,6 +112,8 @@ def prepare(
 
 
 def build_and_test(sdk: str) -> None:
+    if sdk == "ios":
+        tankerci.run("pod", "repo", "update")
     tankerci.run("yarn")
     tankerci.run("yarn", "typescript")
     tankerci.run("yarn", "lint")
