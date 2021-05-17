@@ -11,7 +11,11 @@ import {
   getVerificationCode,
   toggleSessionCertificates,
 } from './admin';
-import { InvalidArgument, InvalidVerification } from '@tanker/errors';
+import {
+  InvalidArgument,
+  InvalidVerification,
+  IdentityAlreadyAttached,
+} from '@tanker/errors';
 import { createTanker, clearTankerDataDirs } from './tests';
 import base64 from 'react-native-base64';
 
@@ -210,6 +214,33 @@ export const tankerTests = () => {
 
       const verificationCode = await getVerificationCode(email);
       await tanker.verifyProvisionalIdentity({ email, verificationCode });
+    });
+
+    it('throws when attaching an already attached provisional identity', async () => {
+      await tanker.start(identity);
+      await tanker.registerIdentity({
+        passphrase: 'ice cold water',
+      });
+      const email = 'bob@burger.io';
+      const provIdentity = await createProvisionalIdentity(email);
+      const result = await tanker.attachProvisionalIdentity(provIdentity);
+      expect(result.verificationMethod).deep.eq({ type: 'email', email });
+
+      const verificationCode = await getVerificationCode(email);
+      await tanker.verifyProvisionalIdentity({ email, verificationCode });
+
+      const other = await createTanker();
+      await other.start(await createIdentity());
+      await other.registerIdentity({ passphrase: 'otherpass' });
+      other.attachProvisionalIdentity(provIdentity);
+      expect(result.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
+      const verificationCode2 = await getVerificationCode(email);
+      await expect(
+        other.verifyProvisionalIdentity({
+          email,
+          verificationCode: verificationCode2,
+        })
+      ).to.be.rejectedWith(IdentityAlreadyAttached);
     });
 
     it('can skip provisional identity verification', async () => {

@@ -136,6 +136,8 @@ NSString* errorCodeToString(TKRError err)
       return @"DEVICE_REVOKED";
     case TKRErrorUpgradeRequired:
       return @"UPGRADE_REQUIRED";
+    case TKRErrorIdentityAlreadyAttached:
+      return @"IDENTITY_ALREADY_ATTACHED";
     default:
       return @"UNKNOWN_ERROR";
   }
