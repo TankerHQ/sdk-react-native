@@ -12,6 +12,7 @@ import {
   DeviceRevoked,
   Conflict,
   UpgradeRequired,
+  IdentityAlreadyAttached,
   TankerError,
 } from '@tanker/errors';
 
@@ -33,6 +34,7 @@ export const errors = {
   TankerError,
   TooManyAttempts,
   UpgradeRequired,
+  IdentityAlreadyAttached,
 };
 
 function translateException(e: any): never {
@@ -67,6 +69,8 @@ function translateException(e: any): never {
       throw new Conflict(e.message);
     case 'UPGRADE_REQUIRED':
       throw new UpgradeRequired(e.message);
+    case 'IDENTITY_ALREADY_ATTACHED':
+      throw new IdentityAlreadyAttached(e.message);
     default:
       // This could be something else than a TankerException, do not wrap or convert to avoid losing information
       throw e;
