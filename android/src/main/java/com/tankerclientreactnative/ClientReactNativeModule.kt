@@ -247,8 +247,9 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     @ReactMethod()
     fun updateGroupMembers(handle: TankerHandle, groupId: String, args: ReadableMap, promise: Promise) {
-        val usersToAdd = args.getArray("usersToAdd")!!.toStringArray()
-        getTanker(handle).updateGroupMembers(groupId, usersToAdd).bridge(promise)
+        val usersToAdd = args.getArray("usersToAdd")?.toStringArray() ?: arrayOf()
+        val usersToRemove = args.getArray("usersToRemove")?.toStringArray() ?: arrayOf()
+        getTanker(handle).updateGroupMembers(groupId, usersToAdd=usersToAdd, usersToRemove=usersToRemove).bridge(promise)
     }
 
     @ReactMethod()
