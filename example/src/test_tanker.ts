@@ -212,6 +212,51 @@ export const tankerTests = () => {
       expect(decrypted).eq(plaintext);
     });
 
+    it('can remove members from a group', async () => {
+      const other = await createTanker();
+      const otherIdent = await createIdentity();
+      const otherPubIdent = await getPublicIdentity(otherIdent);
+      await other.start(otherIdent);
+      await other.registerIdentity({ passphrase: 'otherpass' });
+
+      await tanker.start(identity);
+      await tanker.registerIdentity({ passphrase: 'say it again' });
+      const groupId = await tanker.createGroup([
+        await getPublicIdentity(identity),
+        otherPubIdent,
+      ]);
+
+      await tanker.updateGroupMembers(groupId, {
+        usersToRemove: [otherPubIdent],
+      });
+
+      const plaintext = 'say it again';
+      const encrypted = await tanker.encrypt(plaintext, {
+        shareWithGroups: [groupId],
+      });
+
+      await expect(other.decrypt(encrypted)).is.eventually.rejectedWith(
+        InvalidArgument,
+        "can't find keys"
+      );
+      await other.stop();
+    });
+
+    it('throws when updating a group without changing anything', async () => {
+      await tanker.start(identity);
+      await tanker.registerIdentity({ passphrase: 'say it again' });
+      const groupId = await tanker.createGroup([
+        await getPublicIdentity(identity),
+      ]);
+
+      await expect(
+        tanker.updateGroupMembers(groupId, {})
+      ).is.eventually.rejectedWith(
+        InvalidArgument,
+        'no members to add or remove'
+      );
+    });
+
     it('can attach a provisional identity', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({
