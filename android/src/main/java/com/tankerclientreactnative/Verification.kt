@@ -20,6 +20,9 @@ fun Verification(json: ReadableMap): Verification {
     json.getString("oidcIdToken")?.let {
         return OIDCIDTokenVerification(it)
     }
+    json.getString("phoneNumber")?.let {
+        return PhoneNumberVerification(it, json.getString("verificationCode")!!)
+    }
     throw AssertionError("Invalid verification JS object received, check Typescript definitions match")
 }
 
@@ -42,6 +45,10 @@ fun VerificationMethod.toWritableMap(): WritableMap {
         is VerificationKeyVerificationMethod -> json.putString("type", "verificationKey")
         is PassphraseVerificationMethod -> json.putString("type", "passphrase")
         is OIDCIDTokenVerificationMethod -> json.putString("type", "oidcIdToken")
+        is PhoneNumberVerificationMethod -> {
+            json.putString("type", "phoneNumber")
+            json.putString("phoneNumber", this.phoneNumber)
+        }
     }
     return json
 }

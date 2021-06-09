@@ -9,6 +9,7 @@ import {
   createProvisionalIdentity,
   getPublicIdentity,
   getVerificationCode,
+  getSMSVerificationCode,
   toggleSessionCertificates,
 } from './admin';
 import {
@@ -94,6 +95,16 @@ export const tankerTests = () => {
     it('can use registerIdentity to open a session', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({ passphrase: 'foo' });
+      expect(tanker.status).eq(Tanker.statuses.READY);
+    });
+
+    it('can use registerIdentity to open a session with a phone number', async () => {
+      const phoneNumber = '+33600001111';
+      const verificationCode = await getSMSVerificationCode(phoneNumber);
+
+      await tanker.start(identity);
+      expect(tanker.status).eq(Tanker.statuses.IDENTITY_REGISTRATION_NEEDED);
+      await tanker.registerIdentity({ phoneNumber, verificationCode });
       expect(tanker.status).eq(Tanker.statuses.READY);
     });
 
@@ -210,7 +221,10 @@ export const tankerTests = () => {
       const provIdentity = await createProvisionalIdentity(email);
       const result = await tanker.attachProvisionalIdentity(provIdentity);
       expect(result.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
-      expect(result.verificationMethod).deep.eq({ type: 'email', email });
+      expect(result.verificationMethod).deep.eq({
+        type: 'email',
+        email,
+      });
 
       const verificationCode = await getVerificationCode(email);
       await tanker.verifyProvisionalIdentity({ email, verificationCode });
@@ -224,7 +238,10 @@ export const tankerTests = () => {
       const email = 'bob@burger.io';
       const provIdentity = await createProvisionalIdentity(email);
       const result = await tanker.attachProvisionalIdentity(provIdentity);
-      expect(result.verificationMethod).deep.eq({ type: 'email', email });
+      expect(result.verificationMethod).deep.eq({
+        type: 'email',
+        email,
+      });
 
       const verificationCode = await getVerificationCode(email);
       await tanker.verifyProvisionalIdentity({ email, verificationCode });

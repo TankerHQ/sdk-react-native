@@ -5,27 +5,43 @@ export type EmailVerificationMethod = { type: 'email'; email: string };
 export type PassphraseVerificationMethod = { type: 'passphrase' };
 export type KeyVerificationMethod = { type: 'verificationKey' };
 export type OIDCVerificationMethod = { type: 'oidcIdToken' };
+export type PhoneNumberVerificationMethod = {
+  type: 'phoneNumber';
+  phoneNumber: string;
+};
 
 export type VerificationMethod =
   | EmailVerificationMethod
   | PassphraseVerificationMethod
   | KeyVerificationMethod
-  | OIDCVerificationMethod;
+  | OIDCVerificationMethod
+  | PhoneNumberVerificationMethod;
 
 export type EmailVerification = { email: string; verificationCode: string };
 export type PassphraseVerification = { passphrase: string };
 export type KeyVerification = { verificationKey: string };
 export type OIDCVerification = { oidcIdToken: string };
+export type PhoneNumberVerification = {
+  phoneNumber: string;
+  verificationCode: string;
+};
 
 export type Verification =
   | EmailVerification
   | PassphraseVerification
   | KeyVerification
-  | OIDCVerification;
+  | OIDCVerification
+  | PhoneNumberVerification;
 
 export type VerificationOptions = { withSessionToken?: boolean };
 
-const validMethods = ['email', 'passphrase', 'verificationKey', 'oidcIdToken'];
+const validMethods = [
+  'email',
+  'passphrase',
+  'verificationKey',
+  'oidcIdToken',
+  'phoneNumber',
+];
 const validKeys = [...validMethods, 'verificationCode'];
 const validVerifOptionsKeys = ['withSessionToken'];
 
@@ -81,6 +97,21 @@ export const assertVerification = (verification: Verification) => {
   } else if ('oidcIdToken' in verification) {
     // $FlowIgnore[prop-missing]
     assertNotEmptyString(verification.oidcIdToken, 'verification.oidcIdToken');
+  } else if ('phoneNumber' in verification) {
+    // $FlowIgnore[prop-missing]
+    assertNotEmptyString(verification.phoneNumber, 'verification.phoneNumber');
+    if (!('verificationCode' in verification)) {
+      throw new InvalidArgument(
+        'verification',
+        'phoneNumber verification should also have a verificationCode',
+        verification
+      );
+    }
+    // $FlowIgnore[prop-missing]
+    assertNotEmptyString(
+      verification.verificationCode,
+      'verification.verificationCode'
+    );
   }
 };
 

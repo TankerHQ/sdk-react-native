@@ -40,15 +40,20 @@ TKRVerification* _Nonnull dictToTankerVerification(NSDictionary<NSString*, id>* 
   NSString* passphrase = verificationDict[@"passphrase"];
   NSString* verificationKey = verificationDict[@"verificationKey"];
   NSString* oidcIdToken = verificationDict[@"oidcIdToken"];
+  NSString* phoneNumber = verificationDict[@"phoneNumber"];
   
+  NSString* code = verificationDict[@"verificationCode"];
+
   if (email)
-    return [TKRVerification verificationFromEmail:email verificationCode:verificationDict[@"verificationCode"]];
+    return [TKRVerification verificationFromEmail:email verificationCode:code];
   if (passphrase)
     return [TKRVerification verificationFromPassphrase:passphrase];
   if (verificationKey)
     return [TKRVerification verificationFromVerificationKey:[TKRVerificationKey verificationKeyFromValue:verificationKey]];
   if (oidcIdToken)
     return [TKRVerification verificationFromOIDCIDToken:oidcIdToken];
+  if (phoneNumber)
+    return [TKRVerification verificationFromPhoneNumber:phoneNumber verificationCode:code];
   NSError* err;
   NSData* data = [NSJSONSerialization dataWithJSONObject:verificationDict options:NSJSONWritingPrettyPrinted error:&err];
   NSString* json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -159,6 +164,10 @@ NSDictionary<NSString*, id>* verificationMethodToJson(TKRVerificationMethod* met
       break;
     case TKRVerificationMethodTypeVerificationKey:
       field[@"type"] = @"verificationKey";
+    case TKRVerificationMethodTypePhoneNumber:
+      field[@"type"] = @"phoneNumber";
+      field[@"phoneNumber"] = method.phoneNumber;
+      break;
     default:
       *err = [NSError errorWithDomain:TKRErrorDomain code:TKRErrorInternalError userInfo:@{
         NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Unknown verification method type: %d", (int)method.type]

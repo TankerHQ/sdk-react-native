@@ -1,5 +1,5 @@
 import { InvalidArgument } from '@tanker/errors';
-import type { EmailVerificationMethod } from './verification';
+import type { VerificationMethod } from './verification';
 
 export type b64string = string;
 export type NativeTanker = number;
@@ -30,7 +30,7 @@ export type Status = number;
 
 export type AttachResult = {
   status: Status;
-  verificationMethod?: EmailVerificationMethod;
+  verificationMethod?: VerificationMethod;
 };
 
 export type LogRecord = {
