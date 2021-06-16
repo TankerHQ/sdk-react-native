@@ -1,9 +1,11 @@
 from flask import Flask, request
+import sys
 import os
 import tankeradminsdk
 import tankersdk_identity
 import atexit
 import random
+import signal
 
 app = Flask(__name__)
 
@@ -22,13 +24,16 @@ def make_admin() -> tankeradminsdk.Admin:
 
 admin = make_admin()
 tanker_app = admin.create_app("test-react-native", is_test=True)
+print(f'created app {tanker_app["id"]}')
 
 
 def delete_app() -> None:
+    print(f'deleting app {tanker_app["id"]}')
     admin.delete_app(tanker_app["id"])
 
 
 atexit.register(delete_app)
+signal.signal(signal.SIGTERM, lambda x, y: sys.exit(0))
 
 
 @app.route("/health")
@@ -48,7 +53,7 @@ def get_tanker_url() -> str:
 
 @app.route("/toggle_session_certificates", methods=["POST"])
 def toggle_session_certificates() -> str:
-    enable = request.form["enable"].lower() == 'true'
+    enable = request.form["enable"].lower() == "true"
     admin.update_app(tanker_app["id"], session_certificates=enable)
     return ""
 
