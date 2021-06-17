@@ -132,7 +132,8 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
   if (file('libs/tanker-bindings.aar').exists()) {
     implementation('io.tanker:tanker-bindings@aar')
-    api 'net.java.dev.jna:jna:5.4.0@aar'
+    implementation 'net.java.dev.jna:jna:5.4.0@aar'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
   } else {
     implementation 'io.tanker:tanker-bindings:2.11.0'
   }
