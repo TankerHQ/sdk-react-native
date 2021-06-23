@@ -108,3 +108,4 @@ deploy:
   release:
     description: sdk-react-native v$SDK_REACT_NATIVE_RELEASE_VERSION
     tag_name: v$SDK_REACT_NATIVE_RELEASE_VERSION
+  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
