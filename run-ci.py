@@ -173,7 +173,7 @@ def main() -> None:
     subparsers.add_parser("build-and-test")
 
     reset_branch_parser = subparsers.add_parser("reset-branch")
-    reset_branch_parser.add_argument("branch")
+    reset_branch_parser.add_argument("branch", nargs="?")
 
     patch_sdk_version_parser = subparsers.add_parser("patch-sdk-version")
     patch_sdk_version_parser.add_argument("sdk", choices=["ios", "android"])
