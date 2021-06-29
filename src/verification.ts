@@ -56,12 +56,12 @@ export const assertVerification = (verification: Verification) => {
       verification
     );
 
-  const methodCound = validMethods.reduce(
+  const methodCount = validMethods.reduce(
     (count, key) => count + (key in verification ? 1 : 0),
     0
   );
 
-  if (methodCound !== 1)
+  if (methodCount !== 1)
     throw new InvalidArgument(
       'verification',
       `should contain a single verification method in ${JSON.stringify(
