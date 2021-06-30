@@ -60,3 +60,16 @@ export async function getVerificationCode(email: string): Promise<string> {
     })
   ).text();
 }
+
+export async function getSMSVerificationCode(
+  phoneNumber: string
+): Promise<string> {
+  const form = new FormData();
+  form.append('phone_number', phoneNumber);
+  return await (
+    await fetch(`${SERVER_URL}/get_verification_code`, {
+      method: 'POST',
+      body: form,
+    })
+  ).text();
+}
