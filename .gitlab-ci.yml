@@ -1,6 +1,6 @@
 include:
   - project: TankerHQ/gitlab-ci-files
-    ref: 874483a45e99037b888688c0c3d0fb6a186da6b0
+    ref: a247a7f1fd9d33f89f95cce4f7c0105b1cc5d6b0
     file: /react-native.yml
 
 ########
@@ -102,6 +102,7 @@ deploy:
     - .rules/deploy/react-native
   script:
     - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "${HOME}/.npmrc"
+    - poetry run python run-ci.py reset-branch $UPSTREAM_BRANCH_NAME
     - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION 
     - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION 
     - poetry run python run-ci.py deploy --version $SDK_REACT_NATIVE_RELEASE_VERSION
