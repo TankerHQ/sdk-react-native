@@ -99,7 +99,7 @@ export const tankerTests = () => {
     });
 
     it('can use registerIdentity to open a session with a phone number', async () => {
-      const phoneNumber = '+33600001111';
+      const phoneNumber = '+33639982233';
       const verificationCode = await getSMSVerificationCode(phoneNumber);
 
       await tanker.start(identity);
