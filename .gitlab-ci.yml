@@ -1,6 +1,6 @@
 include:
   - project: TankerHQ/gitlab-ci-files
-    ref: a247a7f1fd9d33f89f95cce4f7c0105b1cc5d6b0
+    ref: theo/m1_support
     file: /react-native.yml
 
 ########
@@ -55,37 +55,74 @@ check/android/all-from-sources:
     - poetry run python run-ci.py build-and-test android
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
-check/ios/deployed:
+check/ios/deployed/x86_64:
   extends:
     - .check
-    - .tags/macos
+    - .tags/macos/x86_64
     - .rules/deployed-native
   script:
     - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION 
     - poetry run python run-ci.py build-and-test ios
 
-check/ios/downstream:
+check/ios/downstream/x86_64:
   extends:
     - .check
-    - .tags/macos
+    - .tags/macos/x86_64
     - .before-script/download-artifacts
-    - .rules/check/downstream/ios
+    - .rules/check/downstream/ios/x86_64
   script:
     - poetry run python run-ci.py build-and-test ios
 
-check/ios/from-sources:
+check/ios/from-sources/x86_64:
   extends:
     - .check
-    - .tags/macos
+    - .tags/macos/x86_64
     - .rules/mr/manual
   script:
     - poetry run python run-ci.py prepare ios --isolate-conan-user-home --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
     - poetry run python run-ci.py build-and-test ios
 
-check/ios/all-from-sources:
+check/ios/all-from-sources/x86_64:
   extends:
     - .check
-    - .tags/macos
+    - .tags/macos/x86_64
+    - .rules/native-from-sources
+  script:
+    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --use-tanker=same-as-branch
+    - poetry run python run-ci.py build-and-test ios
+
+check/ios/deployed/arm:
+  extends:
+    - .check
+    - .tags/macos/arm
+    - .rules/deployed-native
+  script:
+    - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION 
+    - poetry run python run-ci.py build-and-test ios
+
+check/ios/downstream/arm:
+  extends:
+    - .check
+    - .tags/macos/arm
+    - .before-script/download-artifacts
+    - .rules/check/downstream/ios/arm
+  script:
+    - poetry run python run-ci.py build-and-test ios
+
+
+check/ios/from-sources/arm:
+  extends:
+    - .check
+    - .tags/macos/arm
+    - .rules/mr/manual
+  script:
+    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
+    - poetry run python run-ci.py build-and-test ios
+
+check/ios/all-from-sources/arm:
+  extends:
+    - .check
+    - .tags/macos/arm
     - .rules/native-from-sources
   script:
     - poetry run python run-ci.py prepare ios --isolate-conan-user-home --use-tanker=same-as-branch
