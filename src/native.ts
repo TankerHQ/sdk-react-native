@@ -73,7 +73,7 @@ type ClientReactNativeType = {
   updateGroupMembers(
     instance: NativeTanker,
     groupId: string,
-    args: { usersToAdd: Array<string> }
+    args: { usersToAdd?: Array<string>; usersToRemove?: Array<string> }
   ): Promise<void>;
   attachProvisionalIdentity(
     instance: NativeTanker,

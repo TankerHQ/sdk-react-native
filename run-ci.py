@@ -1,7 +1,7 @@
 import cli_ui as ui  # noqa
 
 
-from typing import Dict, List, Optional
+from typing import Optional
 
 import argparse
 import os
@@ -15,7 +15,6 @@ import tankerci.conan
 from tankerci.conan import TankerSource
 import tankerci.git
 import tankerci.gitlab
-import cli_ui as ui
 
 
 def copy_local_aar(local_aar_path: Path) -> None:

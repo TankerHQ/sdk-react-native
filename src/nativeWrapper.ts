@@ -204,17 +204,22 @@ export class Tanker {
 
   async updateGroupMembers(
     groupId: string,
-    args: { usersToAdd: Array<string> }
+    args: { usersToAdd?: Array<string>; usersToRemove?: Array<string> }
   ): Promise<void> {
     assertNotEmptyString(groupId, 'groupId');
-    const { usersToAdd } = args;
-    if (
-      !usersToAdd ||
-      !(usersToAdd instanceof Array) ||
-      usersToAdd.length === 0
-    )
+    const { usersToAdd, usersToRemove } = args;
+    if (usersToAdd && !(usersToAdd instanceof Array))
       throw new InvalidArgument('usersToAdd', 'Array<string>', usersToAdd);
-    usersToAdd.forEach((user) => assertNotEmptyString(user, 'usersToAdd'));
+    if (usersToRemove && !(usersToRemove instanceof Array))
+      throw new InvalidArgument(
+        'usersToRemove',
+        'Array<string>',
+        usersToRemove
+      );
+    usersToAdd?.forEach((user) => assertNotEmptyString(user, 'usersToAdd'));
+    usersToRemove?.forEach((user) =>
+      assertNotEmptyString(user, 'usersToRemove')
+    );
 
     return bridgeAsyncExceptions(
       Native.updateGroupMembers(this.getInstance(), groupId, args)

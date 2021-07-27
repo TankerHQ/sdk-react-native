@@ -367,9 +367,12 @@ RCT_REMAP_METHOD(updateGroupMembers,
   if (!tanker)
     return rejectInvalidHandle(reject, handle);
   NSArray<NSString*>* usersToAdd = optionsDict[@"usersToAdd"];
-  if (!usersToAdd || usersToAdd.count == 0)
-    return reject(errorCodeToString(TKRErrorInvalidArgument), @"usersToAdd cannot be nil nor empty", nil);
-  [tanker updateMembersOfGroup:groupId usersToAdd:usersToAdd completionHandler:^(NSError * _Nullable err) {
+  if (!usersToAdd)
+    usersToAdd = @[];
+  NSArray<NSString*>* usersToRemove = optionsDict[@"usersToRemove"];
+  if (!usersToRemove)
+    usersToRemove = @[];
+  [tanker updateMembersOfGroup:groupId usersToAdd:usersToAdd usersToRemove:usersToRemove completionHandler:^(NSError * _Nullable err) {
     if (err != nil)
       return rejectWithError(reject, err);
     resolve(nil);
