@@ -294,7 +294,7 @@ export const tankerTests = () => {
       const other = await createTanker();
       await other.start(await createIdentity());
       await other.registerIdentity({ passphrase: 'otherpass' });
-      other.attachProvisionalIdentity(provIdentity);
+      await other.attachProvisionalIdentity(provIdentity);
       expect(result.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
       const verificationCode2 = await getVerificationCode(email);
       await expect(
