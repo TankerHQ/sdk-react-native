@@ -1,3 +1,5 @@
+import { serverCleanup } from './admin';
+
 type VoidAsyncFunction = () => Promise<void> | void;
 
 type TestDescription = {
@@ -121,6 +123,7 @@ export async function runTests(): Promise<string> {
   else result = 'SUCCESS';
 
   console.log('Tests result:', result);
+  await serverCleanup();
 
   return result;
 }

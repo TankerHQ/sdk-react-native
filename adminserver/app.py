@@ -27,13 +27,11 @@ tanker_app = admin.create_app("test-react-native", is_test=True)
 print(f'created app {tanker_app["id"]}')
 
 
-def delete_app() -> None:
+@app.route("/cleanup")
+def cleanup() -> str:
     print(f'deleting app {tanker_app["id"]}')
     admin.delete_app(tanker_app["id"])
-
-
-atexit.register(delete_app)
-signal.signal(signal.SIGTERM, lambda x, y: sys.exit(0))
+    return ""
 
 
 @app.route("/health")
