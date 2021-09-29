@@ -5,7 +5,7 @@
     "ios": {
       "type": "ios.app",
       "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/ClientReactNativeExample.app",
-      "build": "export RCT_NO_LAUNCH_PACKAGER=true && xcodebuild -workspace ios/ClientReactNativeExample.xcworkspace -scheme ClientReactNativeExample -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
+      "build": "export RCT_NO_LAUNCH_PACKAGER=true && xcodebuild -workspace ios/ClientReactNativeExample.xcworkspace -scheme ClientReactNativeExample -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -destination 'name=iPhone 11,OS=13.7'"
     },
     "android": {
       "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug && cd ..",
@@ -17,7 +17,8 @@
     "simulator": {
       "type": "ios.simulator",
       "device": {
-        "type": "iPhone 11"
+        "name": "iPhone 11",
+        "os": "13.7"
       }
     },
     "emulator": {
