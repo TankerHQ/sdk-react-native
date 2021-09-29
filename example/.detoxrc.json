@@ -5,7 +5,7 @@
     "ios": {
       "type": "ios.app",
       "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/ClientReactNativeExample.app",
-      "build": "export RCT_NO_LAUNCH_PACKAGER=true && xcodebuild -workspace ios/ClientReactNativeExample.xcworkspace -scheme ClientReactNativeExample -UseNewBuildSystem=NO -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -xcconfig detox.xcconfig"
+      "build": "export RCT_NO_LAUNCH_PACKAGER=true && xcodebuild -workspace ios/ClientReactNativeExample.xcworkspace -scheme ClientReactNativeExample -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
     },
     "android": {
       "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug && cd ..",
