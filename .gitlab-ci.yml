@@ -1,6 +1,6 @@
 include:
   - project: TankerHQ/gitlab-ci-files
-    ref: 2021-07-07-1
+    ref: 2021-10-04-177
     file: /react-native.yml
 
 ########
@@ -11,11 +11,16 @@ default:
   before_script:
     - poetry install
 
+.rules/check/deployed:
+  rules:
+    - !reference [.rules/web/auto, rules]
+    - !reference [.rules/mr/manual, rules]
+
 check/android/deployed:
   extends:
     - .check
     - .tags/linux
-    - .rules/deployed-native
+    - .rules/check/deployed
   script:
     - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION 
@@ -59,7 +64,7 @@ check/ios/deployed/x86_64:
   extends:
     - .check
     - .tags/macos/x86_64
-    - .rules/deployed-native
+    - .rules/check/deployed
   script:
     - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION 
     - poetry run python run-ci.py build-and-test ios
@@ -95,7 +100,7 @@ check/ios/deployed/arm:
   extends:
     - .check
     - .tags/macos/arm
-    - .rules/deployed-native
+    - .rules/check/deployed
   script:
     - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION 
     - poetry run python run-ci.py build-and-test ios
