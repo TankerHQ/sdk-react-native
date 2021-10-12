@@ -40,12 +40,6 @@ stages:
   - check
   - deploy
 
-.check:
-  stage: check
-
-.deploy:
-  stage: deploy
-
 #############################
 # Default settings override #
 #############################
@@ -68,8 +62,8 @@ stages:
     - !reference [.rules/mr/manual, rules]
 
 check/android/deployed:
+  stage: check
   extends:
-    - .check
     - .tags/linux
     - .rules/check/deployed
   script:
@@ -79,8 +73,8 @@ check/android/deployed:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/android/downstream:
+  stage: check
   extends:
-    - .check
     - .tags/linux
     - .before-script/download-artifacts
     - .rules/check/downstream/android
@@ -90,8 +84,8 @@ check/android/downstream:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/android/from-sources:
+  stage: check
   extends:
-    - .check
     - .tags/linux
     - .rules/mr/manual
   script:
@@ -101,8 +95,8 @@ check/android/from-sources:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/android/all-from-sources:
+  stage: check
   extends:
-    - .check
     - .tags/linux
     - .rules/native-from-sources
   script:
@@ -112,8 +106,8 @@ check/android/all-from-sources:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/ios/deployed/x86_64:
+  stage: check
   extends:
-    - .check
     - .tags/macos/x86_64
     - .rules/check/deployed
   script:
@@ -121,8 +115,8 @@ check/ios/deployed/x86_64:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/downstream/x86_64:
+  stage: check
   extends:
-    - .check
     - .tags/macos/x86_64
     - .before-script/download-artifacts
     - .rules/check/downstream/ios/x86_64
@@ -130,8 +124,8 @@ check/ios/downstream/x86_64:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/from-sources/x86_64:
+  stage: check
   extends:
-    - .check
     - .tags/macos/x86_64
     - .rules/mr/manual
   script:
@@ -139,8 +133,8 @@ check/ios/from-sources/x86_64:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/all-from-sources/x86_64:
+  stage: check
   extends:
-    - .check
     - .tags/macos/x86_64
     - .rules/native-from-sources
   script:
@@ -148,8 +142,8 @@ check/ios/all-from-sources/x86_64:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/deployed/arm:
+  stage: check
   extends:
-    - .check
     - .tags/macos/arm
     - .rules/check/deployed
   script:
@@ -157,8 +151,8 @@ check/ios/deployed/arm:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/downstream/arm:
+  stage: check
   extends:
-    - .check
     - .tags/macos/arm
     - .before-script/download-artifacts
     - .rules/check/downstream/ios/arm
@@ -167,8 +161,8 @@ check/ios/downstream/arm:
 
 
 check/ios/from-sources/arm:
+  stage: check
   extends:
-    - .check
     - .tags/macos/arm
     - .rules/mr/manual
   script:
@@ -176,8 +170,8 @@ check/ios/from-sources/arm:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/all-from-sources/arm:
+  stage: check
   extends:
-    - .check
     - .tags/macos/arm
     - .rules/native-from-sources
   script:
@@ -189,8 +183,8 @@ check/ios/all-from-sources/arm:
 ################
 
 deploy:
+  stage: deploy
   extends:
-    - .deploy
     - .tags/linux
     - .rules/deploy/react-native
   script:
