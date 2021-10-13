@@ -1,15 +1,60 @@
 include:
   - project: TankerHQ/gitlab-ci-files
     ref: 2021-10-04-177
-    file: /react-native.yml
+    file: /common.yml
+
+############
+# Workflow #
+############
+
+workflow:
+  rules:
+    # web pipelines for releases only
+    - if: $CI_PIPELINE_SOURCE == "web" && $SDK_REACT_NATIVE_RELEASE_VERSION !~ /\A\d+\.\d+\.\d+(-(alpha|beta)\d+)?\z/
+      when: never
+    # we must specify version of sdk-ios/sdk-android to avoid clients upgrading them by accident
+    - if: $CI_PIPELINE_SOURCE == "web" && $SDK_ANDROID_RELEASE_VERSION !~ /\A\d+\.\d+\.\d+(-(alpha|beta)-\d+)?\z/
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "web" && $SDK_IOS_RELEASE_VERSION !~ /\A\d+\.\d+\.\d+(-(alpha|beta)\d+)?\z/
+      when: never
+    - if: !reference [.if-invalid-native-conan-reference, if]
+      when: never
+    # allow everything else
+    - when: always
+
+###########
+# Default #
+###########
+
+default:
+  before_script: &global_before_script
+    - if [ $(uname) == "Darwin" ]; then security unlock-keychain -p ${DEFAULT_KEYCHAIN_PASSWORD} ~/Library/Keychains/login.keychain-db; fi
+    - poetry run python -m pip install --upgrade pip
+    - poetry install
+
+##########
+# Stages #
+##########
+
+stages:
+  - check
+  - deploy
+
+#############################
+# Default settings override #
+#############################
+
+.before-script/download-artifacts:
+  before_script:
+    - *global_before_script
+    - poetry run python run-ci.py download-artifacts --project-id=$UPSTREAM_PROJECT_ID --pipeline-id=$UPSTREAM_PIPELINE_ID --job-name=$UPSTREAM_JOB_NAME
+    - poetry run python run-ci.py reset-branch $(cat branch_name.txt)
+    - poetry run python -m pip install --upgrade pip
+    - poetry install
 
 ########
 # Jobs #
 ########
-
-default:
-  before_script:
-    - poetry install
 
 .rules/check/deployed:
   rules:
@@ -17,8 +62,8 @@ default:
     - !reference [.rules/mr/manual, rules]
 
 check/android/deployed:
+  stage: check
   extends:
-    - .check
     - .tags/linux
     - .rules/check/deployed
   script:
@@ -28,8 +73,8 @@ check/android/deployed:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/android/downstream:
+  stage: check
   extends:
-    - .check
     - .tags/linux
     - .before-script/download-artifacts
     - .rules/check/downstream/android
@@ -39,8 +84,8 @@ check/android/downstream:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/android/from-sources:
+  stage: check
   extends:
-    - .check
     - .tags/linux
     - .rules/mr/manual
   script:
@@ -50,8 +95,8 @@ check/android/from-sources:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/android/all-from-sources:
+  stage: check
   extends:
-    - .check
     - .tags/linux
     - .rules/native-from-sources
   script:
@@ -61,8 +106,8 @@ check/android/all-from-sources:
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 check/ios/deployed/x86_64:
+  stage: check
   extends:
-    - .check
     - .tags/macos/x86_64
     - .rules/check/deployed
   script:
@@ -70,8 +115,8 @@ check/ios/deployed/x86_64:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/downstream/x86_64:
+  stage: check
   extends:
-    - .check
     - .tags/macos/x86_64
     - .before-script/download-artifacts
     - .rules/check/downstream/ios/x86_64
@@ -79,8 +124,8 @@ check/ios/downstream/x86_64:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/from-sources/x86_64:
+  stage: check
   extends:
-    - .check
     - .tags/macos/x86_64
     - .rules/mr/manual
   script:
@@ -88,8 +133,8 @@ check/ios/from-sources/x86_64:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/all-from-sources/x86_64:
+  stage: check
   extends:
-    - .check
     - .tags/macos/x86_64
     - .rules/native-from-sources
   script:
@@ -97,8 +142,8 @@ check/ios/all-from-sources/x86_64:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/deployed/arm:
+  stage: check
   extends:
-    - .check
     - .tags/macos/arm
     - .rules/check/deployed
   script:
@@ -106,8 +151,8 @@ check/ios/deployed/arm:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/downstream/arm:
+  stage: check
   extends:
-    - .check
     - .tags/macos/arm
     - .before-script/download-artifacts
     - .rules/check/downstream/ios/arm
@@ -116,8 +161,8 @@ check/ios/downstream/arm:
 
 
 check/ios/from-sources/arm:
+  stage: check
   extends:
-    - .check
     - .tags/macos/arm
     - .rules/mr/manual
   script:
@@ -125,8 +170,8 @@ check/ios/from-sources/arm:
     - poetry run python run-ci.py build-and-test ios
 
 check/ios/all-from-sources/arm:
+  stage: check
   extends:
-    - .check
     - .tags/macos/arm
     - .rules/native-from-sources
   script:
@@ -138,8 +183,8 @@ check/ios/all-from-sources/arm:
 ################
 
 deploy:
+  stage: deploy
   extends:
-    - .deploy
     - .tags/linux
     - .rules/deploy/react-native
   script:
