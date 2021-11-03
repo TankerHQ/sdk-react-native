@@ -23,6 +23,12 @@ fun Verification(json: ReadableMap): Verification {
     json.getString("phoneNumber")?.let {
         return PhoneNumberVerification(it, json.getString("verificationCode")!!)
     }
+    json.getString("preverifiedEmail")?.let {
+        return PreverifiedEmailVerification(it)
+    }
+    json.getString("preverifiedPhoneNumber")?.let {
+        return PreverifiedPhoneNumberVerification(it)
+    }
     throw AssertionError("Invalid verification JS object received, check Typescript definitions match")
 }
 
@@ -49,6 +55,8 @@ fun VerificationMethod.toWritableMap(): WritableMap {
             json.putString("type", "phoneNumber")
             json.putString("phoneNumber", this.phoneNumber)
         }
+        is PreverifiedEmailVerificationMethod -> json.putString("type", "preverifiedEmail")
+        is PreverifiedPhoneNumberVerificationMethod -> json.putString("type", "preverifiedPhoneNumber")
     }
     return json
 }
