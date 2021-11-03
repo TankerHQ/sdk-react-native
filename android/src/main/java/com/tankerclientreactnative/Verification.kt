@@ -55,8 +55,14 @@ fun VerificationMethod.toWritableMap(): WritableMap {
             json.putString("type", "phoneNumber")
             json.putString("phoneNumber", this.phoneNumber)
         }
-        is PreverifiedEmailVerificationMethod -> json.putString("type", "preverifiedEmail")
-        is PreverifiedPhoneNumberVerificationMethod -> json.putString("type", "preverifiedPhoneNumber")
+        is PreverifiedEmailVerificationMethod -> {
+            json.putString("type", "preverifiedEmail")
+            json.putString("preverifiedEmail", this.preverifiedEmail)
+        }
+        is PreverifiedPhoneNumberVerificationMethod -> {
+            json.putString("type", "preverifiedPhoneNumber")
+            json.putString("preverifiedPhoneNumber", this.preverifiedPhoneNumber)
+        }
     }
     return json
 }

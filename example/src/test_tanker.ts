@@ -11,6 +11,7 @@ import {
   getVerificationCode,
   getSMSVerificationCode,
   toggleSessionCertificates,
+  togglePreverifiedVerification,
 } from './admin';
 import {
   InvalidArgument,
@@ -136,6 +137,136 @@ export const tankerTests = () => {
       await secondDevice.start(identity);
       await secondDevice.verifyIdentity(pass2);
       expect(secondDevice.status).eq(Tanker.statuses.READY);
+      await secondDevice.stop();
+    });
+
+    it('fails to register with preverified email', async () => {
+      togglePreverifiedVerification(true);
+      const email = 'bob@burger.io';
+      await tanker.start(identity);
+      await expect(
+        tanker.registerIdentity({ preverifiedEmail: email })
+      ).is.rejectedWith(InvalidArgument);
+    });
+
+    it('fails to register with preverified phone number', async () => {
+      togglePreverifiedVerification(true);
+      const phoneNumber = '+33639982233';
+      await tanker.start(identity);
+      await expect(
+        tanker.registerIdentity({ preverifiedPhoneNumber: phoneNumber })
+      ).is.rejectedWith(InvalidArgument);
+    });
+
+    it('fails to verify with preverified email', async () => {
+      togglePreverifiedVerification(true);
+      const email = 'bob@burger.io';
+      await tanker.start(identity);
+      const verificationCode = await getVerificationCode(email);
+      await tanker.registerIdentity({ email, verificationCode });
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+      await expect(
+        secondDevice.verifyIdentity({ preverifiedEmail: email })
+      ).is.rejectedWith(InvalidArgument);
+
+      await secondDevice.stop();
+    });
+
+    it('fails to verify with preverified phone number', async () => {
+      togglePreverifiedVerification(true);
+      const phoneNumber = '+33639982233';
+      await tanker.start(identity);
+      const verificationCode = await getSMSVerificationCode(phoneNumber);
+      await tanker.registerIdentity({ phoneNumber, verificationCode });
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+      await expect(
+        secondDevice.verifyIdentity({
+          preverifiedPhoneNumber: phoneNumber,
+        })
+      ).is.rejectedWith(InvalidArgument);
+
+      await secondDevice.stop();
+    });
+
+    it('can use set verification method with preverified email', async () => {
+      togglePreverifiedVerification(true);
+      const email = 'bob@burger.io';
+      const pass = { passphrase: 'Shame, dring dring' };
+      await tanker.start(identity);
+      await tanker.registerIdentity(pass);
+      await tanker.setVerificationMethod({ preverifiedEmail: email });
+
+      expect(await tanker.getVerificationMethods()).to.have.deep.members([
+        {
+          type: 'passphrase',
+        },
+        {
+          type: 'preverifiedEmail',
+          preverifiedEmail: email,
+        },
+      ]);
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+
+      const verificationCode = await getVerificationCode(email);
+      await secondDevice.verifyIdentity({ email, verificationCode });
+      expect(secondDevice.status).eq(Tanker.statuses.READY);
+
+      expect(await secondDevice.getVerificationMethods()).to.have.deep.members([
+        {
+          type: 'passphrase',
+        },
+        {
+          type: 'email',
+          email: email,
+        },
+      ]);
+
+      await secondDevice.stop();
+    });
+
+    it('can use set verification method with preverified phone number', async () => {
+      togglePreverifiedVerification(true);
+      const phoneNumber = '+33639982233';
+      const pass = { passphrase: 'Shame, dring dring' };
+      await tanker.start(identity);
+      await tanker.registerIdentity(pass);
+      await tanker.setVerificationMethod({
+        preverifiedPhoneNumber: phoneNumber,
+      });
+
+      expect(await tanker.getVerificationMethods()).to.have.deep.members([
+        {
+          type: 'passphrase',
+        },
+        {
+          type: 'preverifiedPhoneNumber',
+          preverifiedPhoneNumber: phoneNumber,
+        },
+      ]);
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+
+      const verificationCode = await getSMSVerificationCode(phoneNumber);
+      await secondDevice.verifyIdentity({ phoneNumber, verificationCode });
+      expect(secondDevice.status).eq(Tanker.statuses.READY);
+
+      expect(await secondDevice.getVerificationMethods()).to.have.deep.members([
+        {
+          type: 'passphrase',
+        },
+        {
+          type: 'phoneNumber',
+          phoneNumber: phoneNumber,
+        },
+      ]);
+
       await secondDevice.stop();
     });
 

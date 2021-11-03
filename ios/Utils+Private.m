@@ -178,9 +178,11 @@ NSDictionary<NSString*, id>* verificationMethodToJson(TKRVerificationMethod* met
       break;
     case TKRVerificationMethodTypePreverifiedEmail:
       field[@"type"] = @"preverifiedEmail";
+      field[@"preverifiedEmail"] = method.preverifiedEmail;
       break;
     case TKRVerificationMethodTypePreverifiedPhoneNumber:
       field[@"type"] = @"preverifiedPhoneNumber";
+      field[@"preverifiedPhoneNumber"] = method.preverifiedPhoneNumber;
       break;
     default:
       *err = [NSError errorWithDomain:TKRErrorDomain code:TKRErrorInternalError userInfo:@{
