@@ -164,6 +164,7 @@ NSDictionary<NSString*, id>* verificationMethodToJson(TKRVerificationMethod* met
       break;
     case TKRVerificationMethodTypeVerificationKey:
       field[@"type"] = @"verificationKey";
+      break;
     case TKRVerificationMethodTypePhoneNumber:
       field[@"type"] = @"phoneNumber";
       field[@"phoneNumber"] = method.phoneNumber;
