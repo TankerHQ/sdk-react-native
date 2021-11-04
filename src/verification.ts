@@ -85,7 +85,6 @@ export const assertVerification = (verification: Verification) => {
     );
 
   if ('email' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(verification.email, 'verification.email');
     if (!('verificationCode' in verification)) {
       throw new InvalidArgument(
@@ -94,25 +93,20 @@ export const assertVerification = (verification: Verification) => {
         verification
       );
     }
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(
       verification.verificationCode,
       'verification.verificationCode'
     );
   } else if ('passphrase' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(verification.passphrase, 'verification.passphrase');
   } else if ('verificationKey' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(
       verification.verificationKey,
       'verification.verificationKey'
     );
   } else if ('oidcIdToken' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(verification.oidcIdToken, 'verification.oidcIdToken');
   } else if ('phoneNumber' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(verification.phoneNumber, 'verification.phoneNumber');
     if (!('verificationCode' in verification)) {
       throw new InvalidArgument(
@@ -121,19 +115,16 @@ export const assertVerification = (verification: Verification) => {
         verification
       );
     }
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(
       verification.verificationCode,
       'verification.verificationCode'
     );
   } else if ('preverifiedEmail' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(
       verification.preverifiedEmail,
       'verification.preverifiedEmail'
     );
   } else if ('preverifiedPhoneNumber' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(
       verification.preverifiedPhoneNumber,
       'verification.preverifiedPhoneNumber'
