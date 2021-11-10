@@ -41,6 +41,8 @@ TKRVerification* _Nonnull dictToTankerVerification(NSDictionary<NSString*, id>* 
   NSString* verificationKey = verificationDict[@"verificationKey"];
   NSString* oidcIdToken = verificationDict[@"oidcIdToken"];
   NSString* phoneNumber = verificationDict[@"phoneNumber"];
+  NSString* preverifiedEmail = verificationDict[@"preverifiedEmail"];
+  NSString* preverifiedPhoneNumber = verificationDict[@"preverifiedPhoneNumber"];
   
   NSString* code = verificationDict[@"verificationCode"];
 
@@ -54,6 +56,11 @@ TKRVerification* _Nonnull dictToTankerVerification(NSDictionary<NSString*, id>* 
     return [TKRVerification verificationFromOIDCIDToken:oidcIdToken];
   if (phoneNumber)
     return [TKRVerification verificationFromPhoneNumber:phoneNumber verificationCode:code];
+  if (preverifiedEmail)
+    return [TKRVerification verificationFromPreverifiedEmail:preverifiedEmail];
+  if (preverifiedPhoneNumber)
+    return [TKRVerification verificationFromPreverifiedPhoneNumber:preverifiedPhoneNumber];
+
   NSError* err;
   NSData* data = [NSJSONSerialization dataWithJSONObject:verificationDict options:NSJSONWritingPrettyPrinted error:&err];
   NSString* json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -164,9 +171,18 @@ NSDictionary<NSString*, id>* verificationMethodToJson(TKRVerificationMethod* met
       break;
     case TKRVerificationMethodTypeVerificationKey:
       field[@"type"] = @"verificationKey";
+      break;
     case TKRVerificationMethodTypePhoneNumber:
       field[@"type"] = @"phoneNumber";
       field[@"phoneNumber"] = method.phoneNumber;
+      break;
+    case TKRVerificationMethodTypePreverifiedEmail:
+      field[@"type"] = @"preverifiedEmail";
+      field[@"preverifiedEmail"] = method.preverifiedEmail;
+      break;
+    case TKRVerificationMethodTypePreverifiedPhoneNumber:
+      field[@"type"] = @"preverifiedPhoneNumber";
+      field[@"preverifiedPhoneNumber"] = method.preverifiedPhoneNumber;
       break;
     default:
       *err = [NSError errorWithDomain:TKRErrorDomain code:TKRErrorInternalError userInfo:@{

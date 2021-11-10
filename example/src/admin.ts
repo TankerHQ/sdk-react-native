@@ -26,6 +26,17 @@ export async function toggleSessionCertificates(
   });
 }
 
+export async function togglePreverifiedVerification(
+  enable: boolean
+): Promise<void> {
+  const form = new FormData();
+  form.append('enable', enable);
+  await fetch(`${SERVER_URL}/toggle_preverified_verification`, {
+    method: 'POST',
+    body: form,
+  });
+}
+
 export async function createIdentity(): Promise<string> {
   return await (await fetch(`${SERVER_URL}/create_identity`)).text();
 }

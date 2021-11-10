@@ -9,13 +9,19 @@ export type PhoneNumberVerificationMethod = {
   type: 'phoneNumber';
   phoneNumber: string;
 };
+export type PreverifiedEmailVerificationMethod = { type: 'preverifiedEmail' };
+export type PreverifiedPhoneNumberVerificationMethod = {
+  type: 'preverifiedPhoneNumber';
+};
 
 export type VerificationMethod =
   | EmailVerificationMethod
   | PassphraseVerificationMethod
   | KeyVerificationMethod
   | OIDCVerificationMethod
-  | PhoneNumberVerificationMethod;
+  | PhoneNumberVerificationMethod
+  | PreverifiedEmailVerificationMethod
+  | PreverifiedPhoneNumberVerificationMethod;
 
 export type EmailVerification = { email: string; verificationCode: string };
 export type PassphraseVerification = { passphrase: string };
@@ -25,13 +31,19 @@ export type PhoneNumberVerification = {
   phoneNumber: string;
   verificationCode: string;
 };
+export type PreverifiedEmailVerification = { preverifiedEmail: string };
+export type PreverifiedPhoneNumberVerification = {
+  preverifiedPhoneNumber: string;
+};
 
 export type Verification =
   | EmailVerification
   | PassphraseVerification
   | KeyVerification
   | OIDCVerification
-  | PhoneNumberVerification;
+  | PhoneNumberVerification
+  | PreverifiedEmailVerification
+  | PreverifiedPhoneNumberVerification;
 
 export type VerificationOptions = { withSessionToken?: boolean };
 
@@ -41,6 +53,8 @@ const validMethods = [
   'verificationKey',
   'oidcIdToken',
   'phoneNumber',
+  'preverifiedEmail',
+  'preverifiedPhoneNumber',
 ];
 const validKeys = [...validMethods, 'verificationCode'];
 const validVerifOptionsKeys = ['withSessionToken'];
@@ -71,7 +85,6 @@ export const assertVerification = (verification: Verification) => {
     );
 
   if ('email' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(verification.email, 'verification.email');
     if (!('verificationCode' in verification)) {
       throw new InvalidArgument(
@@ -80,25 +93,20 @@ export const assertVerification = (verification: Verification) => {
         verification
       );
     }
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(
       verification.verificationCode,
       'verification.verificationCode'
     );
   } else if ('passphrase' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(verification.passphrase, 'verification.passphrase');
   } else if ('verificationKey' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(
       verification.verificationKey,
       'verification.verificationKey'
     );
   } else if ('oidcIdToken' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(verification.oidcIdToken, 'verification.oidcIdToken');
   } else if ('phoneNumber' in verification) {
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(verification.phoneNumber, 'verification.phoneNumber');
     if (!('verificationCode' in verification)) {
       throw new InvalidArgument(
@@ -107,10 +115,19 @@ export const assertVerification = (verification: Verification) => {
         verification
       );
     }
-    // $FlowIgnore[prop-missing]
     assertNotEmptyString(
       verification.verificationCode,
       'verification.verificationCode'
+    );
+  } else if ('preverifiedEmail' in verification) {
+    assertNotEmptyString(
+      verification.preverifiedEmail,
+      'verification.preverifiedEmail'
+    );
+  } else if ('preverifiedPhoneNumber' in verification) {
+    assertNotEmptyString(
+      verification.preverifiedPhoneNumber,
+      'verification.preverifiedPhoneNumber'
     );
   }
 };

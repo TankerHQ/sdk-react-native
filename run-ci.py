@@ -200,6 +200,7 @@ def main() -> None:
         choices=[
             TankerSource.EDITABLE,
             TankerSource.DEPLOYED,
+            TankerSource.LOCAL,
             TankerSource.SAME_AS_BRANCH,
         ],
         default=TankerSource.EDITABLE,

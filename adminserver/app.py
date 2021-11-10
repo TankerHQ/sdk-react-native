@@ -55,6 +55,12 @@ def toggle_session_certificates() -> str:
     admin.update_app(tanker_app["id"], session_certificates=enable)
     return ""
 
+@app.route("/toggle_preverified_verification", methods=["POST"])
+def toggle_preverified_verification() -> str:
+    enable = request.form["enable"].lower() == "true"
+    admin.update_app(tanker_app["id"], preverified_verification=enable)
+    return ""
+
 
 @app.route("/create_identity")
 def create_identity() -> str:
