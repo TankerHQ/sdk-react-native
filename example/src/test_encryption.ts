@@ -3,10 +3,14 @@
 
 import { expect } from 'chai';
 import type { Tanker } from '@tanker/client-react-native';
+import { Padding } from '@tanker/client-react-native';
 import { describe, beforeEach, afterEach, it } from './framework';
 import { createIdentity, getPublicIdentity } from './admin';
 import { InvalidArgument } from '@tanker/errors';
-import { createTanker, clearTankerDataDirs } from './tests';
+import { createTanker, clearTankerDataDirs, getPaddedSize } from './tests';
+
+const simpleEncryptionOverhead = 17;
+const simpleEncryptionPaddedOverhead = simpleEncryptionOverhead + 1;
 
 export const encryptionTests = () => {
   describe('Encryption tests', () => {
@@ -116,6 +120,81 @@ export const encryptionTests = () => {
       const decrypted = await other.decrypt(encrypted);
       await other.stop();
       expect(decrypted).eq(plaintext);
+    });
+
+    it('encrypts with auto padding by default', async () => {
+      const plaintext = 'my clear data is clear!';
+      const lengthWithPadme = 24;
+
+      const encrypted = await tanker.encrypt(plaintext);
+
+      const paddedSize = getPaddedSize(
+        encrypted,
+        simpleEncryptionPaddedOverhead
+      );
+      expect(paddedSize).eq(lengthWithPadme);
+
+      const decrypted = await tanker.decrypt(encrypted);
+      expect(decrypted).eq(plaintext);
+    });
+
+    it('can set the option to auto', async () => {
+      const plaintext = 'my clear data is clear!';
+      const lengthWithPadme = 24;
+
+      const options = { paddingStep: Padding.AUTO };
+      const encrypted = await tanker.encrypt(plaintext, options);
+
+      const paddedSize = getPaddedSize(
+        encrypted,
+        simpleEncryptionPaddedOverhead
+      );
+      expect(paddedSize).eq(lengthWithPadme);
+
+      const decrypted = await tanker.decrypt(encrypted);
+      expect(decrypted).eq(plaintext);
+    });
+
+    it('can set the option to off', async () => {
+      const plaintext = 'This is the text to pad.';
+
+      const options = { paddingStep: Padding.OFF };
+      const encrypted = await tanker.encrypt(plaintext, options);
+
+      const paddedSize = getPaddedSize(encrypted, simpleEncryptionOverhead);
+      expect(paddedSize).to.equal(plaintext.length);
+
+      const decrypted = await tanker.decrypt(encrypted);
+      expect(decrypted).eq(plaintext);
+    });
+
+    it('can set the option to a number', async () => {
+      const plaintext = 'my clear data is clear';
+
+      const step = 13;
+      const options = { paddingStep: step };
+      const encrypted = await tanker.encrypt(plaintext, options);
+
+      const paddedSize = getPaddedSize(
+        encrypted,
+        simpleEncryptionPaddedOverhead
+      );
+      expect(paddedSize % step).to.equal(0);
+
+      const decrypted = await tanker.decrypt(encrypted);
+      expect(decrypted).eq(plaintext);
+    });
+
+    it('cannot provide a bad paddingStep parameter', async () => {
+      const plaintext = 'unused';
+      await Promise.all(
+        [-1, 0, 1, 2.42, 'a random string', null].map(async (x) => {
+          await expect(
+            // @ts-expect-error
+            tanker.encrypt(plaintext, { paddingStep: x })
+          ).eventually.rejectedWith(InvalidArgument);
+        })
+      );
     });
   });
 };

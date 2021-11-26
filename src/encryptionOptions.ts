@@ -1,10 +1,16 @@
 import { InvalidArgument } from '@tanker/errors';
 import { extractSharingOptions } from './sharingOptions';
 
+export enum Padding {
+  AUTO = 'AUTO',
+  OFF = 'OFF',
+}
+
 export type EncryptionOptions = {
   shareWithUsers?: Array<string>;
   shareWithGroups?: Array<string>;
   shareWithSelf?: boolean;
+  paddingStep?: number | Padding;
 };
 
 export const extractEncryptionOptions = (
@@ -14,7 +20,7 @@ export const extractEncryptionOptions = (
 
   const error = new InvalidArgument(
     'options',
-    '{ shareWithUsers?: Array<b64string>, shareWithGroups?: Array<string>, shareWithSelf?: bool }',
+    '{ shareWithUsers?: Array<b64string>, shareWithGroups?: Array<string>, shareWithSelf?: bool, paddingStep?: number | Padding }',
     options
   );
 
@@ -28,5 +34,40 @@ export const extractEncryptionOptions = (
     encryptionOptions.shareWithSelf = options.shareWithSelf;
   }
 
+  if (
+    !('paddingStep' in options) ||
+    options.paddingStep === undefined ||
+    options.paddingStep === Padding.AUTO
+  ) {
+    encryptionOptions.paddingStep = 0;
+  } else if ('paddingStep' in options) {
+    if (options.paddingStep === Padding.OFF) {
+      encryptionOptions.paddingStep = 1;
+    } else if (options.paddingStep >= 2) {
+      assertInteger(options.paddingStep, 'paddingStep', true);
+      encryptionOptions.paddingStep = options.paddingStep;
+    } else {
+      throw error;
+    }
+  }
+
   return encryptionOptions;
 };
+
+function assertInteger(
+  arg: unknown,
+  argName: string,
+  isUnsigned: boolean
+): asserts arg is number {
+  if (typeof arg !== 'number') {
+    throw new InvalidArgument(argName, `${argName} should be an integer`, arg);
+  }
+
+  if (!Number.isFinite(arg) || Math.floor(arg) !== arg) {
+    throw new InvalidArgument(argName, `${argName} should be an integer`, arg);
+  }
+
+  if (isUnsigned && arg < 0) {
+    throw new InvalidArgument(argName, `${argName} should be unsigned`, arg);
+  }
+}

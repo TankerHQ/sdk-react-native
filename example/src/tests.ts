@@ -41,3 +41,15 @@ export async function clearTankerDataDirs(): Promise<void> {
   }
   pathsToClear = [];
 }
+
+export const getPaddedSize = (
+  b64Encrypted: string,
+  encryptionOverhead: number
+) => {
+  const length = b64Encrypted.length;
+
+  let b64PaddingBytes = 0;
+  while (b64Encrypted[length - b64PaddingBytes - 1] === '=') b64PaddingBytes++;
+
+  return length * (3 / 4) - b64PaddingBytes - encryptionOverhead;
+};

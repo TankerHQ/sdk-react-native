@@ -91,6 +91,7 @@ TKREncryptionOptions* _Nonnull dictToTankerEncryptionOptions(NSDictionary<NSStri
   NSArray<NSString*>* shareWithUsers = optionsDict[@"shareWithUsers"];
   NSArray<NSString*>* shareWithGroups = optionsDict[@"shareWithGroups"];
   NSNumber* shareWithSelf = optionsDict[@"shareWithSelf"];
+  NSNumber* paddingStep = optionsDict[@"paddingStep"];
 
   if (shareWithUsers)
     ret.shareWithUsers = shareWithUsers;
@@ -98,6 +99,12 @@ TKREncryptionOptions* _Nonnull dictToTankerEncryptionOptions(NSDictionary<NSStri
     ret.shareWithGroups = shareWithGroups;
   if (shareWithSelf)
     ret.shareWithSelf = shareWithSelf.boolValue;
+  switch ([paddingStep intValue])
+  {
+    case 0: ret.paddingStep = [TKRPadding automatic]; break;
+    case 1: ret.paddingStep = [TKRPadding off]; break;
+    default: ret.paddingStep = [TKRPadding step: paddingStep];
+  }
   return ret;
 }
 
