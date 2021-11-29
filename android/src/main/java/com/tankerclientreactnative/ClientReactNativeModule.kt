@@ -19,6 +19,7 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     private val tankerInstances = HashMap<TankerHandle, Tanker>()
     private val encryptionSessionInstances = HashMap<EncryptionSessionHandle, EncryptionSession>()
     private val androidFilesDir = reactContext.applicationContext.filesDir.absolutePath
+    private val androidCacheDir = reactContext.applicationContext.cacheDir.absolutePath
 
     init {
         Tanker.setLogHandler(object : LogHandlerCallback {
@@ -84,6 +85,8 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         options.setAppId(jsOptions.getString("appId")!!)
         val writablePath = jsOptions.getString("writablePath") ?: androidFilesDir
         options.setWritablePath(writablePath)
+        val cachePath = jsOptions.getString("cachePath") ?: androidCacheDir
+        options.setCachePath(cachePath)
         val url = jsOptions.getString("url")
         if (url != null)
             options.setUrl(url)
