@@ -83,8 +83,8 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     fun create(jsOptions: ReadableMap, version: String): Result<TankerHandle> {
         val options = TankerOptions()
         options.setAppId(jsOptions.getString("appId")!!)
-        val writablePath = jsOptions.getString("writablePath") ?: androidFilesDir
-        options.setWritablePath(writablePath)
+        val persistentPath = jsOptions.getString("persistentPath") ?: androidFilesDir
+        options.setPersistentPath(persistentPath)
         val cachePath = jsOptions.getString("cachePath") ?: androidCacheDir
         options.setCachePath(cachePath)
         val url = jsOptions.getString("url")
