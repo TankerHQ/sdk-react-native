@@ -4,18 +4,26 @@ TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id>* _Non
 {
   TKRTankerOptions* opts = [TKRTankerOptions options];
   NSString* url = optionsDict[@"url"];
-  NSString* writablePath = optionsDict[@"writablePath"];
+  NSString* persistentPath = optionsDict[@"persistentPath"];
+  NSString* cachePath = optionsDict[@"cachePath"];
   NSString* sdkType = optionsDict[@"sdkType"];
   
   opts.appID = optionsDict[@"appId"];
   if (url)
     opts.url = url;
-  if (writablePath)
-    opts.writablePath = writablePath;
+  if (persistentPath)
+    opts.persistentPath = persistentPath;
   else
   {
     NSURL* path = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
-    opts.writablePath = [path absoluteString];
+    opts.persistentPath = [path absoluteString];
+  }
+  if (cachePath)
+    opts.cachePath = cachePath;
+  else
+  {
+    NSURL* path = [[[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask] lastObject];
+    opts.cachePath = [path absoluteString];
   }
   if (sdkType)
     opts.sdkType = sdkType;

@@ -7,7 +7,8 @@ export type NativeEncryptionSession = number;
 
 export type TankerOptions = {
   appId: string;
-  writablePath?: string;
+  persistentPath?: string;
+  cachePath?: string;
   url?: string;
 };
 
