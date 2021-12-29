@@ -31,7 +31,7 @@ export const encryptionSessionTests = () => {
       await clearTankerDataDirs();
     });
 
-    it('can get the resource ID', async () => {
+    it('retrieves the resource ID', async () => {
       const encrypted = await session.encrypt('less than three');
       const resId = await tanker.getResourceId(encrypted);
       const sessResId = session.resourceId;
@@ -40,14 +40,14 @@ export const encryptionSessionTests = () => {
       expect(sessResId).eq(resId);
     });
 
-    it('can roundtrip a basic encrypt', async () => {
+    it('roundtrips a basic encrypt', async () => {
       const plaintext = 'foo';
       const encrypted = await session.encrypt(plaintext);
       const decrypted = await tanker.decrypt(encrypted);
       expect(decrypted).eq(plaintext);
     });
 
-    it('can use encryption options to share', async () => {
+    it('uses encryption options to share', async () => {
       const other = await createTanker();
       const otherPrivIdent = await createIdentity();
       await other.start(otherPrivIdent);
@@ -71,21 +71,21 @@ export const encryptionSessionTests = () => {
       expect(decrypted).eq(plaintext);
     });
 
-    it('can roundtrip with encryptData', async () => {
+    it('roundtrips with encryptData', async () => {
       const plaindata = 'dW5kZXIgY29vbCBtb29ubGlnaHQ=';
       const encrypted = await session.encryptData(plaindata);
       const decrypted = await tanker.decryptData(encrypted);
       expect(decrypted).eq(plaindata);
     });
 
-    it('cannot pass a non-base64 plaintext to encryptData', async () => {
+    it('fails to pass a non-base64 plaintext to encryptData', async () => {
       const plaintext = 'plain text';
       await expect(session.encryptData(plaintext)).eventually.rejectedWith(
         InvalidArgument
       );
     });
 
-    it('session encrypts with auto padding by default', async () => {
+    it('encrypts with auto padding by default', async () => {
       const plaintext = 'my clear data is clear!';
       const lengthWithPadme = 24;
 
