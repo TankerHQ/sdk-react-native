@@ -1,20 +1,17 @@
-import cli_ui as ui  # noqa
-
-
-from typing import Optional
-
 import argparse
 import os
-from pathlib import Path
 import shutil
 import sys
+from pathlib import Path
+from typing import Optional
 
+import cli_ui as ui  # noqa
 import tankerci
 import tankerci.android
 import tankerci.conan
-from tankerci.conan import TankerSource
 import tankerci.git
 import tankerci.gitlab
+from tankerci.conan import TankerSource
 
 
 def copy_local_aar(local_aar_path: Path) -> None:
@@ -25,40 +22,53 @@ def copy_local_aar(local_aar_path: Path) -> None:
 
 
 def build_and_test_android() -> None:
-    tankerci.run(
-        "yarn", "detox", "build", "--configuration", "android-ci", cwd="example"
-    )
+    example = Path.cwd() / "example"
+    tankerci.run("yarn", "detox", "build", "--configuration", "android-ci", cwd=example)
 
     with tankerci.run_in_background(
         "yarn",
         "start",
-        cwd="example",
+        cwd=example,
         wait_for_process=5,
         # yarn start forks things, we need to killpg
         killpg=True,
     ), tankerci.run_in_background(
-        "flask", "run", cwd="adminserver", wait_for_process=5, killpg=False,
+        "flask",
+        "run",
+        cwd=Path.cwd() / "adminserver",
+        wait_for_process=5,
+        killpg=False,
     ), tankerci.android.emulator():
         tankerci.run(
-            "yarn", "detox", "test", "--configuration", "android-ci", cwd="example"
+            "yarn",
+            "detox",
+            "test",
+            "--configuration",
+            "android-ci",
+            cwd=example,
         )
 
 
 def build_and_test_ios() -> None:
-    tankerci.run("yarn", "detox", "build", "--configuration", "ios", cwd="example")
+    example = Path.cwd() / "example"
+    tankerci.run("yarn", "detox", "build", "--configuration", "ios", cwd=example)
 
     with tankerci.run_in_background(
         "yarn",
         "start",
-        cwd="example",
+        cwd=example,
         wait_for_process=5,
         # yarn start forks things, we need to killpg
         killpg=False,
     ), tankerci.run_in_background(
-        "flask", "run", cwd="adminserver", wait_for_process=5, killpg=False,
+        "flask",
+        "run",
+        cwd=Path.cwd() / "adminserver",
+        wait_for_process=5,
+        killpg=False,
     ):
         try:
-            tankerci.run("yarn", "detox", "test", "--configuration", "ios", cwd="example")
+            tankerci.run("yarn", "detox", "test", "--configuration", "ios", cwd=example)
         finally:
             if "CI" in os.environ:
                 # this is needed to kill the React server launched by tests
@@ -86,7 +96,10 @@ def prepare(
     sdk_env = os.environ.copy()
     sdk_env.pop("VIRTUAL_ENV", None)
     tankerci.run(
-        "poetry", "install", cwd=sdk_path, env=sdk_env,
+        "poetry",
+        "install",
+        cwd=sdk_path,
+        env=sdk_env,
     )
     args = [
         "poetry",
@@ -97,7 +110,7 @@ def prepare(
     if home_isolation:
         args.append("--isolate-conan-user-home")
     args.extend(["build-and-test", f"--use-tanker={tanker_source.value}"])
-    if tanker_ref != None:
+    if tanker_ref is not None:
         args.append(f"--tanker-ref={tanker_ref}")
     tankerci.run(*args, cwd=sdk_path, env=sdk_env)
     if sdk == "ios":
@@ -135,7 +148,7 @@ def version_to_npm_tag(version: str) -> str:
 
 def replace_line_in_file(f: Path, *, pattern: str, new_line: str) -> None:
     lines = f.read_text().splitlines()
-    patched_lines = [new_line if pattern in l else l for l in lines]
+    patched_lines = [new_line if pattern in line else line for line in lines]
     f.write_text("\n".join(patched_lines))
 
 
@@ -145,14 +158,14 @@ def patch_sdk_version(*, sdk: str, version: str) -> None:
         replace_line_in_file(
             dest,
             pattern="io.tanker:tanker-bindings:",
-            new_line=f"    implementation 'io.tanker:tanker-bindings:{version}'"
+            new_line=f"    implementation 'io.tanker:tanker-bindings:{version}'",
         )
     else:
         dest = Path.cwd() / "ReactNativeTanker.podspec"
         replace_line_in_file(
             dest,
             pattern='''s.dependency "Tanker"''',
-            new_line=f'''  s.dependency "Tanker", "{version}"'''
+            new_line=f'''  s.dependency "Tanker", "{version}"''',
         )
     ui.info(f"Patched sdk-{sdk} version to {version} in {dest}")
 
