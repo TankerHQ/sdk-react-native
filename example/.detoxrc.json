@@ -30,7 +30,7 @@
     "emulator-ci": {
       "type": "android.emulator",
       "device": {
-        "avdName": "testAVD"
+        "avdName": "system-images-android-29-google_apis-x86_64"
       }
     }
   },

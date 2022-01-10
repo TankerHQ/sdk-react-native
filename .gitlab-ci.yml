@@ -31,6 +31,7 @@ default:
     - if [ $(uname) == "Darwin" ]; then security unlock-keychain -p ${DEFAULT_KEYCHAIN_PASSWORD} ~/Library/Keychains/login.keychain-db; fi
     - poetry run python -m pip install --upgrade pip
     - poetry install
+  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
 
 ##########
 # Stages #
@@ -67,9 +68,8 @@ check/android/deployed:
     - .rules/check/deployed
   script:
     - sudo chgrp 1000 -f /dev/kvm
-    - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION 
+    - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION
     - poetry run python run-ci.py build-and-test android
-  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
   tags: !reference [.tags/compilation-linux, tags]
 
 check/android/downstream:
@@ -80,7 +80,6 @@ check/android/downstream:
   script:
     - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py build-and-test android
-  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
   tags: !reference [.tags/compilation-linux, tags]
 
 check/android/from-sources:
@@ -91,7 +90,6 @@ check/android/from-sources:
     - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py prepare android --isolate-conan-user-home --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
     - poetry run python run-ci.py build-and-test android
-  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
   tags: !reference [.tags/compilation-linux, tags]
 
 check/android/all-from-sources:
@@ -102,7 +100,6 @@ check/android/all-from-sources:
     - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py prepare android --isolate-conan-user-home --use-tanker=same-as-branch
     - poetry run python run-ci.py build-and-test android
-  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
   tags: !reference [.tags/compilation-linux, tags]
 
 check/ios/deployed/x86_64:
@@ -195,5 +192,4 @@ deploy:
   release:
     description: sdk-react-native v$SDK_REACT_NATIVE_RELEASE_VERSION
     tag_name: v$SDK_REACT_NATIVE_RELEASE_VERSION
-  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
   tags: !reference [.tags/linux, tags]
