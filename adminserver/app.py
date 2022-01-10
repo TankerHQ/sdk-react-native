@@ -1,11 +1,9 @@
-from flask import Flask, request
-import sys
 import os
+import random
+
 import tankeradminsdk
 import tankersdk_identity
-import atexit
-import random
-import signal
+from flask import Flask, request
 
 app = Flask(__name__)
 
@@ -55,6 +53,7 @@ def toggle_session_certificates() -> str:
     admin.update_app(tanker_app["id"], session_certificates=enable)
     return ""
 
+
 @app.route("/toggle_preverified_verification", methods=["POST"])
 def toggle_preverified_verification() -> str:
     enable = request.form["enable"].lower() == "true"
@@ -92,7 +91,7 @@ def get_verification_code() -> str:
             auth_token=tanker_app["auth_token"],
             email=request.form["email"],
         )
-    elif request.form.get("phone_number"):
+    if request.form.get("phone_number"):
         res = tankeradminsdk.get_verification_code_sms(
             url=assert_env("TANKER_TRUSTCHAIND_URL"),
             app_id=tanker_app["id"],
@@ -100,6 +99,4 @@ def get_verification_code() -> str:
             phone_number=request.form["phone_number"],
         )
         return res
-    else:
-        return None
-
+    return None
