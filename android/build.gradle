@@ -135,6 +135,6 @@ dependencies {
     implementation 'net.java.dev.jna:jna:5.4.0@aar'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
   } else {
-    implementation 'io.tanker:tanker-bindings:2.25.0'
+    implementation 'io.tanker:tanker-bindings:2.26.0'
   }
 }
