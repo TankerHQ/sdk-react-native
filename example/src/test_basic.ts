@@ -45,7 +45,7 @@ export const basicTests = () => {
     });
 
     it('cannot call functions with a stopped device', async () => {
-      await expect(tanker.deviceId()).eventually.rejectedWith(
+      await expect(tanker.encrypt('test')).eventually.rejectedWith(
         errors.PreconditionFailed,
         'session status'
       );

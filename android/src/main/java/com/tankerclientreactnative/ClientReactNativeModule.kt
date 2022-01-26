@@ -114,11 +114,6 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod()
-    fun getDeviceId(handle: TankerHandle, promise: Promise) {
-        TankerFuture<Unit>().andThen<String> { getTanker(handle).getDeviceId() }.bridge(promise)
-    }
-
-    @ReactMethod()
     fun start(handle: TankerHandle, identity: String, promise: Promise) {
         return getTanker(handle).start(identity).bridge(promise) { it.value }
     }
