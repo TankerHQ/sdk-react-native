@@ -6,8 +6,8 @@ import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEm
 import io.tanker.api.*
 import kotlin.random.Random
 
-
 typealias TankerHandle = Int
+
 typealias EncryptionSessionHandle = Int
 
 // NOTE: In the same spirit as PHP "helping" by silently casting text to numbers,
@@ -15,25 +15,29 @@ typealias EncryptionSessionHandle = Int
 // (also note that, confusingly, "or" is not boolean or, it is bitor)
 const val BASE64_SANE_FLAGS = Base64.DEFAULT or Base64.NO_WRAP
 
-class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class ClientReactNativeModule(reactContext: ReactApplicationContext) :
+        ReactContextBaseJavaModule(reactContext) {
     private val tankerInstances = HashMap<TankerHandle, Tanker>()
     private val encryptionSessionInstances = HashMap<EncryptionSessionHandle, EncryptionSession>()
     private val androidFilesDir = reactContext.applicationContext.filesDir.absolutePath
     private val androidCacheDir = reactContext.applicationContext.cacheDir.absolutePath
 
     init {
-        Tanker.setLogHandler(object : LogHandlerCallback {
-            override fun callback(logRecord: LogRecord) {
-                val json = WritableNativeMap()
-                json.putString("category", logRecord.category)
-                json.putInt("level", logRecord.level)
-                json.putString("file", logRecord.file)
-                json.putInt("line", logRecord.line)
-                json.putString("message", logRecord.message)
-                reactContext.getJSModule(RCTDeviceEventEmitter::class.java)
-                    .emit("tankerLogHandlerEvent", json);
-            }
-        })
+        Tanker.setLogHandler(
+                object : LogHandlerCallback {
+                    override fun callback(logRecord: LogRecord) {
+                        val json = WritableNativeMap()
+                        json.putString("category", logRecord.category)
+                        json.putInt("level", logRecord.level)
+                        json.putString("file", logRecord.file)
+                        json.putInt("line", logRecord.line)
+                        json.putString("message", logRecord.message)
+                        reactContext
+                                .getJSModule(RCTDeviceEventEmitter::class.java)
+                                .emit("tankerLogHandlerEvent", json)
+                    }
+                }
+        )
     }
 
     override fun getName(): String {
@@ -44,8 +48,7 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         var key: Int
         while (true) {
             key = Random.nextInt()
-            if (!tankerInstances.containsKey(key))
-                break
+            if (!tankerInstances.containsKey(key)) break
         }
         tankerInstances[key] = Tanker(options)
         return key
@@ -63,8 +66,7 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         var key: Int
         while (true) {
             key = Random.nextInt()
-            if (!encryptionSessionInstances.containsKey(key))
-                break
+            if (!encryptionSessionInstances.containsKey(key)) break
         }
         encryptionSessionInstances[key] = encSess
         return key
@@ -88,13 +90,9 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
         val cachePath = jsOptions.getString("cachePath") ?: androidCacheDir
         options.setCachePath(cachePath)
         val url = jsOptions.getString("url")
-        if (url != null)
-            options.setUrl(url)
+        if (url != null) options.setUrl(url)
         val sdkType = jsOptions.getString("sdkType")
-        if (sdkType != null)
-            options.sdkType = sdkType
-        else
-            options.sdkType = "client-react-native"
+        if (sdkType != null) options.sdkType = sdkType else options.sdkType = "client-react-native"
         options.sdkVersion = version
 
         return syncBridge { createTanker(options) }
@@ -112,23 +110,17 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     @ReactMethod
     fun prehashPassword(password: String, promise: Promise) {
-        TankerFuture<Unit>().andThen<String> {
-            Tanker.prehashPassword(password)
-        }.bridge(promise)
+        TankerFuture<Unit>().andThen<String> { Tanker.prehashPassword(password) }.bridge(promise)
     }
 
     @ReactMethod()
     fun getDeviceId(handle: TankerHandle, promise: Promise) {
-        TankerFuture<Unit>().andThen<String> {
-            getTanker(handle).getDeviceId()
-        }.bridge(promise)
+        TankerFuture<Unit>().andThen<String> { getTanker(handle).getDeviceId() }.bridge(promise)
     }
 
     @ReactMethod()
     fun start(handle: TankerHandle, identity: String, promise: Promise) {
-        return getTanker(handle).start(identity).bridge(promise) {
-            it.value
-        }
+        return getTanker(handle).start(identity).bridge(promise) { it.value }
     }
 
     @ReactMethod()
@@ -139,28 +131,48 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     }
 
     @ReactMethod()
-    fun registerIdentity(handle: TankerHandle, verificationJson: ReadableMap, optionsJson: ReadableMap?, promise: Promise) {
+    fun registerIdentity(
+            handle: TankerHandle,
+            verificationJson: ReadableMap,
+            optionsJson: ReadableMap?,
+            promise: Promise
+    ) {
         val verification = Verification(verificationJson)
         val options = VerificationOptions(optionsJson)
         return getTanker(handle).registerIdentity(verification, options).bridge(promise)
     }
 
     @ReactMethod()
-    fun verifyIdentity(handle: TankerHandle, verificationJson: ReadableMap, optionsJson: ReadableMap?, promise: Promise) {
+    fun verifyIdentity(
+            handle: TankerHandle,
+            verificationJson: ReadableMap,
+            optionsJson: ReadableMap?,
+            promise: Promise
+    ) {
         val verification = Verification(verificationJson)
         val options = VerificationOptions(optionsJson)
         return getTanker(handle).verifyIdentity(verification, options).bridge(promise)
     }
 
     @ReactMethod()
-    fun setVerificationMethod(handle: TankerHandle, verificationJson: ReadableMap, optionsJson: ReadableMap?, promise: Promise) {
+    fun setVerificationMethod(
+            handle: TankerHandle,
+            verificationJson: ReadableMap,
+            optionsJson: ReadableMap?,
+            promise: Promise
+    ) {
         val verification = Verification(verificationJson)
         val options = VerificationOptions(optionsJson)
         return getTanker(handle).setVerificationMethod(verification, options).bridge(promise)
     }
 
     @ReactMethod()
-    fun encryptString(handle: TankerHandle, clearText: String, optionsJson: ReadableMap?, promise: Promise) {
+    fun encryptString(
+            handle: TankerHandle,
+            clearText: String,
+            optionsJson: ReadableMap?,
+            promise: Promise
+    ) {
         val options = EncryptionOptions(optionsJson)
         return getTanker(handle).encrypt(clearText.toByteArray(), options).bridge(promise) {
             Base64.encodeToString(it, BASE64_SANE_FLAGS)
@@ -169,25 +181,30 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     @ReactMethod()
     fun decryptString(handle: TankerHandle, encryptedTextB64: String, promise: Promise) {
-        val encryptedText = try {
-            Base64.decode(encryptedTextB64, BASE64_SANE_FLAGS)
-        } catch (e: IllegalArgumentException) {
-            promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
-            return
-        }
-        return getTanker(handle).decrypt(encryptedText).bridge(promise) {
-            String(it)
-        }
+        val encryptedText =
+                try {
+                    Base64.decode(encryptedTextB64, BASE64_SANE_FLAGS)
+                } catch (e: IllegalArgumentException) {
+                    promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
+                    return
+                }
+        return getTanker(handle).decrypt(encryptedText).bridge(promise) { String(it) }
     }
 
     @ReactMethod()
-    fun encryptData(handle: TankerHandle, clearDataB64: String, optionsJson: ReadableMap?, promise: Promise) {
-        val clearData = try {
-            Base64.decode(clearDataB64, BASE64_SANE_FLAGS)
-        } catch (e: IllegalArgumentException) {
-            promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
-            return
-        }
+    fun encryptData(
+            handle: TankerHandle,
+            clearDataB64: String,
+            optionsJson: ReadableMap?,
+            promise: Promise
+    ) {
+        val clearData =
+                try {
+                    Base64.decode(clearDataB64, BASE64_SANE_FLAGS)
+                } catch (e: IllegalArgumentException) {
+                    promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
+                    return
+                }
         val options = EncryptionOptions(optionsJson)
         return getTanker(handle).encrypt(clearData, options).bridge(promise) {
             Base64.encodeToString(it, BASE64_SANE_FLAGS)
@@ -196,12 +213,13 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     @ReactMethod()
     fun decryptData(handle: TankerHandle, encryptedTextB64: String, promise: Promise) {
-        val encryptedText = try {
-            Base64.decode(encryptedTextB64, BASE64_SANE_FLAGS)
-        } catch (e: IllegalArgumentException) {
-            promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
-            return
-        }
+        val encryptedText =
+                try {
+                    Base64.decode(encryptedTextB64, BASE64_SANE_FLAGS)
+                } catch (e: IllegalArgumentException) {
+                    promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
+                    return
+                }
         return getTanker(handle).decrypt(encryptedText).bridge(promise) {
             Base64.encodeToString(it, BASE64_SANE_FLAGS)
         }
@@ -209,19 +227,25 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
 
     @ReactMethod()
     fun getResourceId(handle: TankerHandle, encryptedHeaderB64: String, promise: Promise) {
-        val encryptedHeader = try {
-            Base64.decode(encryptedHeaderB64, BASE64_SANE_FLAGS)
-        } catch (e: IllegalArgumentException) {
-            promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
-            return
-        }
-        TankerFuture<Unit>().andThen<String> {
-            getTanker(handle).getResourceID(encryptedHeader)
-        }.bridge(promise)
+        val encryptedHeader =
+                try {
+                    Base64.decode(encryptedHeaderB64, BASE64_SANE_FLAGS)
+                } catch (e: IllegalArgumentException) {
+                    promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
+                    return
+                }
+        TankerFuture<Unit>()
+                .andThen<String> { getTanker(handle).getResourceID(encryptedHeader) }
+                .bridge(promise)
     }
 
     @ReactMethod()
-    fun share(handle: TankerHandle, resourceIdsJson: ReadableArray, optionsJson: ReadableMap, promise: Promise) {
+    fun share(
+            handle: TankerHandle,
+            resourceIdsJson: ReadableArray,
+            optionsJson: ReadableMap,
+            promise: Promise
+    ) {
         val resourceIds = resourceIdsJson.toStringArray()
         val options = SharingOptions(optionsJson)
         getTanker(handle).share(resourceIds, options).bridge(promise)
@@ -236,8 +260,7 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     fun getVerificationMethods(handle: TankerHandle, promise: Promise) {
         getTanker(handle).getVerificationMethods().bridge(promise) {
             val jsonMethods = WritableNativeArray()
-            for (method in it)
-                jsonMethods.pushMap(method.toWritableMap())
+            for (method in it) jsonMethods.pushMap(method.toWritableMap())
             jsonMethods
         }
     }
@@ -249,10 +272,17 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     }
 
     @ReactMethod()
-    fun updateGroupMembers(handle: TankerHandle, groupId: String, args: ReadableMap, promise: Promise) {
+    fun updateGroupMembers(
+            handle: TankerHandle,
+            groupId: String,
+            args: ReadableMap,
+            promise: Promise
+    ) {
         val usersToAdd = args.getArray("usersToAdd")?.toStringArray() ?: arrayOf()
         val usersToRemove = args.getArray("usersToRemove")?.toStringArray() ?: arrayOf()
-        getTanker(handle).updateGroupMembers(groupId, usersToAdd=usersToAdd, usersToRemove=usersToRemove).bridge(promise)
+        getTanker(handle)
+                .updateGroupMembers(groupId, usersToAdd = usersToAdd, usersToRemove = usersToRemove)
+                .bridge(promise)
     }
 
     @ReactMethod()
@@ -268,7 +298,11 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     }
 
     @ReactMethod()
-    fun verifyProvisionalIdentity(handle: TankerHandle, verificationJson: ReadableMap, promise: Promise) {
+    fun verifyProvisionalIdentity(
+            handle: TankerHandle,
+            verificationJson: ReadableMap,
+            promise: Promise
+    ) {
         val verification = Verification(verificationJson)
         getTanker(handle).verifyProvisionalIdentity(verification).bridge(promise)
     }
@@ -292,20 +326,29 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) : ReactCont
     }
 
     @ReactMethod()
-    fun encryptionSessionEncryptString(handle: EncryptionSessionHandle, clearText: String, promise: Promise) {
+    fun encryptionSessionEncryptString(
+            handle: EncryptionSessionHandle,
+            clearText: String,
+            promise: Promise
+    ) {
         return getEncryptionSession(handle).encrypt(clearText.toByteArray()).bridge(promise) {
             Base64.encodeToString(it, BASE64_SANE_FLAGS)
         }
     }
 
     @ReactMethod()
-    fun encryptionSessionEncryptData(handle: EncryptionSessionHandle, clearDataB64: String, promise: Promise) {
-        val clearData = try {
-            Base64.decode(clearDataB64, BASE64_SANE_FLAGS)
-        } catch (e: IllegalArgumentException) {
-            promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
-            return
-        }
+    fun encryptionSessionEncryptData(
+            handle: EncryptionSessionHandle,
+            clearDataB64: String,
+            promise: Promise
+    ) {
+        val clearData =
+                try {
+                    Base64.decode(clearDataB64, BASE64_SANE_FLAGS)
+                } catch (e: IllegalArgumentException) {
+                    promise.reject(ErrorCode.INVALID_ARGUMENT.name, e)
+                    return
+                }
         return getEncryptionSession(handle).encrypt(clearData).bridge(promise) {
             Base64.encodeToString(it, BASE64_SANE_FLAGS)
         }
