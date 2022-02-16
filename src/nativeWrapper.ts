@@ -52,10 +52,6 @@ export class Tanker {
     return bridgeSyncResult(() => Native.getStatus(this.getInstance()));
   }
 
-  async deviceId(): Promise<string> {
-    return bridgeAsyncExceptions(Native.getDeviceId(this.getInstance()));
-  }
-
   async start(identity: String): Promise<Status> {
     assertNotEmptyString(identity, 'identity');
     return bridgeAsyncExceptions(Native.start(this.getInstance(), identity));

@@ -23,7 +23,6 @@ type ClientReactNativeType = {
   prehashPassword(password: string): Promise<string>;
   getNativeVersion(): string;
   getStatus(instance: NativeTanker): Result<Status>;
-  getDeviceId(instance: NativeTanker): Promise<string>;
   start(instance: NativeTanker, identity: String): Promise<Status>;
   stop(instance: NativeTanker): Promise<void>;
   registerIdentity(
