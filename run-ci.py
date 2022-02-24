@@ -38,7 +38,7 @@ def build_and_test_android() -> None:
         cwd=Path.cwd() / "adminserver",
         wait_for_process=5,
         killpg=False,
-    ), tankerci.android.emulator():
+    ), tankerci.android.emulator(small_size=False):
         tankerci.run(
             "yarn",
             "detox",

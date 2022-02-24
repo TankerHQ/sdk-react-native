@@ -562,7 +562,7 @@ reference = "gitlab"
 
 [[package]]
 name = "tankerci"
-version = "2022.2.4058"
+version = "2022.2.4061"
 description = "Tanker CI library"
 category = "main"
 optional = false
@@ -686,7 +686,7 @@ watchdog = ["watchdog"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "4549bff02947038753e387aec9cf69349f506052494e0df41c07f5c9f2551fa3"
+content-hash = "08494ad091647ef668160ba6bce12636b1b831f020fa63a54309a0dbfdfdfe4c"
 
 [metadata.files]
 attrs = [
@@ -1074,8 +1074,8 @@ tankeradminsdk = [
     {file = "tankeradminsdk-1.2.0.tar.gz", hash = "sha256:c74b40f6d89f5df30b2b5ef789ae4f7b191e6d3bec2acf8cb88b218be9f440da"},
 ]
 tankerci = [
-    {file = "tankerci-2022.2.4058-py3-none-any.whl", hash = "sha256:2e9069c2efccb64eda2a43ec4633a4afb38ed0c0ec469620827637769b8bc9da"},
-    {file = "tankerci-2022.2.4058.tar.gz", hash = "sha256:4740e020a85cd6351a4c5748c4a27953e16ec34738581a749ce5b9923fcc290e"},
+    {file = "tankerci-2022.2.4061-py3-none-any.whl", hash = "sha256:25a4954e3e07db17e8dc57c191dd40cfe938e44deaf7a495b38fb51e4102b5e3"},
+    {file = "tankerci-2022.2.4061.tar.gz", hash = "sha256:825379625f5babea0a87122299153b83b0877b39560d3f98f03beb964957ed75"},
 ]
 tankersdk-identity = [
     {file = "tankersdk-identity-1.3.4.tar.gz", hash = "sha256:69bb1346e6940321161e7042a78840f6d9e91eecfe7c206c58057db8696df253"},
