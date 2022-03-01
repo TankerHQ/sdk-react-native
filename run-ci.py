@@ -38,15 +38,23 @@ def build_and_test_android() -> None:
         cwd=Path.cwd() / "adminserver",
         wait_for_process=5,
         killpg=False,
-    ), tankerci.android.emulator(small_size=False):
-        tankerci.run(
-            "yarn",
-            "detox",
-            "test",
-            "--configuration",
-            "android-ci",
-            cwd=example,
-        )
+    ), tankerci.android.emulator(
+        small_size=False
+    ):
+        try:
+            tankerci.run(
+                "yarn",
+                "detox",
+                "test",
+                "--configuration",
+                "android-ci",
+                cwd=example,
+            )
+        except:  # noqa
+            dump_path = str(Path.cwd() / "logcat.txt")
+            tankerci.android.dump_logcat(dump_path)
+            ui.info("Tests have failed, logcat dumped to", dump_path)
+            raise
 
 
 def build_and_test_ios() -> None:
