@@ -53,6 +53,11 @@ stages:
     - poetry run python -m pip install --upgrade pip
     - poetry install
 
+.artifacts:
+  artifacts:
+    when: always
+    paths: [logcat.txt]
+
 ########
 # Jobs #
 ########
@@ -66,6 +71,7 @@ check/android/deployed:
   stage: check
   extends:
     - .rules/check/deployed
+    - .artifacts
   script:
     - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION
@@ -77,6 +83,7 @@ check/android/downstream:
   extends:
     - .before-script/download-artifacts
     - .rules/check/downstream/android
+    - .artifacts
   script:
     - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py build-and-test android
@@ -86,6 +93,7 @@ check/android/from-sources:
   stage: check
   extends:
     - .rules/mr/manual
+    - .artifacts
   script:
     - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py prepare android --isolate-conan-user-home --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
@@ -96,6 +104,7 @@ check/android/all-from-sources:
   stage: check
   extends:
     - .rules/native-from-sources
+    - .artifacts
   script:
     - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py prepare android --isolate-conan-user-home --use-tanker=same-as-branch
