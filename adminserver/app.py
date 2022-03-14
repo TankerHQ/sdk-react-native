@@ -15,13 +15,15 @@ def assert_env(name: str) -> str:
 
 
 def make_admin() -> tankeradminsdk.Admin:
-    id_token = assert_env("TANKER_ID_TOKEN")
-    url = assert_env("TANKER_ADMIND_URL")
-    return tankeradminsdk.Admin(url=url, id_token=id_token)
+    return tankeradminsdk.Admin(
+        app_management_token=assert_env("TANKER_MANAGEMENT_API_ACCESS_TOKEN"),
+        environment_name=assert_env("TANKER_MANAGEMENT_API_DEFAULT_ENVIRONMENT_NAME"),
+        url=assert_env("TANKER_MANAGEMENT_API_URL"),
+    )
 
 
 admin = make_admin()
-tanker_app = admin.create_app("test-react-native", is_test=True)
+tanker_app = admin.create_app("test-react-native")
 print(f'created app {tanker_app["id"]}')
 
 
@@ -65,7 +67,7 @@ def toggle_preverified_verification() -> str:
 def create_identity() -> str:
     return tankersdk_identity.create_identity(
         tanker_app["id"],
-        tanker_app["app_secret"],
+        tanker_app["secret"],
         str(random.random()),
     )
 
