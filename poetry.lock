@@ -545,15 +545,14 @@ widechars = ["wcwidth"]
 
 [[package]]
 name = "tankeradminsdk"
-version = "1.2.0"
+version = "2.0.0"
 description = "Tanker Python Admin SDK"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
-pynacl = ">=1.3.0,<2.0.0"
-requests = ">=2.23.0,<3.0.0"
+requests = ">=2.26.0,<3.0.0"
 
 [package.source]
 type = "legacy"
@@ -686,7 +685,7 @@ watchdog = ["watchdog"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "08494ad091647ef668160ba6bce12636b1b831f020fa63a54309a0dbfdfdfe4c"
+content-hash = "66aa9f1da3d3c0bd130c8fb4dc8863fcd90796b423a0b7a211c5f505e9edd6e3"
 
 [metadata.files]
 attrs = [
@@ -1070,8 +1069,8 @@ tabulate = [
     {file = "tabulate-0.8.9.tar.gz", hash = "sha256:eb1d13f25760052e8931f2ef80aaf6045a6cceb47514db8beab24cded16f13a7"},
 ]
 tankeradminsdk = [
-    {file = "tankeradminsdk-1.2.0-py3-none-any.whl", hash = "sha256:120c10d8f3989d9c6ebd8cf976d1ce5878045a30baa3378cb4108b68dfd5d822"},
-    {file = "tankeradminsdk-1.2.0.tar.gz", hash = "sha256:c74b40f6d89f5df30b2b5ef789ae4f7b191e6d3bec2acf8cb88b218be9f440da"},
+    {file = "tankeradminsdk-2.0.0-py3-none-any.whl", hash = "sha256:d6b7a900f969084f44f73aa3327b8d6976bb20ac90b04f6a69bdda37174a4ea1"},
+    {file = "tankeradminsdk-2.0.0.tar.gz", hash = "sha256:10a4b9e51acb02fda88e9952aae7a501ebd52904c267930447c3fb78eb5e48f8"},
 ]
 tankerci = [
     {file = "tankerci-2022.2.4061-py3-none-any.whl", hash = "sha256:25a4954e3e07db17e8dc57c191dd40cfe938e44deaf7a495b38fb51e4102b5e3"},
