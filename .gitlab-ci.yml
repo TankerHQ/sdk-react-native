@@ -56,7 +56,9 @@ stages:
 .artifacts:
   artifacts:
     when: always
-    paths: [logcat.txt]
+    paths:
+      - logcat.txt
+      - screenshot.png
 
 ########
 # Jobs #
