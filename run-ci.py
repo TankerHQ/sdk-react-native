@@ -53,6 +53,7 @@ def build_and_test_android() -> None:
         except:  # noqa
             dump_path = str(Path.cwd() / "logcat.txt")
             tankerci.android.dump_logcat(dump_path)
+            tankerci.android.take_screenshot(Path.cwd() / "screenshot.png")
             ui.info("Tests have failed, logcat dumped to", dump_path)
             raise
 
