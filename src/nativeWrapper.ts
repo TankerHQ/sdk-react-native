@@ -67,10 +67,6 @@ export class Tanker {
     return bridgeAsyncExceptions(Native.createOidcNonce(this.getInstance()));
   }
 
-  async setOidcTestNonce(nonce: string): Promise<void> {
-    return bridgeAsyncExceptions(Native.setOidcTestNonce(this.getInstance(), nonce));
-  }
-
   async registerIdentity(
     verification: Verification,
     options?: VerificationOptions
