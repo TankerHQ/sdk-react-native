@@ -3,7 +3,7 @@ import os
 import shutil
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 
 import cli_ui as ui  # noqa
 import tankerci
@@ -11,8 +11,15 @@ import tankerci.android
 import tankerci.conan
 import tankerci.git
 import tankerci.gitlab
+import tankerci.tanker_configs
 from tankerci.conan import TankerSource
 
+
+def get_env() -> Dict[str, str]:
+    return {
+        **os.environ.copy(),
+        **tankerci.tanker_configs.get_dotenv_vars_for_env("staging"),
+    }
 
 def copy_local_aar(local_aar_path: Path) -> None:
     dest_path = Path.cwd() / "android/libs"
@@ -24,6 +31,7 @@ def copy_local_aar(local_aar_path: Path) -> None:
 def build_and_test_android() -> None:
     example = Path.cwd() / "example"
     tankerci.run("yarn", "detox", "build", "--configuration", "android-ci", cwd=example)
+    env = get_env()
 
     with tankerci.run_in_background(
         "yarn",
@@ -32,12 +40,14 @@ def build_and_test_android() -> None:
         wait_for_process=5,
         # yarn start forks things, we need to killpg
         killpg=True,
+        env=env,
     ), tankerci.run_in_background(
         "flask",
         "run",
         cwd=Path.cwd() / "adminserver",
         wait_for_process=5,
         killpg=False,
+        env=env,
     ), tankerci.android.emulator(
         small_size=False
     ):
@@ -49,6 +59,7 @@ def build_and_test_android() -> None:
                 "--configuration",
                 "android-ci",
                 cwd=example,
+                env=env,
             )
         except:  # noqa
             dump_path = str(Path.cwd() / "logcat.txt")
@@ -61,6 +72,7 @@ def build_and_test_android() -> None:
 def build_and_test_ios() -> None:
     example = Path.cwd() / "example"
     tankerci.run("yarn", "detox", "build", "--configuration", "ios", cwd=example)
+    env = get_env()
 
     with tankerci.run_in_background(
         "yarn",
@@ -69,15 +81,17 @@ def build_and_test_ios() -> None:
         wait_for_process=5,
         # yarn start forks things, we need to killpg
         killpg=False,
+        env=env,
     ), tankerci.run_in_background(
         "flask",
         "run",
         cwd=Path.cwd() / "adminserver",
         wait_for_process=5,
         killpg=False,
+        env=env,
     ):
         try:
-            tankerci.run("yarn", "detox", "test", "--configuration", "ios", cwd=example)
+            tankerci.run("yarn", "detox", "test", "--configuration", "ios", cwd=example, env=env)
         finally:
             if "CI" in os.environ:
                 # this is needed to kill the React server launched by tests
