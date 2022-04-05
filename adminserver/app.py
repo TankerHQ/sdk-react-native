@@ -49,13 +49,6 @@ def get_tanker_url() -> str:
     return assert_env("TANKER_APPD_URL")
 
 
-@app.route("/toggle_session_certificates", methods=["POST"])
-def toggle_session_certificates() -> str:
-    enable = request.form["enable"].lower() == "true"
-    admin.update_app(tanker_app["id"], session_certificates=enable)
-    return ""
-
-
 @app.route("/toggle_preverified_verification", methods=["POST"])
 def toggle_preverified_verification() -> str:
     enable = request.form["enable"].lower() == "true"
