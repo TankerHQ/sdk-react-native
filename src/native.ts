@@ -25,6 +25,7 @@ type ClientReactNativeType = {
   getStatus(instance: NativeTanker): Result<Status>;
   start(instance: NativeTanker, identity: String): Promise<Status>;
   stop(instance: NativeTanker): Promise<void>;
+  createOidcNonce(instance: NativeTanker): Promise<string>;
   registerIdentity(
     instance: NativeTanker,
     verification: Verification,
