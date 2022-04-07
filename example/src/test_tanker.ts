@@ -10,7 +10,6 @@ import {
   getPublicIdentity,
   getVerificationCode,
   getSMSVerificationCode,
-  toggleSessionCertificates,
   togglePreverifiedVerification,
 } from './admin';
 import {
@@ -19,7 +18,6 @@ import {
   IdentityAlreadyAttached,
 } from '@tanker/errors';
 import { createTanker, clearTankerDataDirs } from './tests';
-import base64 from 'react-native-base64';
 
 export const tankerTests = () => {
   describe('Tanker tests', () => {
@@ -262,21 +260,6 @@ export const tankerTests = () => {
       ]);
 
       await secondDevice.stop();
-    });
-
-    it('can request a session token with VerificationOptions', async () => {
-      await toggleSessionCertificates(true);
-      await tanker.start(identity);
-      const token = await tanker.registerIdentity(
-        { passphrase: 'foo' },
-        { withSessionToken: true }
-      );
-      await toggleSessionCertificates(false);
-      expect(tanker.status).eq(Tanker.statuses.READY);
-      expect(token).is.not.empty;
-      // @ts-ignore is.not.empty checks that the token is not undefined
-      const tokenData = base64.decode(token);
-      expect(tokenData).length.greaterThanOrEqual(32);
     });
 
     it('can use a verificationKey', async () => {
