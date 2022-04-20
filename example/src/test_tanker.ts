@@ -18,6 +18,7 @@ import {
   IdentityAlreadyAttached,
 } from '@tanker/errors';
 import { createTanker, clearTankerDataDirs } from './tests';
+import base64 from 'react-native-base64';
 
 export const tankerTests = () => {
   describe('Tanker tests', () => {
@@ -260,6 +261,57 @@ export const tankerTests = () => {
       ]);
 
       await secondDevice.stop();
+    });
+
+    it('can request a session token with VerificationOptions', async () => {
+      await tanker.start(identity);
+      const token = await tanker.registerIdentity(
+        { passphrase: 'foo' },
+        { withSessionToken: true }
+      );
+      expect(tanker.status).eq(Tanker.statuses.READY);
+      expect(token).is.not.empty;
+      // @ts-ignore is.not.empty checks that the token is not undefined
+      const tokenData = base64.decode(token);
+      expect(tokenData).length.greaterThanOrEqual(32);
+    });
+
+    it('can use setVerificationMethod with email to get a session token', async () => {
+      await tanker.start(identity);
+      await tanker.registerIdentity({
+        passphrase: 'Space and time are not what you think',
+      });
+
+      const email = 'john.doe@tanker.io';
+      const verificationCode = await getVerificationCode(email);
+      const token = await tanker.setVerificationMethod(
+        { email, verificationCode },
+        { withSessionToken: true }
+      );
+
+      expect(token).is.not.empty;
+      // @ts-ignore is.not.empty checks that the token is not undefined
+      const tokenData = base64.decode(token);
+      expect(tokenData).length.greaterThanOrEqual(32);
+    });
+
+    it('can use setVerificationMethod with phone number to get a session token', async () => {
+      await tanker.start(identity);
+      await tanker.registerIdentity({
+        passphrase: 'Space and time are not what you think',
+      });
+
+      const phoneNumber = '+33639982233';
+      const verificationCode = await getSMSVerificationCode(phoneNumber);
+      const token = await tanker.setVerificationMethod(
+        { phoneNumber, verificationCode },
+        { withSessionToken: true }
+      );
+
+      expect(token).is.not.empty;
+      // @ts-ignore is.not.empty checks that the token is not undefined
+      const tokenData = base64.decode(token);
+      expect(tokenData).length.greaterThanOrEqual(32);
     });
 
     it('can use a verificationKey', async () => {
