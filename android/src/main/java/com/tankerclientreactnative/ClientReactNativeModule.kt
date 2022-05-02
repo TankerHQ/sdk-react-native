@@ -131,6 +131,11 @@ class ClientReactNativeModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod()
+    fun setOidcTestNonce(handle: TankerHandle, nonce: String, promise: Promise) {
+        return getTanker(handle).setOidcTestNonce(nonce).bridge(promise)
+    }
+
+    @ReactMethod()
     fun registerIdentity(
             handle: TankerHandle,
             verificationJson: ReadableMap,
