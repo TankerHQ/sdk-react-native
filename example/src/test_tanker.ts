@@ -16,6 +16,7 @@ import {
   InvalidArgument,
   InvalidVerification,
   IdentityAlreadyAttached,
+  PreconditionFailed,
 } from '@tanker/errors';
 import { createTanker, clearTankerDataDirs } from './tests';
 import base64 from 'react-native-base64';
@@ -261,6 +262,87 @@ export const tankerTests = () => {
       ]);
 
       await secondDevice.stop();
+    });
+
+    it('can register an e2e passphrase', async () => {
+      const e2ePassphrase = 'So we all are agreed';
+      await tanker.start(identity);
+      await tanker.registerIdentity({ e2ePassphrase });
+      await tanker.stop();
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+      await secondDevice.verifyIdentity({ e2ePassphrase });
+      expect(secondDevice.status).eq(Tanker.statuses.READY);
+      await secondDevice.stop();
+    });
+
+    it('can update an e2e passphrase', async () => {
+      const oldPassphrase = 'Vorbis';
+      const newPassphrase = 'Opus';
+      await tanker.start(identity);
+      await tanker.registerIdentity({ e2ePassphrase: oldPassphrase });
+      await tanker.setVerificationMethod({ e2ePassphrase: newPassphrase });
+      await tanker.stop();
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+      await expect(
+        secondDevice.verifyIdentity({ e2ePassphrase: oldPassphrase })
+      ).is.rejectedWith(InvalidVerification);
+      await secondDevice.verifyIdentity({ e2ePassphrase: newPassphrase });
+      await secondDevice.stop();
+    });
+
+    it('can switch to an e2e passphrase', async () => {
+      const oldPassphrase = 'Dantes';
+      const newPassphrase = 'Villefort';
+      await tanker.start(identity);
+      await tanker.registerIdentity({ passphrase: oldPassphrase });
+      await tanker.setVerificationMethod(
+        { e2ePassphrase: newPassphrase },
+        { allowE2eMethodSwitch: true }
+      );
+      await tanker.stop();
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+      await expect(
+        secondDevice.verifyIdentity({ passphrase: oldPassphrase })
+      ).is.rejectedWith(PreconditionFailed);
+      await secondDevice.verifyIdentity({ e2ePassphrase: newPassphrase });
+      await secondDevice.stop();
+    });
+
+    it('can switch from an e2e passphrase', async () => {
+      const oldPassphrase = 'lp%d ok';
+      const newPassphrase = 'lp%d out of paper';
+      await tanker.start(identity);
+      await tanker.registerIdentity({ e2ePassphrase: oldPassphrase });
+      await tanker.setVerificationMethod(
+        { passphrase: newPassphrase },
+        { allowE2eMethodSwitch: true }
+      );
+      await tanker.stop();
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+      await expect(
+        secondDevice.verifyIdentity({ e2ePassphrase: oldPassphrase })
+      ).is.rejectedWith(PreconditionFailed);
+      await secondDevice.verifyIdentity({ passphrase: newPassphrase });
+      await secondDevice.stop();
+    });
+
+    it('cannot switch to an e2e passphrase without allowE2eMethodSwitch flag', async () => {
+      const oldPassphrase = 'lp%d off-line';
+      const newPassphrase = 'lp%d on fire';
+      await tanker.start(identity);
+      await tanker.registerIdentity({ passphrase: oldPassphrase });
+      await expect(
+        tanker.setVerificationMethod({ e2ePassphrase: newPassphrase })
+      ).is.rejectedWith(InvalidArgument);
+      await tanker.stop();
     });
 
     it('can request a session token with VerificationOptions', async () => {
