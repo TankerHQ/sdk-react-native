@@ -13,6 +13,7 @@ export type PreverifiedEmailVerificationMethod = { type: 'preverifiedEmail' };
 export type PreverifiedPhoneNumberVerificationMethod = {
   type: 'preverifiedPhoneNumber';
 };
+export type E2ePassphraseVerificationMethod = { type: 'e2ePassphrase' };
 
 export type VerificationMethod =
   | EmailVerificationMethod
@@ -21,7 +22,8 @@ export type VerificationMethod =
   | OIDCVerificationMethod
   | PhoneNumberVerificationMethod
   | PreverifiedEmailVerificationMethod
-  | PreverifiedPhoneNumberVerificationMethod;
+  | PreverifiedPhoneNumberVerificationMethod
+  | E2ePassphraseVerificationMethod;
 
 export type EmailVerification = { email: string; verificationCode: string };
 export type PassphraseVerification = { passphrase: string };
@@ -35,6 +37,7 @@ export type PreverifiedEmailVerification = { preverifiedEmail: string };
 export type PreverifiedPhoneNumberVerification = {
   preverifiedPhoneNumber: string;
 };
+export type E2ePassphraseVerification = { e2ePassphrase: string };
 
 export type Verification =
   | EmailVerification
@@ -43,9 +46,13 @@ export type Verification =
   | OIDCVerification
   | PhoneNumberVerification
   | PreverifiedEmailVerification
-  | PreverifiedPhoneNumberVerification;
+  | PreverifiedPhoneNumberVerification
+  | E2ePassphraseVerification;
 
-export type VerificationOptions = { withSessionToken?: boolean };
+export type VerificationOptions = {
+  withSessionToken?: boolean;
+  allowE2eMethodSwitch?: boolean;
+};
 
 const validMethods = [
   'email',
@@ -55,9 +62,10 @@ const validMethods = [
   'phoneNumber',
   'preverifiedEmail',
   'preverifiedPhoneNumber',
+  'e2ePassphrase',
 ];
 const validKeys = [...validMethods, 'verificationCode'];
-const validVerifOptionsKeys = ['withSessionToken'];
+const validVerifOptionsKeys = ['withSessionToken', 'allowE2eMethodSwitch'];
 
 export const assertVerification = (verification: Verification) => {
   if (!verification || typeof verification !== 'object')
@@ -129,6 +137,11 @@ export const assertVerification = (verification: Verification) => {
       verification.preverifiedPhoneNumber,
       'verification.preverifiedPhoneNumber'
     );
+  } else if ('e2ePassphrase' in verification) {
+    assertNotEmptyString(
+      verification.e2ePassphrase,
+      'verification.e2ePassphrase'
+    );
   }
 };
 
@@ -154,6 +167,16 @@ export const assertVerificationOptions = (options?: VerificationOptions) => {
     throw new InvalidArgument(
       'options',
       'withSessionToken must be a boolean',
+      options
+    );
+
+  if (
+    'allowE2eMethodSwitch' in options &&
+    typeof options.allowE2eMethodSwitch !== 'boolean'
+  )
+    throw new InvalidArgument(
+      'options',
+      'allowE2eMethodSwitch must be a boolean',
       options
     );
 };

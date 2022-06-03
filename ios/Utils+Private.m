@@ -7,7 +7,7 @@ TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id>* _Non
   NSString* persistentPath = optionsDict[@"persistentPath"];
   NSString* cachePath = optionsDict[@"cachePath"];
   NSString* sdkType = optionsDict[@"sdkType"];
-  
+
   opts.appID = optionsDict[@"appId"];
   if (url)
     opts.url = url;
@@ -35,10 +35,14 @@ TKRVerificationOptions* _Nonnull dictToTankerVerificationOptions(NSDictionary<NS
   TKRVerificationOptions* ret = [TKRVerificationOptions options];
    if (!optionsDict)
      return ret;
-  NSNumber* withSessionToken = optionsDict[@"withSessionToken"];
 
+  NSNumber* withSessionToken = optionsDict[@"withSessionToken"];
   if (withSessionToken)
     ret.withSessionToken = withSessionToken.boolValue;
+
+  NSNumber* allowE2eMethodSwitch = optionsDict[@"allowE2eMethodSwitch"];
+  if (allowE2eMethodSwitch)
+    ret.allowE2eMethodSwitch = allowE2eMethodSwitch.boolValue;
   return ret;
 }
 
@@ -51,7 +55,8 @@ TKRVerification* _Nonnull dictToTankerVerification(NSDictionary<NSString*, id>* 
   NSString* phoneNumber = verificationDict[@"phoneNumber"];
   NSString* preverifiedEmail = verificationDict[@"preverifiedEmail"];
   NSString* preverifiedPhoneNumber = verificationDict[@"preverifiedPhoneNumber"];
-  
+  NSString* e2ePassphrase = verificationDict[@"e2ePassphrase"];
+
   NSString* code = verificationDict[@"verificationCode"];
 
   if (email)
@@ -68,6 +73,8 @@ TKRVerification* _Nonnull dictToTankerVerification(NSDictionary<NSString*, id>* 
     return [TKRVerification verificationFromPreverifiedEmail:preverifiedEmail];
   if (preverifiedPhoneNumber)
     return [TKRVerification verificationFromPreverifiedPhoneNumber:preverifiedPhoneNumber];
+    if (e2ePassphrase)
+        return [TKRVerification verificationFromE2ePassphrase:e2ePassphrase];
 
   NSError* err;
   NSData* data = [NSJSONSerialization dataWithJSONObject:verificationDict options:NSJSONWritingPrettyPrinted error:&err];
@@ -84,7 +91,7 @@ TKREncryptionOptions* _Nonnull dictToTankerEncryptionOptions(NSDictionary<NSStri
   NSArray<NSString*>* shareWithUsers = optionsDict[@"shareWithUsers"];
   NSArray<NSString*>* shareWithGroups = optionsDict[@"shareWithGroups"];
   NSNumber* shareWithSelf = optionsDict[@"shareWithSelf"];
-  
+
   if (shareWithUsers)
     ret.shareWithUsers = shareWithUsers;
   if (shareWithGroups)
@@ -101,7 +108,7 @@ TKRSharingOptions* _Nonnull dictToTankerSharingOptions(NSDictionary<NSString*, i
      return ret;
   NSArray<NSString*>* shareWithUsers = optionsDict[@"shareWithUsers"];
   NSArray<NSString*>* shareWithGroups = optionsDict[@"shareWithGroups"];
-  
+
   if (shareWithUsers)
     ret.shareWithUsers = shareWithUsers;
   if (shareWithGroups)
@@ -192,6 +199,9 @@ NSDictionary<NSString*, id>* verificationMethodToJson(TKRVerificationMethod* met
       field[@"type"] = @"preverifiedPhoneNumber";
       field[@"preverifiedPhoneNumber"] = method.preverifiedPhoneNumber;
       break;
+    case TKRVerificationMethodTypeE2ePassphrase:
+      field[@"type"] = @"e2ePassphrase";
+      break;
     default:
       *err = [NSError errorWithDomain:TKRErrorDomain code:TKRErrorInternalError userInfo:@{
         NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Unknown verification method type: %d", (int)method.type]
@@ -203,9 +213,9 @@ NSDictionary<NSString*, id>* verificationMethodToJson(TKRVerificationMethod* met
 NSArray<NSDictionary<NSString*, id> *>* verificationMethodsToJson(NSArray<TKRVerificationMethod*> *methods, NSError* _Nullable * _Nonnull err)
 {
   *err = nil;
-  
+
   NSMutableArray<NSDictionary<NSString*, id> *>* ret = [NSMutableArray array];
- 
+
   for (int i = 0; i < methods.count; ++i)
   {
     NSDictionary<NSString*, id>* field = verificationMethodToJson(methods[i], err);
