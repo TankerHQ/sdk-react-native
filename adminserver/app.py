@@ -83,14 +83,14 @@ def get_verification_code() -> str:
         return tankeradminsdk.get_verification_code_email(
             url=assert_env("TANKER_TRUSTCHAIND_URL"),
             app_id=tanker_app["id"],
-            auth_token=tanker_app["auth_token"],
+            verification_api_token=assert_env("TANKER_VERIFICATION_API_TEST_TOKEN"),
             email=request.form["email"],
         )
     if request.form.get("phone_number"):
         res = tankeradminsdk.get_verification_code_sms(
             url=assert_env("TANKER_TRUSTCHAIND_URL"),
             app_id=tanker_app["id"],
-            auth_token=tanker_app["auth_token"],
+            verification_api_token=assert_env("TANKER_VERIFICATION_API_TEST_TOKEN"),
             phone_number=request.form["phone_number"],
         )
         return res
