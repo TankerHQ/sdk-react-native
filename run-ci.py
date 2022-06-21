@@ -11,7 +11,7 @@ import tankerci.android
 import tankerci.conan
 import tankerci.git
 import tankerci.gitlab
-from tankerci.conan import TankerSource
+from tankerci.conan import Profile, TankerSource
 
 
 def copy_local_aar(local_aar_path: Path) -> None:
@@ -89,6 +89,8 @@ def prepare(
     tanker_source: TankerSource,
     tanker_ref: Optional[str],
     home_isolation: bool,
+    build_profile: Profile,
+    remote: str,
 ) -> None:
     sdk_folder = f"sdk-{sdk}"
     if "CI" in os.environ:
@@ -118,7 +120,10 @@ def prepare(
     ]
     if home_isolation:
         args.append("--isolate-conan-user-home")
-    args.extend(["build-and-test", f"--use-tanker={tanker_source.value}"])
+        args.append(f"--remote={remote}")
+    args.extend(
+        ["build-and-test", f"--use-tanker={tanker_source.value}"]
+    )
     if tanker_ref is not None:
         args.append(f"--tanker-ref={tanker_ref}")
     tankerci.run(*args, cwd=sdk_path, env=sdk_env)
@@ -228,6 +233,8 @@ def main() -> None:
         default=TankerSource.EDITABLE,
         dest="tanker_source",
     )
+    prepare_parser.add_argument("--build-profile", type=Profile)
+    prepare_parser.add_argument("--remote", default="artifactory")
     prepare_parser.add_argument("--tanker-ref")
 
     build_and_test_parser = subparsers.add_parser("build-and-test")
@@ -249,7 +256,14 @@ def main() -> None:
             job_name=args.job_name,
         )
     elif command == "prepare":
-        prepare(args.sdk, args.tanker_source, args.tanker_ref, args.home_isolation)
+        prepare(
+            args.sdk,
+            args.tanker_source,
+            args.tanker_ref,
+            args.home_isolation,
+            tankerci.conan.get_build_profile(),
+            args.remote,
+        )
     elif command == "patch-sdk-version":
         if not args.version:
             ui.info(f"No version provided for sdk-{args.sdk}, nothing to patch")
