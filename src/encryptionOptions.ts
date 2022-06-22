@@ -1,4 +1,5 @@
 import { InvalidArgument } from '@tanker/errors';
+import { assertInteger } from '@tanker/types';
 import { extractSharingOptions } from './sharingOptions';
 
 export enum Padding {
@@ -53,21 +54,3 @@ export const extractEncryptionOptions = (
 
   return encryptionOptions;
 };
-
-function assertInteger(
-  arg: unknown,
-  argName: string,
-  isUnsigned: boolean
-): asserts arg is number {
-  if (typeof arg !== 'number') {
-    throw new InvalidArgument(argName, `${argName} should be an integer`, arg);
-  }
-
-  if (!Number.isFinite(arg) || Math.floor(arg) !== arg) {
-    throw new InvalidArgument(argName, `${argName} should be an integer`, arg);
-  }
-
-  if (isUnsigned && arg < 0) {
-    throw new InvalidArgument(argName, `${argName} should be unsigned`, arg);
-  }
-}

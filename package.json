@@ -70,7 +70,8 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "@tanker/errors": "^2.12.0"
+    "@tanker/errors": "^2.31.0",
+    "@tanker/types": "^2.31.0"
   },
   "peerDependencies": {
     "react": "*",
