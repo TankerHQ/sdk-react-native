@@ -103,7 +103,7 @@ TKREncryptionOptions* _Nonnull dictToTankerEncryptionOptions(NSDictionary<NSStri
   {
     case 0: ret.paddingStep = [TKRPadding automatic]; break;
     case 1: ret.paddingStep = [TKRPadding off]; break;
-    default: ret.paddingStep = [TKRPadding step: paddingStep];
+    default: ret.paddingStep = [TKRPadding step: paddingStep.unsignedIntValue];
   }
   return ret;
 }
