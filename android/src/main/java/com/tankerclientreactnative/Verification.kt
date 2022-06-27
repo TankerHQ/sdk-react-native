@@ -29,6 +29,9 @@ fun Verification(json: ReadableMap): Verification {
     json.getString("preverifiedPhoneNumber")?.let {
         return PreverifiedPhoneNumberVerification(it)
     }
+    json.getString("e2ePassphrase")?.let {
+        return E2ePassphraseVerification(it)
+    }
     throw AssertionError("Invalid verification JS object received, check Typescript definitions match")
 }
 
@@ -38,6 +41,8 @@ fun VerificationOptions(json: ReadableMap?): VerificationOptions {
         return options
     if (json.hasKey("withSessionToken"))
         options.withSessionToken(json.getBoolean("withSessionToken"))
+    if (json.hasKey("allowE2eMethodSwitch"))
+        options.allowE2eMethodSwitch(json.getBoolean("allowE2eMethodSwitch"))
     return options
 }
 
@@ -63,6 +68,7 @@ fun VerificationMethod.toWritableMap(): WritableMap {
             json.putString("type", "preverifiedPhoneNumber")
             json.putString("preverifiedPhoneNumber", this.preverifiedPhoneNumber)
         }
+        is E2ePassphraseVerificationMethod -> json.putString("type", "e2ePassphrase")
     }
     return json
 }
