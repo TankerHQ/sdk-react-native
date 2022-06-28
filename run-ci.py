@@ -121,9 +121,7 @@ def prepare(
     if home_isolation:
         args.append("--isolate-conan-user-home")
         args.append(f"--remote={remote}")
-    args.extend(
-        ["build-and-test", f"--use-tanker={tanker_source.value}"]
-    )
+    args.extend(["build-and-test", f"--use-tanker={tanker_source.value}"])
     if tanker_ref is not None:
         args.append(f"--tanker-ref={tanker_ref}")
     tankerci.run(*args, cwd=sdk_path, env=sdk_env)

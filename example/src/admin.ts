@@ -54,7 +54,7 @@ export async function getPublicIdentity(identity: string): Promise<string> {
   ).text();
 }
 
-export async function getVerificationCode(email: string): Promise<string> {
+export async function getEmailVerificationCode(email: string): Promise<string> {
   const form = new FormData();
   form.append('email', email);
   return await (
