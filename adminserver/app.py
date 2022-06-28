@@ -23,7 +23,7 @@ def make_admin() -> tankeradminsdk.Admin:
 
 
 admin = make_admin()
-tanker_app = admin.create_app("test-react-native")
+tanker_app = admin.create_app("sdk-react-native-tests")
 print(f'created app {tanker_app["id"]}')
 
 
