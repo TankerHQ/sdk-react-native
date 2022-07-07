@@ -62,7 +62,7 @@ function translateException(e: any): never {
     case 'EXPIRED_VERIFICATION':
       throw new ExpiredVerification(e.message);
     case 'IO_ERROR':
-      throw new InternalError('IoError', e.message); // IoError does not exist in pure Javascript!
+      throw new InternalError(`IoError: ${e.message}`); // IoError does not exist in pure Javascript!
     case 'DEVICE_REVOKED':
       throw new DeviceRevoked(e.message);
     case 'CONFLICT':

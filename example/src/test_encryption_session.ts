@@ -3,11 +3,15 @@
 
 import { expect } from 'chai';
 import type { Tanker } from '@tanker/client-react-native';
+import { Padding } from '@tanker/client-react-native';
 import { describe, beforeEach, afterEach, it } from './framework';
 import { createIdentity, getPublicIdentity } from './admin';
 import { InvalidArgument } from '@tanker/errors';
-import { createTanker, clearTankerDataDirs } from './tests';
+import { createTanker, clearTankerDataDirs, getPaddedSize } from './tests';
 import type { EncryptionSession } from '../../src/encryptionSessionWrapper';
+
+const encryptionSessionOverhead = 57;
+const encryptionSessionPaddedOverhead = encryptionSessionOverhead + 1;
 
 export const encryptionSessionTests = () => {
   describe('Encryption session tests', () => {
@@ -27,7 +31,7 @@ export const encryptionSessionTests = () => {
       await clearTankerDataDirs();
     });
 
-    it('can get the resource ID', async () => {
+    it('retrieves the resource ID', async () => {
       const encrypted = await session.encrypt('less than three');
       const resId = await tanker.getResourceId(encrypted);
       const sessResId = session.resourceId;
@@ -36,14 +40,14 @@ export const encryptionSessionTests = () => {
       expect(sessResId).eq(resId);
     });
 
-    it('can roundtrip a basic encrypt', async () => {
+    it('roundtrips a basic encrypt', async () => {
       const plaintext = 'foo';
       const encrypted = await session.encrypt(plaintext);
       const decrypted = await tanker.decrypt(encrypted);
       expect(decrypted).eq(plaintext);
     });
 
-    it('can use encryption options to share', async () => {
+    it('uses encryption options to share', async () => {
       const other = await createTanker();
       const otherPrivIdent = await createIdentity();
       await other.start(otherPrivIdent);
@@ -67,17 +71,98 @@ export const encryptionSessionTests = () => {
       expect(decrypted).eq(plaintext);
     });
 
-    it('can roundtrip with encryptData', async () => {
+    it('roundtrips with encryptData', async () => {
       const plaindata = 'dW5kZXIgY29vbCBtb29ubGlnaHQ=';
       const encrypted = await session.encryptData(plaindata);
       const decrypted = await tanker.decryptData(encrypted);
       expect(decrypted).eq(plaindata);
     });
 
-    it('cannot pass a non-base64 plaintext to encryptData', async () => {
+    it('fails to pass a non-base64 plaintext to encryptData', async () => {
       const plaintext = 'plain text';
       await expect(session.encryptData(plaintext)).eventually.rejectedWith(
         InvalidArgument
+      );
+    });
+
+    it('encrypts with auto padding by default', async () => {
+      const plaintext = 'my clear data is clear!';
+      const lengthWithPadme = 24;
+
+      const encrypted = await session.encrypt(plaintext);
+
+      const paddedSize = getPaddedSize(
+        encrypted,
+        encryptionSessionPaddedOverhead
+      );
+      expect(paddedSize).eq(lengthWithPadme);
+
+      const decrypted = await tanker.decrypt(encrypted);
+      expect(decrypted).eq(plaintext);
+    });
+
+    it('encrypts with auto padding', async () => {
+      const aliceSession = await tanker.createEncryptionSession({
+        paddingStep: Padding.AUTO,
+      });
+
+      const plaintext = 'my clear data is clear!';
+      const lengthWithPadme = 24;
+
+      const encrypted = await aliceSession.encrypt(plaintext);
+
+      const paddedSize = getPaddedSize(
+        encrypted,
+        encryptionSessionPaddedOverhead
+      );
+      expect(paddedSize).eq(lengthWithPadme);
+
+      const decrypted = await tanker.decrypt(encrypted);
+      expect(decrypted).eq(plaintext);
+    });
+
+    it('encrypts with no padding', async () => {
+      const aliceSession = await tanker.createEncryptionSession({
+        paddingStep: Padding.OFF,
+      });
+
+      const plaintext = 'my clear data is clear!';
+      const encrypted = await aliceSession.encrypt(plaintext);
+
+      const paddedSize = getPaddedSize(encrypted, encryptionSessionOverhead);
+      expect(paddedSize).eq(plaintext.length);
+
+      const decrypted = await tanker.decrypt(encrypted);
+      expect(decrypted).eq(plaintext);
+    });
+
+    it('encrypts with a padding step', async () => {
+      const step = 13;
+      const aliceSession = await tanker.createEncryptionSession({
+        paddingStep: step,
+      });
+
+      const plaintext = 'my clear data is clear!';
+      const encrypted = await aliceSession.encrypt(plaintext);
+
+      const paddedSize = getPaddedSize(
+        encrypted,
+        encryptionSessionPaddedOverhead
+      );
+      expect(paddedSize % step).eq(0);
+
+      const decrypted = await tanker.decrypt(encrypted);
+      expect(decrypted).eq(plaintext);
+    });
+
+    it('fails to createEncryptionSession with a bad paddingStep', async () => {
+      await Promise.all(
+        [-1, 0, 1, 2.42, 'a random string', null].map(async (x) => {
+          await expect(
+            // @ts-expect-error
+            tanker.createEncryptionSession({ paddingStep: x })
+          ).eventually.rejectedWith(InvalidArgument);
+        })
       );
     });
   });

@@ -1,7 +1,17 @@
 package com.tankerclientreactnative
 
+import com.facebook.react.bridge.Dynamic
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.ReadableType
 import io.tanker.api.EncryptionOptions
+import io.tanker.api.Padding
+
+private fun convertPaddingStep(paddingStep: Int): Padding =
+    when (paddingStep) {
+        0 -> Padding.auto
+        1 -> Padding.off
+        else -> Padding.step(paddingStep)
+    }
 
 fun EncryptionOptions(json: ReadableMap?): EncryptionOptions {
     val options = EncryptionOptions()
@@ -23,5 +33,9 @@ fun EncryptionOptions(json: ReadableMap?): EncryptionOptions {
     }
     if (json.hasKey("shareWithSelf"))
         options.shareWithSelf(json.getBoolean("shareWithSelf"))
+
+    if (json.hasKey("paddingStep"))
+        options.paddingStep(convertPaddingStep(json.getInt("paddingStep")))
+
     return options
 }
