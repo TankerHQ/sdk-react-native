@@ -45,10 +45,14 @@ export const extractEncryptionOptions = (
     if (options.paddingStep === Padding.OFF) {
       encryptionOptions.paddingStep = 1;
     } else if (options.paddingStep >= 2) {
-      assertInteger(options.paddingStep, 'paddingStep', true);
+      assertInteger(options.paddingStep, 'options.paddingStep', true);
       encryptionOptions.paddingStep = options.paddingStep;
     } else {
-      throw error;
+      throw new InvalidArgument(
+        'options.paddingStep',
+        'integer >= 2 | Padding.AUTO | Padding.OFF',
+        encryptionOptions.paddingStep
+      );
     }
   }
 
