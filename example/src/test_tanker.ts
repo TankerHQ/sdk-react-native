@@ -8,7 +8,7 @@ import {
   createIdentity,
   createProvisionalIdentity,
   getPublicIdentity,
-  getVerificationCode,
+  getEmailVerificationCode,
   getSMSVerificationCode,
   togglePreverifiedVerification,
 } from './admin';
@@ -156,7 +156,7 @@ export const tankerTests = () => {
       togglePreverifiedVerification(true);
       const email = 'bob@burger.io';
       await tanker.start(identity);
-      const verificationCode = await getVerificationCode(email);
+      const verificationCode = await getEmailVerificationCode(email);
       await tanker.registerIdentity({ email, verificationCode });
 
       let secondDevice = await createTanker();
@@ -207,7 +207,7 @@ export const tankerTests = () => {
       let secondDevice = await createTanker();
       await secondDevice.start(identity);
 
-      const verificationCode = await getVerificationCode(email);
+      const verificationCode = await getEmailVerificationCode(email);
       await secondDevice.verifyIdentity({ email, verificationCode });
       expect(secondDevice.status).eq(Tanker.statuses.READY);
 
@@ -365,7 +365,7 @@ export const tankerTests = () => {
       });
 
       const email = 'john.doe@tanker.io';
-      const verificationCode = await getVerificationCode(email);
+      const verificationCode = await getEmailVerificationCode(email);
       const token = await tanker.setVerificationMethod(
         { email, verificationCode },
         { withSessionToken: true }
@@ -513,7 +513,7 @@ export const tankerTests = () => {
         email,
       });
 
-      const verificationCode = await getVerificationCode(email);
+      const verificationCode = await getEmailVerificationCode(email);
       await tanker.verifyProvisionalIdentity({ email, verificationCode });
     });
 
@@ -530,7 +530,7 @@ export const tankerTests = () => {
         email,
       });
 
-      const verificationCode = await getVerificationCode(email);
+      const verificationCode = await getEmailVerificationCode(email);
       await tanker.verifyProvisionalIdentity({ email, verificationCode });
 
       const other = await createTanker();
@@ -538,7 +538,7 @@ export const tankerTests = () => {
       await other.registerIdentity({ passphrase: 'otherpass' });
       await other.attachProvisionalIdentity(provIdentity);
       expect(result.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
-      const verificationCode2 = await getVerificationCode(email);
+      const verificationCode2 = await getEmailVerificationCode(email);
       await expect(
         other.verifyProvisionalIdentity({
           email,
@@ -560,7 +560,7 @@ export const tankerTests = () => {
       await other.stop();
 
       await tanker.start(identity);
-      const verificationCode = await getVerificationCode(email);
+      const verificationCode = await getEmailVerificationCode(email);
       await tanker.registerIdentity({ email, verificationCode });
       const result = await tanker.attachProvisionalIdentity(provIdentity);
       expect(result.status).eq(Tanker.statuses.READY);

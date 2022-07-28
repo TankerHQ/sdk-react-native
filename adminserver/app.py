@@ -3,7 +3,7 @@ import random
 
 import tankeradminsdk
 import tankersdk_identity
-from flask import Flask, request
+from flask import Flask, abort, request
 
 app = Flask(__name__)
 
@@ -68,7 +68,7 @@ def create_identity() -> str:
 @app.route("/create_provisional_identity", methods=["POST"])
 def create_provisional_identity() -> str:
     return tankersdk_identity.create_provisional_identity(
-        tanker_app["id"], request.form["email"]
+        tanker_app["id"], "email", request.form["email"]
     )
 
 
@@ -94,4 +94,4 @@ def get_verification_code() -> str:
             phone_number=request.form["phone_number"],
         )
         return res
-    return None
+    abort(400)
