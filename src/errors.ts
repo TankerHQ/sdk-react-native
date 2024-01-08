@@ -9,7 +9,6 @@ import {
   InvalidVerification,
   TooManyAttempts,
   ExpiredVerification,
-  DeviceRevoked,
   Conflict,
   UpgradeRequired,
   IdentityAlreadyAttached,
@@ -22,7 +21,6 @@ export type Result<T> = Ok<T> | Err;
 
 export const errors = {
   DecryptionFailed,
-  DeviceRevoked,
   ExpiredVerification,
   GroupTooBig,
   InternalError,
@@ -63,8 +61,6 @@ function translateException(e: any): never {
       throw new ExpiredVerification(e.message);
     case 'IO_ERROR':
       throw new InternalError(`IoError: ${e.message}`); // IoError does not exist in pure Javascript!
-    case 'DEVICE_REVOKED':
-      throw new DeviceRevoked(e.message);
     case 'CONFLICT':
       throw new Conflict(e.message);
     case 'UPGRADE_REQUIRED':

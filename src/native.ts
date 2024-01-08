@@ -120,10 +120,10 @@ const LINKING_ERROR =
 export const Native: ClientReactNativeType = ClientReactNativeModule
   ? ClientReactNativeModule
   : new Proxy(
-    {},
-    {
-      get() {
-        throw new Error(LINKING_ERROR);
-      },
-    }
-  );
+      {},
+      {
+        get() {
+          throw new Error(LINKING_ERROR);
+        },
+      }
+    );

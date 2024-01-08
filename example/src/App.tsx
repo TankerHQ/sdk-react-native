@@ -1,7 +1,7 @@
-import { getNativeVersion, multiply, Tanker } from '@tanker/client-react-native';
+import { Tanker } from '@tanker/client-react-native';
 
 import React from 'react';
-import type {PropsWithChildren} from 'react';
+import type { PropsWithChildren } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -13,23 +13,13 @@ import {
 } from 'react-native';
 import base64 from 'react-native-base64';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-// import {Tanker} from './nativeWrapper';
-//
-// const {ClientReactNative} = NativeModules;
+import { Colors, Header } from 'react-native/Libraries/NewAppScreen';
 
 type SectionProps = PropsWithChildren<{
   title: string;
 }>;
 
-function Section({children, title}: SectionProps): JSX.Element {
+function Section({ children, title }: SectionProps): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.sectionContainer}>
@@ -39,7 +29,8 @@ function Section({children, title}: SectionProps): JSX.Element {
           {
             color: isDarkMode ? Colors.white : Colors.black,
           },
-        ]}>
+        ]}
+      >
         {title}
       </Text>
       <Text
@@ -48,7 +39,8 @@ function Section({children, title}: SectionProps): JSX.Element {
           {
             color: isDarkMode ? Colors.light : Colors.dark,
           },
-        ]}>
+        ]}
+      >
         {children}
       </Text>
     </View>
@@ -67,33 +59,39 @@ function createTanker(): Tanker {
 async function startTanker(): Promise<Tanker> {
   let tanker = createTanker();
 
-  const ident = 'eyJkZWxlZ2F0aW9uX3NpZ25hdHVyZSI6ImNlNUdCQ0drcHhOb29kdTYrNkZJd2NqU1pjd1NPY1ZBZVBsQ1grYlFDRGRLTHBGNmp4Q0FYQnFBRHV4dm1UUEtTdEF2cTNtdHNwSm9KbmFJTTF4dUFnPT0iLCJlcGhlbWVyYWxfcHJpdmF0ZV9zaWduYXR1cmVfa2V5IjoiN2h3N3BFMmlac2UzUUpaaVBsd09ORThIVzQ3TS9wWkl1RDlENzNRMVc0M3M3V3RaVGN2ZTlPYlBXN0lJVmtid1ptRzlCdG9sYzVnQ0pHcm54NUI5SHc9PSIsImVwaGVtZXJhbF9wdWJsaWNfc2lnbmF0dXJlX2tleSI6IjdPMXJXVTNMM3ZUbXoxdXlDRlpHOEdaaHZRYmFKWE9ZQWlScTU4ZVFmUjg9IiwidGFyZ2V0IjoidXNlciIsInRydXN0Y2hhaW5faWQiOiJQbzcwUldBSUF6VW9Yc1lCYitHVjhnRUpOMXNuWE91Qyt3WTBCb2ZRTVRNPSIsInVzZXJfc2VjcmV0IjoiamtQekhDYU5rckc1MGo2eGxLU1RialhHTG94MTNBTXhXYnU3Wit5MWFYej0iLCJ2YWx1ZSI6IjNZMzY0bzZGa05VdDdTV2QvVHNYbjM4L3FhVjR1RmtiK1lZajA2OUNiS0k9In0=';
+  const ident =
+    'eyJkZWxlZ2F0aW9uX3NpZ25hdHVyZSI6ImNlNUdCQ0drcHhOb29kdTYrNkZJd2NqU1pjd1NPY1ZBZVBsQ1grYlFDRGRLTHBGNmp4Q0FYQnFBRHV4dm1UUEtTdEF2cTNtdHNwSm9KbmFJTTF4dUFnPT0iLCJlcGhlbWVyYWxfcHJpdmF0ZV9zaWduYXR1cmVfa2V5IjoiN2h3N3BFMmlac2UzUUpaaVBsd09ORThIVzQ3TS9wWkl1RDlENzNRMVc0M3M3V3RaVGN2ZTlPYlBXN0lJVmtid1ptRzlCdG9sYzVnQ0pHcm54NUI5SHc9PSIsImVwaGVtZXJhbF9wdWJsaWNfc2lnbmF0dXJlX2tleSI6IjdPMXJXVTNMM3ZUbXoxdXlDRlpHOEdaaHZRYmFKWE9ZQWlScTU4ZVFmUjg9IiwidGFyZ2V0IjoidXNlciIsInRydXN0Y2hhaW5faWQiOiJQbzcwUldBSUF6VW9Yc1lCYitHVjhnRUpOMXNuWE91Qyt3WTBCb2ZRTVRNPSIsInVzZXJfc2VjcmV0IjoiamtQekhDYU5rckc1MGo2eGxLU1RialhHTG94MTNBTXhXYnU3Wit5MWFYej0iLCJ2YWx1ZSI6IjNZMzY0bzZGa05VdDdTV2QvVHNYbjM4L3FhVjR1RmtiK1lZajA2OUNiS0k9In0=';
   const status = await tanker.start(ident);
-  console.log("Tanker started");
+  console.log('Tanker started');
 
-  if (status == Tanker.statuses.IDENTITY_REGISTRATION_NEEDED) {
-    await tanker.registerIdentity({ 'passphrase': '12345' });
+  if (status === Tanker.statuses.IDENTITY_REGISTRATION_NEEDED) {
+    await tanker.registerIdentity({ passphrase: '12345' });
     console.log('Registered identity');
-  } else if (status == Tanker.statuses.IDENTITY_VERIFICATION_NEEDED) {
-    await tanker.verifyIdentity({ 'passphrase': '12345' });
+  } else if (status === Tanker.statuses.IDENTITY_VERIFICATION_NEEDED) {
+    await tanker.verifyIdentity({ passphrase: '12345' });
     console.log('Verified identity');
-  } else if (status == Tanker.statuses.READY) {
+  } else if (status === Tanker.statuses.READY) {
     console.log('Device ready');
   }
   return tanker;
 }
 
 async function testEncrypt(tanker: Tanker): Promise<string> {
-  return base64.encode(await tanker.encrypt("Hello, world!"));
+  return base64.encode(await tanker.encrypt('Hello, world!'));
 }
 
-function isNewArchEnabled(): bool {
-  return !!global?.nativeFabricUIManager
+function isNewArchEnabled(): boolean {
+  // @ts-expect-error don't care about its type, just whether it's defined
+  return !!global?.nativeFabricUIManager;
 }
 
-function App(): JSX.Element {
-  const [encryptResult, setEncryptResult] = React.useState<string | undefined>();
-  const [decryptResult, setDecryptResult] = React.useState<string | undefined>();
+function App(): React.JSX.Element {
+  const [encryptResult, setEncryptResult] = React.useState<
+    string | undefined
+  >();
+  const [decryptResult, setDecryptResult] = React.useState<
+    string | undefined
+  >();
 
   React.useEffect(() => {
     startTanker().then(async (tanker) => {
@@ -111,29 +109,28 @@ function App(): JSX.Element {
     backgroundColor: isDarkMode ? Colors.black : Colors.white,
   };
   const smallText = {
-    fontSize: 10
-  }
+    fontSize: 10,
+  };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
+    <SafeAreaView>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
         <Header />
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
+          }}
+        >
           <Section title="We're so back">
-            New arch enabled: {isNewArchEnabled()+'\n'}
+            New arch enabled: {isNewArchEnabled() + '\n'}
             Native version: {createTanker().nativeVersion + '\n'}
             {'\n'}
-            Encrypted: <Text style={smallText}>{encryptResult+'\n'}</Text>
-            Decrypted: {decryptResult+'\n'}
+            Encrypted: <Text style={smallText}>{encryptResult + '\n'}</Text>
+            Decrypted: {decryptResult + '\n'}
           </Section>
         </View>
       </ScrollView>

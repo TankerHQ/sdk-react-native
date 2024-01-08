@@ -1,13 +1,12 @@
 import type { TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
-import { AttachResult, NativeTanker, Status } from './types';
-import { Result } from './errors';
-import { Verification, VerificationMethod, VerificationOptions } from './verification';
-import { EncryptionOptions } from './encryptionOptions';
-import { SharingOptions } from './sharingOptions';
+import type { AttachResult } from './types';
+import type { VerificationMethod } from './verification';
 
 // We need to declare FFI types _in this file_ for React-Native's Codegen
 // (Codegen is the Typescript parser + generator for RN FFI bindings, e.g. JNI)
+// NOTE: react-native-codegen has importing types on their roadmap, but no ETA
+//       Maybe in a few years we can remove these and just import the real types
 
 export type b64string = string;
 export type NativeTanker = number;
@@ -26,8 +25,6 @@ export type Err = { err: Object };
 export type Ok<T> = { ok: T };
 export type Result<T> = Ok<T> | Err;
 
-// FIXME: I'm not copying all of that right now :(
-//        Will have to decide what to do..
 type Verification = Object;
 type VerificationOptions = Object;
 type EncryptionOptions = Object;
