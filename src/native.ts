@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 import type {
   TankerOptions,
   NativeTanker,
@@ -17,6 +17,8 @@ import type { EncryptionOptions } from './encryptionOptions';
 import type { SharingOptions } from './sharingOptions';
 
 export const VERSION = '0.1.0';
+
+// FIXME: Can we reuse the spec interface instead of having two copies..?
 
 type ClientReactNativeType = {
   create(options: TankerOptions, version: String): Result<NativeTanker>;
@@ -102,4 +104,26 @@ type ClientReactNativeType = {
   ): Promise<b64string>;
 };
 
-export const Native: ClientReactNativeType = NativeModules.ClientReactNative;
+// @ts-expect-error
+const isTurboModuleEnabled = global.__turboModuleProxy != null;
+
+const ClientReactNativeModule = isTurboModuleEnabled
+  ? require('./NativeClientReactNative').default
+  : NativeModules.ClientReactNative;
+
+const LINKING_ERROR =
+  `The package '@tanker/client-react-native' doesn't seem to be linked. Make sure: \n\n` +
+  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
+  '- You rebuilt the app after installing the package\n' +
+  '- You are not using Expo Go\n';
+
+export const Native: ClientReactNativeType = ClientReactNativeModule
+  ? ClientReactNativeModule
+  : new Proxy(
+      {},
+      {
+        get() {
+          throw new Error(LINKING_ERROR);
+        },
+      }
+    );

@@ -1,7 +1,11 @@
 include:
   - project: TankerHQ/gitlab-ci-files
-    ref: 2021-12-16-236
+    ref: 2023-12-12-275
     file: /common.yml
+
+variables:
+  SDK_NATIVE_CONAN_REFERENCE: tanker/latest-stable@
+  GIT_DEPTH: 1
 
 ############
 # Workflow #
@@ -19,15 +23,13 @@ workflow:
       when: never
     - if: !reference [.if-invalid-native-conan-reference, if]
       when: never
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      variables:
-        CONAN_REMOTE: "artifactory"
     - if: '$CI_MERGE_REQUEST_TITLE =~ /.*\[preview].*/'
       variables:
         CONAN_REMOTE: "artifactory-preview"
     - when: always
       variables:
-        CONAN_REMOTE: "artifactory-staging"
+        CONAN_REMOTE: "artifactory"
+
 
 ###########
 # Default #
@@ -35,7 +37,6 @@ workflow:
 
 default:
   before_script: &global_before_script
-    - if [ $(uname) == "Darwin" ]; then security unlock-keychain -p ${DEFAULT_KEYCHAIN_PASSWORD} ~/Library/Keychains/login.keychain-db; fi
     - poetry run python -m pip install --upgrade pip
     - poetry install
   image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
@@ -46,177 +47,17 @@ default:
 
 stages:
   - check
-  - deploy
-
-#############################
-# Default settings override #
-#############################
-
-.before-script/download-artifacts:
-  before_script:
-    - *global_before_script
-    - poetry run python run-ci.py download-artifacts --project-id=$UPSTREAM_PROJECT_ID --pipeline-id=$UPSTREAM_PIPELINE_ID --job-name=$UPSTREAM_JOB_NAME
-    - poetry run python run-ci.py reset-branch $(cat branch_name.txt)
-    - poetry run python -m pip install --upgrade pip
-    - poetry install
-
-.artifacts:
-  artifacts:
-    when: always
-    paths:
-      - log_build.txt
-      - log_prepare.txt
-      - logcat.txt
-      - screenshot.png
 
 ########
 # Jobs #
 ########
 
-.rules/check/deployed:
+lint:
+  stage: check
   rules:
+    - !reference [.rules/mr/auto, rules]
     - !reference [.rules/web/auto, rules]
-    - !reference [.rules/mr/manual, rules]
-
-check/android/deployed:
-  stage: check
-  extends:
-    - .rules/check/deployed
-    - .artifacts
+    - !reference [.rules/push-master-or-feat, rules]
   script:
-    - sudo chgrp 1000 -f /dev/kvm
-    - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION
-    - poetry run python run-ci.py build-and-test android
-  tags: !reference [.tags/compilation-linux, tags]
-
-check/android/downstream:
-  stage: check
-  extends:
-    - .before-script/download-artifacts
-    - .rules/check/downstream/android
-    - .artifacts
-  script:
-    - sudo chgrp 1000 -f /dev/kvm
-    - poetry run python run-ci.py build-and-test android
-  tags: !reference [.tags/compilation-linux, tags]
-
-check/android/from-sources:
-  stage: check
-  extends:
-    - .rules/mr/manual
-    - .artifacts
-  script:
-    - sudo chgrp 1000 -f /dev/kvm
-    - poetry run python run-ci.py prepare android --isolate-conan-user-home --remote $CONAN_REMOTE --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
-    - poetry run python run-ci.py build-and-test android
-  tags: !reference [.tags/compilation-linux, tags]
-
-check/android/all-from-sources:
-  stage: check
-  extends:
-    - .rules/native-from-sources
-    - .artifacts
-  script:
-    - sudo chgrp 1000 -f /dev/kvm
-    - poetry run python run-ci.py prepare android --isolate-conan-user-home --remote $CONAN_REMOTE --use-tanker=same-as-branch | tee log_prepare.txt
-    - poetry run python run-ci.py build-and-test android | tee log_build.txt
-  tags: !reference [.tags/compilation-linux, tags]
-
-check/ios/deployed/x86_64:
-  stage: check
-  extends:
-    - .tags/macos/x86_64
-    - .rules/check/deployed
-  timeout: 3h
-  script:
-    - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION
-    - poetry run python run-ci.py build-and-test ios
-
-check/ios/downstream/x86_64:
-  stage: check
-  extends:
-    - .tags/macos/x86_64
-    - .before-script/download-artifacts
-    - .rules/check/downstream/ios/x86_64
-  timeout: 3h
-  script:
-    - poetry run python run-ci.py build-and-test ios
-
-check/ios/from-sources/x86_64:
-  stage: check
-  extends:
-    - .tags/macos/x86_64
-    - .rules/mr/manual
-  timeout: 3h
-  script:
-    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --use-tanker=deployed --remote $CONAN_REMOTE --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
-    - poetry run python run-ci.py build-and-test ios
-
-check/ios/all-from-sources/x86_64:
-  stage: check
-  extends:
-    - .tags/macos/x86_64
-    - .rules/native-from-sources
-  timeout: 3h
-  script:
-    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --use-tanker=same-as-branch --remote $CONAN_REMOTE
-    - poetry run python run-ci.py build-and-test ios
-
-check/ios/deployed/arm:
-  stage: check
-  extends:
-    - .tags/macos/arm
-    - .rules/check/deployed
-  script:
-    - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION
-    - poetry run python run-ci.py build-and-test ios
-
-check/ios/downstream/arm:
-  stage: check
-  extends:
-    - .tags/macos/arm
-    - .before-script/download-artifacts
-    - .rules/check/downstream/ios/arm
-  script:
-    - poetry run python run-ci.py build-and-test ios
-
-
-
-check/ios/from-sources/arm:
-  stage: check
-  extends:
-    - .tags/macos/arm
-    - .rules/mr/manual
-  script:
-    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --remote $CONAN_REMOTE --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
-    - poetry run python run-ci.py build-and-test ios
-
-
-check/ios/all-from-sources/arm:
-  stage: check
-  extends:
-    - .tags/macos/arm
-    - .rules/native-from-sources
-  script:
-    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --use-tanker=same-as-branch --remote $CONAN_REMOTE
-    - poetry run python run-ci.py build-and-test ios
-
-
-################
-# deploy stage #
-################
-
-deploy:
-  stage: deploy
-  extends:
-    - .rules/deploy/react-native
-  script:
-    - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "${HOME}/.npmrc"
-    - poetry run python run-ci.py reset-branch $UPSTREAM_BRANCH_NAME
-    - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION
-    - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION
-    - poetry run python run-ci.py deploy --version $SDK_REACT_NATIVE_RELEASE_VERSION
-  release:
-    description: sdk-react-native v$SDK_REACT_NATIVE_RELEASE_VERSION
-    tag_name: v$SDK_REACT_NATIVE_RELEASE_VERSION
+    - poetry run python run-ci.py lint
   tags: !reference [.tags/linux, tags]

@@ -9,15 +9,14 @@ import type {
   AttachResult,
   b64string,
 } from './types';
-import {
+import { assertVerification, assertVerificationOptions } from './verification';
+import type {
   Verification,
-  assertVerification,
   VerificationOptions,
   VerificationMethod,
-  assertVerificationOptions,
 } from './verification';
 import type { EncryptionOptions } from './encryptionOptions';
-import { extractSharingOptions, SharingOptions } from './sharingOptions';
+import { extractSharingOptions, type SharingOptions } from './sharingOptions';
 import { extractEncryptionOptions } from './encryptionOptions';
 import { EncryptionSession } from './encryptionSessionWrapper';
 import { assertNotEmptyString, statuses } from './types';

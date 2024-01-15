@@ -1,29 +1,35 @@
 [tool.poetry]
 name = "sdk-react-native"
 version = "0.1.0"
-description = ""
-authors = ["The Tanker Team <support@tanker.io>"]
+description = "React Native SDK for Tanker"
+authors = ["Tanker team"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.11"
 
-Flask = "^2.1.2"
-tankeradminsdk = { version = "^3.0.0", source = "gitlab" }
-tankerci = { version = ">= 2022.6.4324", source = "gitlab" }
-tankersdk-identity = "^3.2.0"
+tankerci = { version = "== 2024.1.5038", source = "gitlab" }
 
 [tool.poetry.dev-dependencies]
 black = "22.3.0"
 flake8 = "4.0.1"
 flake8-comprehensions = "3.10.0"
+flake8-docstrings = "1.6.0"
 isort = "5.10.1"
 mypy = "0.961"
 
 [[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[[tool.poetry.source]]
 name = "gitlab"
 url = "https://gitlab.com/api/v4/projects/20917546/packages/pypi/simple"
-secondary = true
+priority = "explicit"
+
+[tool.isort]
+skip = ["example/ios/Pods", "node_modules"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+

@@ -1,6 +1,13 @@
 [flake8]
 max-line-length=100
+ignore=D100, D101, D102, D103, D104, D105, D107, D400, E731
 
 exclude =
+  build
+  setup.py
+  example/ios/Pods
   node_modules
-  example/node_modules
+  .venv
+  .eggs
+  .git
+
