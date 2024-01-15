@@ -1,0 +1,63 @@
+include:
+  - project: TankerHQ/gitlab-ci-files
+    ref: 2023-12-12-275
+    file: /common.yml
+
+variables:
+  SDK_NATIVE_CONAN_REFERENCE: tanker/latest-stable@
+  GIT_DEPTH: 1
+
+############
+# Workflow #
+############
+
+workflow:
+  rules:
+    # web pipelines for releases only
+    - if: $CI_PIPELINE_SOURCE == "web" && $SDK_REACT_NATIVE_RELEASE_VERSION !~ /\A\d+\.\d+\.\d+(-(alpha|beta)\d+)?\z/
+      when: never
+    # we must specify version of sdk-ios/sdk-android to avoid clients upgrading them by accident
+    - if: $CI_PIPELINE_SOURCE == "web" && $SDK_ANDROID_RELEASE_VERSION !~ /\A\d+\.\d+\.\d+(-(alpha|beta)-\d+)?\z/
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "web" && $SDK_IOS_RELEASE_VERSION !~ /\A\d+\.\d+\.\d+(-(alpha|beta)\d+)?\z/
+      when: never
+    - if: !reference [.if-invalid-native-conan-reference, if]
+      when: never
+    - if: '$CI_MERGE_REQUEST_TITLE =~ /.*\[preview].*/'
+      variables:
+        CONAN_REMOTE: "artifactory-preview"
+    - when: always
+      variables:
+        CONAN_REMOTE: "artifactory"
+
+
+###########
+# Default #
+###########
+
+default:
+  before_script: &global_before_script
+    - poetry run python -m pip install --upgrade pip
+    - poetry install
+  image: registry.gitlab.com/tankerhq/docker/sdk-react-native:latest
+
+##########
+# Stages #
+##########
+
+stages:
+  - check
+
+########
+# Jobs #
+########
+
+lint:
+  stage: check
+  rules:
+    - !reference [.rules/mr/auto, rules]
+    - !reference [.rules/web/auto, rules]
+    - !reference [.rules/push-master-or-feat, rules]
+  script:
+    - poetry run python run-ci.py lint
+  tags: !reference [.tags/linux, tags]
