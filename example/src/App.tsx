@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import base64 from 'react-native-base64';
+import RNFS from 'react-native-fs';
 
 import { Colors, Header } from 'react-native/Libraries/NewAppScreen';
 
@@ -47,17 +48,22 @@ function Section({ children, title }: SectionProps): React.JSX.Element {
   );
 }
 
-function createTanker(): Tanker {
+async function createTanker(): Promise<Tanker> {
+  const path = RNFS.DocumentDirectoryPath + '/' + Math.random() + '/';
+  await RNFS.mkdir(path);
+
   return new Tanker({
     appId: 'Po70RWAIAzUoXsYBb+GV8gEJN1snXOuC+wY0BofQMTM=',
     // @ts-ignore sdkType is not exposed publicly in the API, but the native module will forward it
     sdkType: 'sdk-react-native-test',
     url: 'https://dev-api.tanker.io',
+    persistentPath: path,
+    cachePath: path,
   });
 }
 
 async function startTanker(): Promise<Tanker> {
-  let tanker = createTanker();
+  let tanker = await createTanker();
 
   const ident =
     'eyJkZWxlZ2F0aW9uX3NpZ25hdHVyZSI6ImNlNUdCQ0drcHhOb29kdTYrNkZJd2NqU1pjd1NPY1ZBZVBsQ1grYlFDRGRLTHBGNmp4Q0FYQnFBRHV4dm1UUEtTdEF2cTNtdHNwSm9KbmFJTTF4dUFnPT0iLCJlcGhlbWVyYWxfcHJpdmF0ZV9zaWduYXR1cmVfa2V5IjoiN2h3N3BFMmlac2UzUUpaaVBsd09ORThIVzQ3TS9wWkl1RDlENzNRMVc0M3M3V3RaVGN2ZTlPYlBXN0lJVmtid1ptRzlCdG9sYzVnQ0pHcm54NUI5SHc9PSIsImVwaGVtZXJhbF9wdWJsaWNfc2lnbmF0dXJlX2tleSI6IjdPMXJXVTNMM3ZUbXoxdXlDRlpHOEdaaHZRYmFKWE9ZQWlScTU4ZVFmUjg9IiwidGFyZ2V0IjoidXNlciIsInRydXN0Y2hhaW5faWQiOiJQbzcwUldBSUF6VW9Yc1lCYitHVjhnRUpOMXNuWE91Qyt3WTBCb2ZRTVRNPSIsInVzZXJfc2VjcmV0IjoiamtQekhDYU5rckc1MGo2eGxLU1RialhHTG94MTNBTXhXYnU3Wit5MWFYej0iLCJ2YWx1ZSI6IjNZMzY0bzZGa05VdDdTV2QvVHNYbjM4L3FhVjR1RmtiK1lZajA2OUNiS0k9In0=';
@@ -92,13 +98,18 @@ function App(): React.JSX.Element {
   const [decryptResult, setDecryptResult] = React.useState<
     string | undefined
   >();
+  const [nativeVersion, setNativeVersion] = React.useState<
+    string | undefined
+  >();
 
   React.useEffect(() => {
     startTanker().then(async (tanker) => {
+      setNativeVersion(tanker.nativeVersion);
       const encrypted = await testEncrypt(tanker);
-      await setEncryptResult(encrypted);
+      setEncryptResult(encrypted);
       const decrypted = await tanker.decrypt(base64.decode(encrypted));
-      await setDecryptResult(decrypted);
+      setDecryptResult(decrypted);
+      await tanker.stop();
     });
   }, []);
 
@@ -127,7 +138,11 @@ function App(): React.JSX.Element {
         >
           <Section title="We're so back">
             New arch enabled: {isNewArchEnabled() + '\n'}
-            Native version: {createTanker().nativeVersion + '\n'}
+            Native version:{' '}
+            <View>
+              <Text testID={'nativeVersion'}>{nativeVersion}</Text>
+            </View>{' '}
+            {'\n'}
             {'\n'}
             Encrypted: <Text style={smallText}>{encryptResult + '\n'}</Text>
             Decrypted: {decryptResult + '\n'}
