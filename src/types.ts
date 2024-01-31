@@ -19,8 +19,9 @@ const statusDefs = [
   /* 3 */ { name: 'IDENTITY_VERIFICATION_NEEDED' },
 ];
 
-export const statuses: { [name: string]: number } = (() => {
-  const h: typeof statuses = {};
+type Statuses = { [name: string]: number };
+export const statuses: Statuses = (() => {
+  const h: Statuses = {};
   statusDefs.forEach((def, index) => {
     h[def.name] = index;
   });
