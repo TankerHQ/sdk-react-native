@@ -61,7 +61,6 @@
     "@types/jest": "^28.1.2",
     "@types/react": "~18.2.6",
     "del-cli": "^5.0.0",
-    "detox": "^20.17.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
