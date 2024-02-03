@@ -1,6 +1,5 @@
-//import { device, element, waitFor } from 'detox';
+import { device, element, waitFor } from 'detox';
 import { installWorker, uninstallWorker } from 'detox/internals';
-import { device } from 'detox';
 
 async function globalSetup() {
   console.log('Global setup: Installing worker');

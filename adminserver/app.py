@@ -1,5 +1,7 @@
 import os
 import random
+import signal
+import sys
 from typing import Any, Dict
 
 import tankeradminsdk
@@ -14,13 +16,20 @@ class TankerAppHolder:
     ):
         self.app = tanker_app
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
+    def cleanup(self):
         print(f'deleting app {self.app["id"]}')
         admin.delete_app(self.app["id"])
         self.app = None
+
+    def _sighandler(self, _signum, _frame):
+        sys.exit()  # Will trigger cleanup
+
+    def __enter__(self):
+        signal.signal(signal.SIGTERM, self._sighandler)
+        return self
+
+    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
+        self.cleanup()
 
 
 def assert_env(name: str) -> str:
