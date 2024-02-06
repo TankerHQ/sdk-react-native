@@ -55,13 +55,6 @@ def get_tanker_url() -> str:
     return assert_env("TANKER_APPD_URL")
 
 
-@app.route("/toggle_preverified_verification", methods=["POST"])
-def toggle_preverified_verification() -> str:
-    enable = request.form["enable"].lower() == "true"
-    admin.update_app(tanker_holder.app["id"], preverified_verification=enable)
-    return ""
-
-
 @app.route("/create_identity")
 def create_identity() -> str:
     return tankersdk_identity.create_identity(

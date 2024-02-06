@@ -6,7 +6,6 @@ import {
   getPublicIdentity,
   getEmailVerificationCode,
   getSMSVerificationCode,
-  togglePreverifiedVerification,
 } from './admin';
 import {
   InvalidArgument,
@@ -131,7 +130,6 @@ export const tankerTests = () => {
     });
 
     it('fails to register with preverified email', async () => {
-      togglePreverifiedVerification(true);
       const email = 'bob@burger.io';
       await tanker.start(identity);
       await expect(
@@ -140,7 +138,6 @@ export const tankerTests = () => {
     });
 
     it('fails to register with preverified phone number', async () => {
-      togglePreverifiedVerification(true);
       const phoneNumber = '+33639982233';
       await tanker.start(identity);
       await expect(
@@ -149,7 +146,6 @@ export const tankerTests = () => {
     });
 
     it('fails to verify with preverified email', async () => {
-      togglePreverifiedVerification(true);
       const email = 'bob@burger.io';
       await tanker.start(identity);
       const verificationCode = await getEmailVerificationCode(email);
@@ -165,7 +161,6 @@ export const tankerTests = () => {
     });
 
     it('fails to verify with preverified phone number', async () => {
-      togglePreverifiedVerification(true);
       const phoneNumber = '+33639982233';
       await tanker.start(identity);
       const verificationCode = await getSMSVerificationCode(phoneNumber);
@@ -183,7 +178,6 @@ export const tankerTests = () => {
     });
 
     it('can use set verification method with preverified email', async () => {
-      togglePreverifiedVerification(true);
       const email = 'bob@burger.io';
       const pass = { passphrase: 'Shame, dring dring' };
       await tanker.start(identity);
@@ -221,7 +215,6 @@ export const tankerTests = () => {
     });
 
     it('can use set verification method with preverified phone number', async () => {
-      togglePreverifiedVerification(true);
       const phoneNumber = '+33639982233';
       const pass = { passphrase: 'Shame, dring dring' };
       await tanker.start(identity);
