@@ -25,7 +25,6 @@ class ClientReactNativePackage : TurboReactPackage() {
         ClientReactNativeModule.NAME,
         false,  // canOverrideExistingModule
         false,  // needsEagerInit
-        true,  // hasConstants
         false,  // isCxxModule
         isTurboModule // isTurboModule
       )
