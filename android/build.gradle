@@ -112,7 +112,7 @@ repositories {
 def kotlin_version = getExtOrDefault("kotlinVersion")
 
 dependencies {
-  implementation "com.facebook.react:react-native:+"
+  implementation "com.facebook.react:react-android:0.73.1"
 
   // Huge hack because RN is stuck on an old Kotlin version..
   constraints {
