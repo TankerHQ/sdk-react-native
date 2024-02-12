@@ -13,6 +13,7 @@ buildscript {
 
   dependencies {
     classpath "com.android.tools.build:gradle:8.2.1"
+    classpath("com.facebook.react:react-native-gradle-plugin")
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
@@ -81,8 +82,8 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
   }
 
   sourceSets {
@@ -111,6 +112,8 @@ repositories {
 def kotlin_version = getExtOrDefault("kotlinVersion")
 
 dependencies {
+  implementation "com.facebook.react:react-android:0.73.1"
+
   // Huge hack because RN is stuck on an old Kotlin version..
   constraints {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
@@ -121,11 +124,6 @@ dependencies {
     }
   }
 
-  // For < 0.71, this will be from the local maven repo
-  // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
-  //noinspection GradleDynamicVersion
-  implementation "com.facebook.react:react-native:+"
-  //implementation "com.facebook.react:react-android:0.73.1" // Use this for in IDE Gradle sync..!
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
   implementation 'net.java.dev.jna:jna:5.13.0@aar'
@@ -133,7 +131,7 @@ dependencies {
     api 'io.tanker:tanker-bindings@aar'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
   } else {
-    api 'io.tanker:tanker-bindings:4.0.0@aar'
+    api 'io.tanker:tanker-bindings:4.1.0@aar'
   }
 }
 

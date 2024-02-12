@@ -82,6 +82,10 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+
+        // Detox
+        testBuildType System.getProperty('testBuildType', 'debug')
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     signingConfigs {
         debug {
@@ -101,6 +105,8 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            // Detox
+            proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
     }
 }
@@ -112,6 +118,11 @@ repositories {
 }
 
 dependencies {
+    // For < 0.71, this will be from the local maven repo
+    // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
+    //noinspection GradleDynamicVersion
+    implementation "com.facebook.react:react-native:+"
+
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation("com.facebook.react:flipper-integration")
@@ -121,6 +132,12 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // Detox
+    androidTestImplementation('com.linkedin.testbutler:test-butler-library:2.2.1')
+    androidTestImplementation('com.wix:detox:+')
+    implementation('androidx.appcompat:appcompat:1.1.0')
+    testImplementation('com.google.android.material:material:1.11.0')
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
