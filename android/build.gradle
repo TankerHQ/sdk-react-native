@@ -101,11 +101,19 @@ android {
   }
 }
 
+def hasLocalTankerAAR = file('libs/tanker-bindings.aar').exists()
+
 repositories {
   mavenCentral()
   google()
-  maven {
-    url 'https://storage.googleapis.com/maven.tanker.io'
+  if (hasLocalTankerAAR) {
+    flatDir {
+      dirs("libs")
+    }
+  } else {
+    maven {
+      url 'https://storage.googleapis.com/maven.tanker.io'
+    }
   }
 }
 
@@ -127,8 +135,8 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
   implementation 'net.java.dev.jna:jna:5.13.0@aar'
-  if (file('libs/tanker-bindings.aar').exists()) {
-    api 'io.tanker:tanker-bindings@aar'
+  if (hasLocalTankerAAR) {
+    api 'io.tanker:tanker-bindings:dev@aar'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
   } else {
     api 'io.tanker:tanker-bindings:4.1.0@aar'
