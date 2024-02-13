@@ -92,7 +92,10 @@ detox/android/from-sources:
     - .rules/mr/manual
   script:
     - poetry run python run-ci.py prepare android --isolate-conan-user-home --remote $CONAN_REMOTE --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
-    - poetry run python run-ci.py detox android
+    - poetry run python run-ci.py detox android --os-version $OS_VERSION
+  parallel:
+        matrix:
+          - OS_VERSION: ["oldest", "latest"]
 
 detox/android/all-from-sources:
   extends:
@@ -100,7 +103,10 @@ detox/android/all-from-sources:
     - .rules/native-from-sources
   script:
     - poetry run python run-ci.py prepare android --isolate-conan-user-home --remote $CONAN_REMOTE --use-tanker=same-as-branch
-    - poetry run python run-ci.py detox android
+    - poetry run python run-ci.py detox android --os-version $OS_VERSION
+  parallel:
+        matrix:
+          - OS_VERSION: ["oldest", "latest"]
 
 detox/android/deployed:
   extends:
@@ -109,7 +115,10 @@ detox/android/deployed:
     - !reference [.rules/web/auto, rules]
     - !reference [.rules/mr/auto, rules]
   script:
-    - poetry run python run-ci.py detox android
+    - poetry run python run-ci.py detox android --os-version $OS_VERSION
+  parallel:
+      matrix:
+        - OS_VERSION: ["oldest", "latest"]
 
 detox/android/downstream:
   extends:
