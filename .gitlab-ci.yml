@@ -77,29 +77,46 @@ lint:
     - poetry run python run-ci.py lint
   tags: !reference [.tags/linux, tags]
 
-.rules/detox/deployed:
+.detox/android:
   stage: check
   extends:
     - .artifacts
-  rules:
-    - !reference [.rules/web/auto, rules]
-    - !reference [.rules/mr/auto, rules]
+  before_script:
+    - !reference [default, before_script]
+    - sudo chgrp 1000 -f /dev/kvm
   tags: !reference [.tags/compilation-linux, tags]
+
+detox/android/from-sources:
+  extends:
+    - .detox/android
+    - .rules/mr/manual
+  script:
+    - poetry run python run-ci.py prepare android --isolate-conan-user-home --remote $CONAN_REMOTE --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
+    - poetry run python run-ci.py detox android
+
+detox/android/all-from-sources:
+  extends:
+    - .detox/android
+    - .rules/native-from-sources
+  script:
+    - poetry run python run-ci.py prepare android --isolate-conan-user-home --remote $CONAN_REMOTE --use-tanker=same-as-branch
+    - poetry run python run-ci.py detox android
 
 detox/android/deployed:
   extends:
-    - .rules/detox/deployed
+    - .detox/android
+  rules:
+    - !reference [.rules/web/auto, rules]
+    - !reference [.rules/mr/auto, rules]
   script:
-    - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py detox android
 
 detox/android/downstream:
-  stage: check
   extends:
-    - .before-script/download-artifacts
+    - .detox/android
     - .rules/check/downstream/android
-    - .artifacts
+  before_script:
+    - !reference [.before-script/download-artifacts, before_script]
+    - !reference [.detox/android, before_script]
   script:
-    - sudo chgrp 1000 -f /dev/kvm
     - poetry run python run-ci.py detox android
-  tags: !reference [.tags/compilation-linux, tags]

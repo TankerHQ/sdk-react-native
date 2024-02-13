@@ -4,12 +4,14 @@ import platform
 import shutil
 import sys
 from pathlib import Path
+from typing import Optional
 
 import cli_ui as ui  # noqa
 import tankerci
 import tankerci.android
 import tankerci.git
 import tankerci.gitlab
+from tankerci.conan import Profile, TankerSource
 
 
 def copy_local_aar(local_aar_path: Path) -> None:
@@ -89,6 +91,52 @@ def run_detox(os: str) -> None:
             raise
 
 
+def prepare(
+    sdk: str,
+    tanker_source: TankerSource,
+    tanker_ref: Optional[str],
+    home_isolation: bool,
+    remote: str,
+) -> None:
+    sdk_folder = f"sdk-{sdk}"
+    if "CI" in os.environ:
+        repos = [sdk_folder]
+        if tanker_source == TankerSource.SAME_AS_BRANCH:
+            repos.append("sdk-native")
+        workspace_path = tankerci.git.prepare_sources(repos=repos, clean=True)
+    else:
+        if tanker_source == TankerSource.SAME_AS_BRANCH:
+            ui.fatal("--use-tanker=same-as-branch can only be used by the CI")
+        workspace_path = Path.cwd().parent
+    sdk_path = workspace_path / sdk_folder
+
+    sdk_env = os.environ.copy()
+    sdk_env.pop("VIRTUAL_ENV", None)
+    tankerci.run(
+        "poetry",
+        "install",
+        cwd=sdk_path,
+        env=sdk_env,
+    )
+    args = [
+        "poetry",
+        "run",
+        "python",
+        "run-ci.py",
+    ]
+    if home_isolation:
+        args.append("--isolate-conan-user-home")
+        args.append(f"--remote={remote}")
+    args.extend(["build-and-test", f"--use-tanker={tanker_source.value}"])
+    if tanker_ref is not None:
+        args.append(f"--tanker-ref={tanker_ref}")
+    tankerci.run(*args, cwd=sdk_path, env=sdk_env)
+    if sdk == "android":
+        dest_path = Path.cwd() / "artifacts"
+        shutil.rmtree(dest_path, ignore_errors=True)
+        shutil.copytree(sdk_path / "artifacts", dest_path)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
 
@@ -105,6 +153,30 @@ def main() -> None:
     download_artifacts_parser.add_argument("--project-id", required=True)
     download_artifacts_parser.add_argument("--pipeline-id", required=True)
     download_artifacts_parser.add_argument("--job-name", required=True)
+
+    prepare_parser = subparsers.add_parser("prepare")
+    prepare_parser.add_argument("sdk", choices=["android"])
+    prepare_parser.add_argument(
+        "--isolate-conan-user-home",
+        action="store_true",
+        dest="home_isolation",
+        default=False,
+    )
+    prepare_parser.add_argument(
+        "--use-tanker",
+        type=tankerci.conan.TankerSource,
+        choices=[
+            TankerSource.EDITABLE,
+            TankerSource.DEPLOYED,
+            TankerSource.LOCAL,
+            TankerSource.SAME_AS_BRANCH,
+        ],
+        default=TankerSource.EDITABLE,
+        dest="tanker_source",
+    )
+    prepare_parser.add_argument("--build-profile", type=Profile)
+    prepare_parser.add_argument("--remote", default="artifactory")
+    prepare_parser.add_argument("--tanker-ref")
 
     args = parser.parse_args()
     command = args.command
@@ -124,6 +196,14 @@ def main() -> None:
             project_id=args.project_id,
             pipeline_id=args.pipeline_id,
             job_name=args.job_name,
+        )
+    elif command == "prepare":
+        prepare(
+            args.sdk,
+            args.tanker_source,
+            args.tanker_ref,
+            args.home_isolation,
+            args.remote,
         )
     else:
         parser.print_help()
