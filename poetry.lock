@@ -1109,13 +1109,13 @@ reference = "gitlab"
 
 [[package]]
 name = "tankerci"
-version = "2024.2.5097"
+version = "2024.2.5118"
 description = "Tanker CI library"
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "tankerci-2024.2.5097-py3-none-any.whl", hash = "sha256:44f4b2df004178d9e69d144bced9adecb120d00d3fb2d74c2be05caffa669931"},
-    {file = "tankerci-2024.2.5097.tar.gz", hash = "sha256:61276f28455769e2744fc7abdbdcc160626c4105a96ed25bdaacf93fba4bd182"},
+    {file = "tankerci-2024.2.5118-py3-none-any.whl", hash = "sha256:d535e1b71d80b85f13d973f1e640df120ba170b022f340207e078c6e58fb3314"},
+    {file = "tankerci-2024.2.5118.tar.gz", hash = "sha256:f7cffcb99883abcb1cf80b20f2e3ab4c7b4af50e066dc5aa62baea1f4d614e97"},
 ]
 
 [package.dependencies]
@@ -1255,4 +1255,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "517347c1f25541198162cd9fd52db9b825519d784e6b4dd58aa1b1ae69f7e310"
+content-hash = "2517481fd294cc77244c1586b9c5828272a9c2945274d54a27c92715d564bd8d"

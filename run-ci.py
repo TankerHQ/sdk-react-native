@@ -44,16 +44,32 @@ def lint() -> None:
     tankerci.run("yarn", "run", "lint")
 
 
-def run_detox(os: str) -> None:
+def run_detox(os_name: str, os_version: str) -> None:
     tankerci.run("yarn")
-    if os == "android":
-        detox_config = f"android.emu.{get_detox_host_arch()}.release"
+    if os_name == "android":
+        android_api_level = (
+            tankerci.android.ApiLevel.OLDEST
+            if os_version == "oldest"
+            else tankerci.android.ApiLevel.LATEST
+        )
+
+        # The Detox test harness sometimes disconnects in the middle,
+        # but only in old Android versions in release
+        # This is almost certainly not our code's fault,
+        # and a considerable pain to track down, so we workaround it
+        variant = (
+            "debug"
+            if android_api_level == tankerci.android.ApiLevel.OLDEST
+            else "release"
+        )
+
+        detox_config = f"android.emu.{get_detox_host_arch()}.{os_version}.{variant}"
 
         local_aar_path = Path.cwd() / "artifacts/tanker-bindings.aar"
         if local_aar_path.exists():
             copy_local_aar(local_aar_path)
     else:
-        raise RuntimeError(f"Unsupported os {os} for detox")
+        raise RuntimeError(f"Unsupported os {os_name} for detox")
 
     example = Path.cwd() / "example"
     tankerci.run("yarn", "detox", "build", "--configuration", detox_config, cwd=example)
@@ -72,7 +88,7 @@ def run_detox(os: str) -> None:
         wait_for_process=5,
         killpg=True,
     ), tankerci.android.emulator(
-        small_size=False
+        api_level=android_api_level, small_size=False
     ):
         try:
             tankerci.run(
@@ -145,6 +161,12 @@ def main() -> None:
 
     detox_parser = subparsers.add_parser("detox")
     detox_parser.add_argument("os", choices=["android"])
+    detox_parser.add_argument(
+        "--os-version",
+        choices=["oldest", "latest"],
+        default="latest",
+        dest="os_version",
+    )
 
     reset_branch_parser = subparsers.add_parser("reset-branch")
     reset_branch_parser.add_argument("branch", nargs="?")
@@ -184,7 +206,7 @@ def main() -> None:
     if command == "lint":
         lint()
     elif command == "detox":
-        run_detox(args.os)
+        run_detox(args.os, args.os_version)
     elif command == "reset-branch":
         fallback = os.environ["CI_COMMIT_REF_NAME"]
         ref = tankerci.git.find_ref(
