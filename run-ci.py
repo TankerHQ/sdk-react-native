@@ -53,7 +53,17 @@ def run_detox(os_name: str, os_version: str) -> None:
             else tankerci.android.ApiLevel.LATEST
         )
 
-        detox_config = f"android.emu.{get_detox_host_arch()}.{os_version}.release"
+        # The Detox test harness sometimes disconnects in the middle,
+        # but only in old Android versions in release
+        # This is almost certainly not our code's fault,
+        # and a considerable pain to track down, so we workaround it
+        variant = (
+            "debug"
+            if android_api_level == tankerci.android.ApiLevel.OLDEST
+            else "release"
+        )
+
+        detox_config = f"android.emu.{get_detox_host_arch()}.{os_version}.{variant}"
 
         local_aar_path = Path.cwd() / "artifacts/tanker-bindings.aar"
         if local_aar_path.exists():
