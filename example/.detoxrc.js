@@ -51,7 +51,7 @@ module.exports = {
     emulator_x86_64_oldest: {
       type: 'android.emulator',
       device: {
-        avdName: 'system-images-android-21-google_apis-x86_64'
+        avdName: 'system-images-android-23-google_apis-x86_64'
       }
     },
     emulator_x86_64_latest: {
@@ -63,7 +63,7 @@ module.exports = {
     emulator_armv8_oldest: {
       type: 'android.emulator',
       device: {
-        avdName: 'system-images-android-21-google_apis-arm64-v8a'
+        avdName: 'system-images-android-23-google_apis-arm64-v8a'
       }
     },
     emulator_armv8_latest: {
