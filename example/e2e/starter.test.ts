@@ -35,11 +35,6 @@ for (const groupName of Object.keys(testList)) {
           .whileElement(by.id('testScrollView'))
           .scroll(500, 'down');
 
-        // After Tanker native starts, Detox can get confused
-        // and hang forever because it thinks the app is not fully idle
-        // (Synchronization is just Detox waiting before looking for UI elements)
-        await device.disableSynchronization();
-
         await element(by.id(runTestId)).tap();
         const testResultId = `testResult_${fullTestName}`;
         await waitFor(element(by.id(testResultId)))
@@ -48,8 +43,6 @@ for (const groupName of Object.keys(testList)) {
         const attributes = await element(by.id(testResultId)).getAttributes();
         // @ts-expect-error
         const testResult: TestResult = JSON.parse(attributes.text);
-
-        await device.enableSynchronization();
 
         if (testResult.errorMessage) console.error(testResult.errorMessage);
         jestExpect(testResult.success).toBe(true);
