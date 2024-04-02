@@ -5,7 +5,6 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 
@@ -50,23 +49,33 @@ function App(): React.JSX.Element {
               <Fragment key={'group_' + groupName}>
                 <View>
                   <Text style={styles.groupName}>{groupName}</Text>
-                  {
-                    // @ts-expect-error We know the group is not undefined
-                    testList[groupName].map((testName) => (
-                      <TouchableOpacity
-                        key={'test_' + groupName + '_' + testName}
-                        testID={'runTest_' + groupName + '_' + testName}
-                        onPress={async () => {
-                          console.log('Running ' + testName);
-                          const res = await runTestByName(groupName, testName);
-                          setTestResultName(groupName + '_' + testName);
-                          setTestResultValue(JSON.stringify(res));
-                        }}
-                      >
-                        <Text style={styles.testName}>{testName}</Text>
-                      </TouchableOpacity>
-                    ))
-                  }
+                  <View style={styles.inlineTextView}>
+                    {
+                      // Warning: Don't use a single 'X' for the label!
+                      // Any other string works, but just 'X' does insane things!
+                      // (lowercase 'x' is okay though. don't ask me why...)
+                      //
+                      // @ts-expect-error We know the group is not undefined
+                      testList[groupName].map((testName) => (
+                        <Text
+                          key={'test_' + groupName + '_' + testName}
+                          testID={'runTest_' + groupName + '_' + testName}
+                          style={styles.testName}
+                          onPress={async () => {
+                            console.log('Running ' + testName);
+                            const res = await runTestByName(
+                              groupName,
+                              testName
+                            );
+                            setTestResultName(groupName + '_' + testName);
+                            setTestResultValue(JSON.stringify(res));
+                          }}
+                        >
+                          {'x '}
+                        </Text>
+                      ))
+                    }
+                  </View>
                 </View>
               </Fragment>
             ))}
@@ -105,9 +114,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   testName: {
-    fontSize: 12,
+    fontSize: 10,
     padding: 0,
     margin: 0,
+  },
+  inlineTextView: {
+    display: 'flex',
+    flexDirection: 'row',
   },
 });
 
