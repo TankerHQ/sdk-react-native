@@ -15,9 +15,11 @@ async function globalSetup() {
     },
   };
   await device.launchApp(detoxArgs);
-  console.log('Device launched, enabling sync again');
 
+  console.log('Device launched, enabling sync again');
+  await new Promise((r) => setTimeout(r, 500));
   await device.enableSynchronization();
+
   await waitFor(element(by.id('testListJsonData')))
     .not.toHaveText('')
     .withTimeout(1000);

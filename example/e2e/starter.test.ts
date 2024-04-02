@@ -4,7 +4,13 @@ import { TestResult } from '../src/framework';
 
 beforeAll(async () => {
   console.log('Before all: Launching test app');
-  await device.launchApp();
+  await device.launchApp({
+    launchArgs: {
+      detoxEnableSynchronization: 0,
+    },
+  });
+  await new Promise((r) => setTimeout(r, 500));
+  await device.enableSynchronization();
 });
 
 const testList = JSON.parse(process.env.ON_DEVICE_TEST_LIST || '');
@@ -19,17 +25,23 @@ for (const groupName of Object.keys(testList)) {
           testGroup: groupName,
         },
       });
+      await new Promise((r) => setTimeout(r, 500));
       await device.enableSynchronization();
     });
 
     beforeEach(async () => {
       await device.reloadReactNative();
+
+      // Desperation: Detox synchronization is extremely flaky
+      // Sometimes the view is not loaded yet right after a reload
+      await new Promise((r) => setTimeout(r, 500));
     });
 
     for (const testName of testList[groupName]) {
       it(testName, async () => {
         const fullTestName = `${groupName}_${testName}`;
         const runTestId = `runTest_${fullTestName}`;
+
         await waitFor(element(by.id(runTestId)))
           .toBeVisible()
           .whileElement(by.id('testScrollView'))
