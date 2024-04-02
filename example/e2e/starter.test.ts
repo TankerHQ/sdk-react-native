@@ -15,9 +15,11 @@ for (const groupName of Object.keys(testList)) {
       await device.launchApp({
         newInstance: true,
         launchArgs: {
+          detoxEnableSynchronization: 0,
           testGroup: groupName,
         },
       });
+      await device.enableSynchronization();
     });
 
     beforeEach(async () => {
