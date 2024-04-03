@@ -33,8 +33,8 @@ for (const groupName of Object.keys(testList)) {
       await device.reloadReactNative();
 
       // Desperation: Detox synchronization is extremely flaky
-      // Sometimes the view is not loaded yet right after a reload
-      await new Promise((r) => setTimeout(r, 500));
+      // Sometimes the scrollView is not loaded yet after a reload
+      //await new Promise((r) => setTimeout(r, 500));
     });
 
     for (const testName of testList[groupName]) {
@@ -44,14 +44,13 @@ for (const groupName of Object.keys(testList)) {
 
         await waitFor(element(by.id(runTestId)))
           .toBeVisible()
-          .whileElement(by.id('testScrollView'))
-          .scroll(500, 'down');
+          .withTimeout(10000);
 
         await element(by.id(runTestId)).tap();
         const testResultId = `testResult_${fullTestName}`;
         await waitFor(element(by.id(testResultId)))
           .toExist()
-          .withTimeout(10000);
+          .withTimeout(5000);
         const attributes = await element(by.id(testResultId)).getAttributes();
         // @ts-expect-error
         const testResult: TestResult = JSON.parse(attributes.text);
