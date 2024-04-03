@@ -6,7 +6,20 @@ async function globalSetup() {
   await installWorker({ workerId: 'globalSetupWorker' });
   console.log('Global setup: Listing tests');
 
-  await device.launchApp();
+  // With the new architecture, Detox looks for the networking module too early
+  // Give the app time to launch, and _then_ enable synchronization,
+  // so that RN's OkHttpClient has been initialized when Detox looks for it.
+  const detoxArgs = {
+    launchArgs: {
+      detoxEnableSynchronization: 0,
+    },
+  };
+  await device.launchApp(detoxArgs);
+
+  console.log('Device launched, enabling sync again');
+  await new Promise((r) => setTimeout(r, 500));
+  await device.enableSynchronization();
+
   await waitFor(element(by.id('testListJsonData')))
     .not.toHaveText('')
     .withTimeout(1000);

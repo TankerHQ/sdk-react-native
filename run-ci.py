@@ -3,6 +3,7 @@ import os
 import platform
 import shutil
 import sys
+from enum import Enum
 from pathlib import Path
 from typing import Optional
 
@@ -12,6 +13,11 @@ import tankerci.android
 import tankerci.git
 import tankerci.gitlab
 from tankerci.conan import Profile, TankerSource
+
+
+class ReactNativeArchitecture(Enum):
+    OLD = "old"
+    NEW = "new"
 
 
 def copy_local_aar(local_aar_path: Path) -> None:
@@ -31,6 +37,12 @@ def get_detox_host_arch() -> str:
         raise RuntimeError("Unsupported host platform for detox config")
 
 
+def replace_line_in_file(f: Path, *, pattern: str, new_line: str) -> None:
+    lines = f.read_text().splitlines()
+    patched_lines = [new_line if pattern in line else line for line in lines]
+    f.write_text("\n".join(patched_lines))
+
+
 def lint() -> None:
     # CI lint
     tankerci.run("poetry", "run", "black", "--check", "--diff", ".")
@@ -44,7 +56,7 @@ def lint() -> None:
     tankerci.run("yarn", "run", "lint")
 
 
-def run_detox(os_name: str, os_version: str) -> None:
+def run_detox(os_name: str, os_version: str, rn_arch: ReactNativeArchitecture) -> None:
     tankerci.run("yarn")
     if os_name == "android":
         android_api_level = (
@@ -52,6 +64,13 @@ def run_detox(os_name: str, os_version: str) -> None:
             if os_version == "oldest"
             else tankerci.android.ApiLevel.LATEST
         )
+
+        if rn_arch == ReactNativeArchitecture.NEW:
+            replace_line_in_file(
+                Path.cwd() / "example/android/gradle.properties",
+                pattern="newArchEnabled=",
+                new_line="newArchEnabled=true",
+            )
 
         # The Detox test harness sometimes disconnects in the middle,
         # but only in old Android versions in release
@@ -167,6 +186,16 @@ def main() -> None:
         default="latest",
         dest="os_version",
     )
+    detox_parser.add_argument(
+        "--react-native-arch",
+        type=ReactNativeArchitecture,
+        choices=[
+            ReactNativeArchitecture.OLD,
+            ReactNativeArchitecture.NEW,
+        ],
+        default=ReactNativeArchitecture.OLD,
+        dest="react_native_arch",
+    )
 
     reset_branch_parser = subparsers.add_parser("reset-branch")
     reset_branch_parser.add_argument("branch", nargs="?")
@@ -206,7 +235,7 @@ def main() -> None:
     if command == "lint":
         lint()
     elif command == "detox":
-        run_detox(args.os, args.os_version)
+        run_detox(args.os, args.os_version, args.react_native_arch)
     elif command == "reset-branch":
         fallback = os.environ["CI_COMMIT_REF_NAME"]
         ref = tankerci.git.find_ref(

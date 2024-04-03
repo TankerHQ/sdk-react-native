@@ -1,6 +1,7 @@
 package com.clientreactnativeexample
 
 import android.app.Application
+import android.util.Log
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
@@ -10,7 +11,12 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.flipper.ReactNativeFlipper
+import com.facebook.react.modules.network.NetworkingModule
 import com.facebook.soloader.SoLoader
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
+import java.util.logging.Logger
+
 
 class MainApplication : Application(), ReactApplication {
 
@@ -43,3 +49,4 @@ class MainApplication : Application(), ReactApplication {
     ReactNativeFlipper.initializeFlipper(this, reactNativeHost.reactInstanceManager)
   }
 }
+
