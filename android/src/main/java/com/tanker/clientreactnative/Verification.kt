@@ -65,6 +65,8 @@ fun VerificationMethod.toWritableMap(): WritableMap {
         is PassphraseVerificationMethod -> json.putString("type", "passphrase")
         is OIDCIDTokenVerificationMethod -> {
             json.putString("type", "oidcIdToken")
+            json.putString("providerId", this.providerId)
+            json.putString("providerDisplayName", this.providerDisplayName)
         }
 
         is PhoneNumberVerificationMethod -> {

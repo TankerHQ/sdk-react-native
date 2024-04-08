@@ -4,7 +4,11 @@ import { assertNotEmptyString } from './types';
 export type EmailVerificationMethod = { type: 'email'; email: string };
 export type PassphraseVerificationMethod = { type: 'passphrase' };
 export type KeyVerificationMethod = { type: 'verificationKey' };
-export type OIDCVerificationMethod = { type: 'oidcIdToken' };
+export type OIDCVerificationMethod = {
+  type: 'oidcIdToken';
+  providerId: string;
+  providerDisplayName: string;
+};
 export type PhoneNumberVerificationMethod = {
   type: 'phoneNumber';
   phoneNumber: string;
