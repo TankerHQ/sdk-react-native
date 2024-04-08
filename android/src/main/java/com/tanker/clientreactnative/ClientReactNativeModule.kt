@@ -377,4 +377,20 @@ class ClientReactNativeModule internal constructor(reactContext: ReactApplicatio
             Base64.encodeToString(it, BASE64_SANE_FLAGS)
         }
     }
+
+    @ReactMethod()
+    override fun authenticateWithIDP(
+        handle: TankerHandle,
+        providerID: String,
+        subjectCookie: String,
+        promise: Promise
+    ) {
+        getTanker(handle).authenticateWithIDP(providerID, subjectCookie).bridge(promise) { oidcVerification ->
+            val json = WritableNativeMap()
+            json.putString("oidcAuthorizationCode", oidcVerification.authorizationCode)
+            json.putString("oidcProviderId", oidcVerification.providerID)
+            json.putString("oidcState", oidcVerification.state)
+            json
+        }
+    }
 }

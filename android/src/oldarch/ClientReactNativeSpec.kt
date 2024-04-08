@@ -98,4 +98,11 @@ abstract class ClientReactNativeSpec internal constructor(context: ReactApplicat
         clearDataB64: String,
         promise: Promise
     )
+
+    abstract fun authenticateWithIDP(
+        handle: TankerHandle,
+        providerID: String,
+        subjectCookie: String,
+        promise: Promise
+    )
 }

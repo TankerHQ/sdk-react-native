@@ -25,6 +25,7 @@ export type Err = { err: Object };
 export type Ok<T> = { ok: T };
 export type Result<T> = Ok<T> | Err;
 
+type OIDCAuthorizationCodeVerification = Object;
 type Verification = Object;
 type VerificationOptions = Object;
 type EncryptionOptions = Object;
@@ -113,6 +114,11 @@ export interface Spec extends TurboModule {
     instance: NativeEncryptionSession,
     clearData: b64string
   ): Promise<b64string>;
+  authenticateWithIDP(
+    instance: NativeTanker,
+    providerID: string,
+    subjectCookie: string
+  ): Promise<OIDCAuthorizationCodeVerification>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('ClientReactNative');
