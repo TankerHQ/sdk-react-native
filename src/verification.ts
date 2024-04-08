@@ -13,9 +13,13 @@ export type PhoneNumberVerificationMethod = {
   type: 'phoneNumber';
   phoneNumber: string;
 };
-export type PreverifiedEmailVerificationMethod = { type: 'preverifiedEmail' };
+export type PreverifiedEmailVerificationMethod = {
+  type: 'preverifiedEmail';
+  preverifiedEmail: string;
+};
 export type PreverifiedPhoneNumberVerificationMethod = {
   type: 'preverifiedPhoneNumber';
+  preverifiedPhoneNumber: string;
 };
 export type E2ePassphraseVerificationMethod = { type: 'e2ePassphrase' };
 
