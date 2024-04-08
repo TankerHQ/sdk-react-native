@@ -28,6 +28,11 @@ export type VerificationMethod =
 export type EmailVerification = { email: string; verificationCode: string };
 export type PassphraseVerification = { passphrase: string };
 export type KeyVerification = { verificationKey: string };
+export type OIDCAuthorizationCodeVerification = {
+  oidcProviderId: string;
+  oidcAuthorizationCode: string;
+  oidcState: string;
+};
 export type OIDCVerification = { oidcIdToken: string };
 export type PhoneNumberVerification = {
   phoneNumber: string;
@@ -43,6 +48,7 @@ export type Verification =
   | EmailVerification
   | PassphraseVerification
   | KeyVerification
+  | OIDCAuthorizationCodeVerification
   | OIDCVerification
   | PhoneNumberVerification
   | PreverifiedEmailVerification
@@ -58,13 +64,19 @@ const validMethods = [
   'email',
   'passphrase',
   'verificationKey',
+  'oidcAuthorizationCode',
   'oidcIdToken',
   'phoneNumber',
   'preverifiedEmail',
   'preverifiedPhoneNumber',
   'e2ePassphrase',
 ];
-const validKeys = [...validMethods, 'verificationCode'];
+const validKeys = [
+  ...validMethods,
+  'verificationCode',
+  'oidcProviderId',
+  'oidcState',
+];
 const validVerifOptionsKeys = ['withSessionToken', 'allowE2eMethodSwitch'];
 
 export const assertVerification = (verification: Verification) => {
@@ -112,6 +124,16 @@ export const assertVerification = (verification: Verification) => {
       verification.verificationKey,
       'verification.verificationKey'
     );
+  } else if ('oidcAuthorizationCode' in verification) {
+    assertNotEmptyString(
+      verification.oidcProviderId,
+      'verification.oidcProviderId'
+    );
+    assertNotEmptyString(
+      verification.oidcAuthorizationCode,
+      'verification.oidcAuthorizationCode'
+    );
+    assertNotEmptyString(verification.oidcState, 'verification.oidcState');
   } else if ('oidcIdToken' in verification) {
     assertNotEmptyString(verification.oidcIdToken, 'verification.oidcIdToken');
   } else if ('phoneNumber' in verification) {

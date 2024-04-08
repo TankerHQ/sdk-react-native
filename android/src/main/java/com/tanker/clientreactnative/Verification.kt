@@ -17,6 +17,13 @@ fun Verification(json: ReadableMap): Verification {
     json.getString("verificationKey")?.let {
         return VerificationKeyVerification(it)
     }
+    json.getString("oidcAuthorizationCode")?.let { oidcAuthorizationCode ->
+        return OIDCAuthorizationCodeVerification(
+            json.getString("oidcProviderId")!!,
+            oidcAuthorizationCode,
+            json.getString("oidcState")!!
+        )
+    }
     json.getString("oidcIdToken")?.let {
         return OIDCIDTokenVerification(it)
     }
