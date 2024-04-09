@@ -422,5 +422,40 @@ export const verifyTests = () => {
       await tanker.verifyIdentity({ oidcIdToken: oidcToken });
       expect(tanker.status).eq(Tanker.statuses.READY);
     });
+
+    it('can unlock with an oidc authorization code', async () => {
+      const oidcConfig = await getOidcConfig();
+      oidcConfig.issuer = oidcConfig.fake_oidc_issuer_url;
+      oidcConfig.client_id = 'tanker';
+      oidcConfig.provider_name = 'fake-oidc';
+
+      const appResponse = await appUpdate(
+        oidcConfig.client_id,
+        oidcConfig.provider_name,
+        oidcConfig.issuer
+      );
+      const oidcProviderResponse = appResponse.oidc_providers[0]!!;
+      const subjectCookie = 'fake_oidc_subject=martine';
+
+      await tanker.start(identity);
+
+      let verif1 = await tanker.authenticateWithIDP(
+        oidcProviderResponse.id,
+        subjectCookie
+      );
+      let verif2 = await tanker.authenticateWithIDP(
+        oidcProviderResponse.id,
+        subjectCookie
+      );
+
+      await tanker.registerIdentity(verif1);
+      await tanker.stop();
+
+      tanker = await createTanker();
+      await tanker.start(identity);
+      expect(tanker.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
+      await tanker.verifyIdentity(verif2);
+      expect(tanker.status).eq(Tanker.statuses.READY);
+    });
   });
 };
