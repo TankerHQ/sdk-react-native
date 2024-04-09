@@ -62,3 +62,21 @@ export async function getSMSVerificationCode(
     })
   ).text();
 }
+
+export type OidcConfig = {
+  client_id: string;
+  client_secret: string;
+  provider_name: string;
+  issuer: string;
+  fake_oidc_issuer_url: string;
+  users: { [name: string]: OidcUser };
+};
+
+export type OidcUser = {
+  email: string;
+  refresh_token: string;
+};
+
+export async function getOidcConfig(): Promise<OidcConfig> {
+  return await (await fetch(`${SERVER_URL}/get_oidc_config`)).json();
+}

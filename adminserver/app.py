@@ -1,3 +1,4 @@
+import json
 import os
 import random
 import signal
@@ -103,6 +104,29 @@ def get_verification_code() -> str:
         )
         return res
     abort(400)
+
+
+@app.route("/get_oidc_config")
+def get_oidc_config() -> str:
+    return json.dumps(
+        {
+            "client_id": assert_env("TANKER_OIDC_CLIENT_ID"),
+            "client_secret": assert_env("TANKER_OIDC_CLIENT_SECRET"),
+            "provider_name": assert_env("TANKER_OIDC_PROVIDER"),
+            "issuer": assert_env("TANKER_OIDC_ISSUER"),
+            "fake_oidc_issuer_url": f'{assert_env("TANKER_FAKE_OIDC_URL")}/issuer',
+            "users": {
+                "martine": {
+                    "email": assert_env("TANKER_OIDC_MARTINE_EMAIL"),
+                    "refresh_token": assert_env("TANKER_OIDC_MARTINE_REFRESH_TOKEN"),
+                },
+                "kevin": {
+                    "email": assert_env("TANKER_OIDC_KEVIN_EMAIL"),
+                    "refresh_token": assert_env("TANKER_OIDC_KEVIN_REFRESH_TOKEN"),
+                },
+            },
+        }
+    )
 
 
 if __name__ == "__main__":
