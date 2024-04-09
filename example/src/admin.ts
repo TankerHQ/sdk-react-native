@@ -63,6 +63,24 @@ export async function getSMSVerificationCode(
   ).text();
 }
 
+export async function appUpdate(
+  oidcClientId: string,
+  oidcDisplayName: string,
+  oidcIssuer: string
+): Promise<void> {
+  const form = new FormData();
+  form.append('oidc_client_id', oidcClientId);
+  form.append('oidc_display_name', oidcDisplayName);
+  form.append('oidc_issuer', oidcIssuer);
+
+  await (
+    await fetch(`${SERVER_URL}/app_update`, {
+      method: 'POST',
+      body: form,
+    })
+  ).text();
+}
+
 export type OidcConfig = {
   client_id: string;
   client_secret: string;
