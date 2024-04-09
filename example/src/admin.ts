@@ -63,22 +63,36 @@ export async function getSMSVerificationCode(
   ).text();
 }
 
+// Note we only define the fields we care about here
+export type AppUpdateResponse = {
+  oidc_providers: Array<OidcProviderResponse>;
+};
+
+export type OidcProviderResponse = {
+  id: string;
+  trustchain_id: string;
+  client_id: string;
+  display_name: string;
+  issuer: string;
+  ignore_token_expiration: boolean;
+};
+
 export async function appUpdate(
   oidcClientId: string,
   oidcDisplayName: string,
   oidcIssuer: string
-): Promise<void> {
+): Promise<AppUpdateResponse> {
   const form = new FormData();
   form.append('oidc_client_id', oidcClientId);
   form.append('oidc_display_name', oidcDisplayName);
   form.append('oidc_issuer', oidcIssuer);
 
-  await (
+  return await (
     await fetch(`${SERVER_URL}/app_update`, {
       method: 'POST',
       body: form,
     })
-  ).text();
+  ).json();
 }
 
 export type OidcConfig = {
