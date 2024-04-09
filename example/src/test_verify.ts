@@ -1,8 +1,11 @@
 import { Tanker } from '@tanker/client-react-native';
 import { expect, describe, beforeEach, afterEach, it } from './framework';
 import {
+  appUpdate,
   createIdentity,
   getEmailVerificationCode,
+  getGoogleIdToken,
+  getOidcConfig,
   getSMSVerificationCode,
 } from './admin';
 import {
@@ -390,6 +393,34 @@ export const verifyTests = () => {
           type: 'passphrase',
         },
       ]);
+    });
+
+    it('can unlock with an oidc id token', async () => {
+      const oidcConfig = await getOidcConfig();
+      const martineConfig = oidcConfig.users.martine!!;
+      const martineIdentity = await createIdentity();
+
+      await appUpdate(
+        oidcConfig.client_id,
+        oidcConfig.provider_name,
+        oidcConfig.issuer
+      );
+      const oidcToken = await getGoogleIdToken(oidcConfig, martineConfig);
+
+      await tanker.start(martineIdentity);
+      await tanker.setOidcTestNonce(await tanker.createOidcNonce());
+
+      expect(tanker.status).eq(Tanker.statuses.IDENTITY_REGISTRATION_NEEDED);
+      await tanker.registerIdentity({ oidcIdToken: oidcToken });
+      expect(tanker.status).eq(Tanker.statuses.READY);
+      await tanker.stop();
+
+      tanker = await createTanker();
+      await tanker.setOidcTestNonce(await tanker.createOidcNonce());
+      await tanker.start(martineIdentity);
+      expect(tanker.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
+      await tanker.verifyIdentity({ oidcIdToken: oidcToken });
+      expect(tanker.status).eq(Tanker.statuses.READY);
     });
   });
 };
