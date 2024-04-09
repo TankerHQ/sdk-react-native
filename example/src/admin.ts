@@ -98,3 +98,33 @@ export type OidcUser = {
 export async function getOidcConfig(): Promise<OidcConfig> {
   return await (await fetch(`${SERVER_URL}/get_oidc_config`)).json();
 }
+
+export async function getGoogleIdToken(
+  oidcConfig: OidcConfig,
+  oidcUser: OidcUser
+): Promise<string> {
+  const formData = JSON.stringify({
+    client_id: oidcConfig.client_id,
+    client_secret: oidcConfig.client_secret,
+    grant_type: 'refresh_token',
+    refresh_token: oidcUser.refresh_token,
+  });
+
+  const url = 'https://www.googleapis.com/oauth2/v4/token';
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const description = `${response.status} ${response.statusText}: ${await response.text()}`;
+    throw new Error(`Failed to get an ID token from ${url}:\n${description}`);
+  }
+
+  const data = await response.json();
+  return data.id_token;
+}
