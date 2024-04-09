@@ -111,10 +111,15 @@ android {
     }
 }
 
+def androidLibPath = file("$rootDir/../../android").path
+def hasLocalTankerAAR = file("$androidLibPath/libs/tanker-bindings.aar").exists()
+
 repositories {
-  maven {
-    url 'https://storage.googleapis.com/maven.tanker.io'
-  }
+    if (hasLocalTankerAAR) {
+        flatDir {
+            dirs("$androidLibPath/libs")
+        }
+    }
 }
 
 dependencies {
