@@ -1,7 +1,7 @@
 import { Tanker } from '@tanker/client-react-native';
 import { expect, describe, beforeEach, afterEach, it } from './framework';
 import {
-  appUpdate,
+  setAppOidcConfig,
   createIdentity,
   getEmailVerificationCode,
   getGoogleIdToken,
@@ -400,11 +400,7 @@ export const verifyTests = () => {
       const martineConfig = oidcConfig.users.martine!!;
       const martineIdentity = await createIdentity();
 
-      await appUpdate(
-        oidcConfig.client_id,
-        oidcConfig.provider_name,
-        oidcConfig.issuer
-      );
+      await setAppOidcConfig(oidcConfig);
       const oidcToken = await getGoogleIdToken(oidcConfig, martineConfig);
 
       await tanker.start(martineIdentity);
@@ -421,6 +417,8 @@ export const verifyTests = () => {
       expect(tanker.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
       await tanker.verifyIdentity({ oidcIdToken: oidcToken });
       expect(tanker.status).eq(Tanker.statuses.READY);
+
+      await setAppOidcConfig(undefined); // Cleanup
     });
 
     it('can unlock with an oidc authorization code', async () => {
@@ -429,11 +427,7 @@ export const verifyTests = () => {
       oidcConfig.client_id = 'tanker';
       oidcConfig.provider_name = 'fake-oidc';
 
-      const appResponse = await appUpdate(
-        oidcConfig.client_id,
-        oidcConfig.provider_name,
-        oidcConfig.issuer
-      );
+      const appResponse = await setAppOidcConfig(oidcConfig);
       const oidcProviderResponse = appResponse.oidc_providers[0]!!;
       const subjectCookie = 'fake_oidc_subject=martine';
 
@@ -456,6 +450,8 @@ export const verifyTests = () => {
       expect(tanker.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
       await tanker.verifyIdentity(verif2);
       expect(tanker.status).eq(Tanker.statuses.READY);
+
+      await setAppOidcConfig(undefined); // Cleanup
     });
   });
 };

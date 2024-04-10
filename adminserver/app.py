@@ -131,13 +131,22 @@ def get_oidc_config() -> str:
 
 @app.route("/app_update", methods=["POST"])
 def app_update() -> str:
+    providers = []
+    if (
+        request.form.get("oidc_client_id")
+        and request.form.get("oidc_display_name")
+        and request.form.get("oidc_issuer")
+    ):
+        providers = [
+            tankeradminsdk.AppOidcProvider(
+                client_id=request.form["oidc_client_id"],
+                display_name=request.form["oidc_display_name"],
+                issuer=request.form["oidc_issuer"],
+            )
+        ]
+
     return json.dumps(
-        admin.update_app(
-            tanker_holder.app["id"],
-            oidc_client_id=request.form["oidc_client_id"],
-            oidc_display_name=request.form["oidc_display_name"],
-            oidc_issuer=request.form["oidc_issuer"],
-        )
+        admin.update_app(tanker_holder.app["id"], oidc_providers=providers)
     )
 
 

@@ -77,15 +77,16 @@ export type OidcProviderResponse = {
   ignore_token_expiration: boolean;
 };
 
-export async function appUpdate(
-  oidcClientId: string,
-  oidcDisplayName: string,
-  oidcIssuer: string
+export async function setAppOidcConfig(
+  oidcConfig?: OidcConfig
 ): Promise<AppUpdateResponse> {
-  const form = new FormData();
-  form.append('oidc_client_id', oidcClientId);
-  form.append('oidc_display_name', oidcDisplayName);
-  form.append('oidc_issuer', oidcIssuer);
+  let form;
+  if (oidcConfig) {
+    form = new FormData();
+    form.append('oidc_client_id', oidcConfig.client_id);
+    form.append('oidc_display_name', oidcConfig.provider_name);
+    form.append('oidc_issuer', oidcConfig.issuer);
+  }
 
   return await (
     await fetch(`${SERVER_URL}/app_update`, {
