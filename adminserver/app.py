@@ -129,8 +129,8 @@ def get_oidc_config() -> str:
     )
 
 
-@app.route("/app_update", methods=["POST"])
-def app_update() -> str:
+@app.route("/set_app_oidc_config", methods=["POST"])
+def set_app_oidc_config() -> str:
     providers = []
     if (
         request.form.get("oidc_client_id")

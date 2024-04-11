@@ -89,7 +89,7 @@ export async function setAppOidcConfig(
   }
 
   return await (
-    await fetch(`${SERVER_URL}/app_update`, {
+    await fetch(`${SERVER_URL}/set_app_oidc_config`, {
       method: 'POST',
       body: form,
     })
