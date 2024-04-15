@@ -122,7 +122,7 @@ def build_and_run_detox(
 
         if rn_arch == ReactNativeArchitecture.NEW:
             # FIXME: set env var for new arch!
-            raise RuntimeError(f"New arch support on iOS not yet implemented!")
+            raise RuntimeError("New arch support on iOS not yet implemented!")
 
         detox_config = "ios.sim.release"
     else:
@@ -189,6 +189,10 @@ def prepare(
         dest_path = Path.cwd() / "artifacts"
         shutil.rmtree(dest_path, ignore_errors=True)
         shutil.copytree(sdk_path / "artifacts", dest_path)
+    elif sdk == "ios":
+        dest_path = Path.cwd() / "pod"
+        shutil.rmtree(dest_path, ignore_errors=True)
+        shutil.copytree(sdk_path / "pod", dest_path)
 
 
 def main() -> None:
@@ -225,7 +229,7 @@ def main() -> None:
     download_artifacts_parser.add_argument("--job-name", required=True)
 
     prepare_parser = subparsers.add_parser("prepare")
-    prepare_parser.add_argument("sdk", choices=["android"])
+    prepare_parser.add_argument("sdk", choices=["android", "ios"])
     prepare_parser.add_argument(
         "--isolate-conan-user-home",
         action="store_true",

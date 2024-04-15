@@ -142,6 +142,40 @@ detox/android/downstream:
     - .artifacts
   tags: !reference [.tags/macos/arm, tags]
 
+detox/ios/from-sources:
+  extends:
+    - .detox/ios
+    - .rules/mr/manual
+  script:
+    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --remote $CONAN_REMOTE --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
+    - poetry run python run-ci.py detox ios --os-version latest --react-native-arch $RN_ARCH
+  parallel:
+        matrix:
+          - RN_ARCH: ["old", "new"]
+
+detox/ios/all-from-sources:
+  extends:
+    - .detox/ios
+    - .rules/mr/manual
+  script:
+    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --remote $CONAN_REMOTE --use-tanker=same-as-branch
+    - poetry run python run-ci.py detox ios --os-version latest --react-native-arch $RN_ARCH
+  parallel:
+        matrix:
+          - RN_ARCH: ["old", "new"]
+
+detox/ios/deployed:
+  extends:
+    - .detox/ios
+  rules:
+    - !reference [.rules/web/auto, rules]
+    - !reference [.rules/mr/manual, rules]
+  script:
+    - poetry run python run-ci.py detox ios --os-version latest --react-native-arch $RN_ARCH
+  parallel:
+        matrix:
+          - RN_ARCH: ["old", "new"]
+
 detox/ios/downstream/arm:
   extends:
     - .detox/ios
