@@ -120,9 +120,13 @@ def build_and_run_detox(
         if os_version != "latest":
             raise RuntimeError(f"Unsupported iOS os version {os_version} for detox")
 
-        if rn_arch == ReactNativeArchitecture.NEW:
-            # FIXME: set env var for new arch!
-            raise RuntimeError("New arch support on iOS not yet implemented!")
+        new_arch_enabled = "1" if rn_arch == ReactNativeArchitecture.NEW else "0"
+        pod_install_env = {
+            **os.environ.copy(),
+            "RCT_NEW_ARCH_ENABLED": new_arch_enabled,
+        }
+        ios_app = Path.cwd() / "example" / "ios"
+        tankerci.run("pod", "install", env=pod_install_env, cwd=ios_app)
 
         detox_config = "ios.sim.release"
     else:
