@@ -68,9 +68,9 @@ PODS:
     - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
   - glog (0.3.5)
-  - hermes-engine (0.73.1):
-    - hermes-engine/Pre-built (= 0.73.1)
-  - hermes-engine/Pre-built (0.73.1)
+  - hermes-engine (0.73.4):
+    - hermes-engine/Pre-built (= 0.73.4)
+  - hermes-engine/Pre-built (0.73.4)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.1100)
   - RCT-Folly (2022.05.16.00):
@@ -1116,10 +1116,12 @@ PODS:
   - RNFS (2.20.0):
     - React-Core
   - SocketRocket (0.6.1)
+  - Tanker (0.1.0)
   - tanker-client-react-native (0.1.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
+    - Tanker
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -1215,6 +1217,7 @@ SPEC REPOS:
     - libevent
     - OpenSSL-Universal
     - SocketRocket
+    - Tanker
 
 EXTERNAL SOURCES:
   boost:
@@ -1322,7 +1325,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  boost: 69c3d61aee7f5f7facabe24312f0302003b5af29
+  boost: d3f49c53809116a5d38da093a8aa78bf551aed09
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   FBLazyVector: 84f6edbe225f38aebd9deaf1540a4160b1f087d7
@@ -1337,7 +1340,7 @@ SPEC CHECKSUMS:
   FlipperKit: 37525a5d056ef9b93d1578e04bc3ea1de940094f
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
-  hermes-engine: 34df9d5034e90bd9bf1505e1ca198760373935af
+  hermes-engine: b2669ce35fc4ac14f523b307aff8896799829fe2
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   RCT-Folly: 7169b2b1c44399c76a47b5deaaba715eeeb476c0
@@ -1384,7 +1387,8 @@ SPEC CHECKSUMS:
   ReactCommon: 840a955d37b7f3358554d819446bffcf624b2522
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  tanker-client-react-native: 5d65cb473638c25452f1c7b64cd8fe3364e2ff88
+  Tanker: f9b3d51e7a3197a6e8c63471cd3471f1c0012e54
+  tanker-client-react-native: fa6f65985527a75b283ffb188a6c7395081ff1db
   Yoga: 1b901a6d6eeba4e8a2e8f308f708691cdb5db312
 
 PODFILE CHECKSUM: 91c40dce5e80420cd94e9bffca8c33b26ea99043
