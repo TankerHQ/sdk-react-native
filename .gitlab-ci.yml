@@ -134,3 +134,28 @@ detox/android/downstream:
     - !reference [.detox/android, before_script]
   script:
     - poetry run python run-ci.py detox android
+
+.detox/ios:
+  stage: check
+  needs: []
+  extends:
+    - .artifacts
+  tags: !reference [.tags/macos/arm, tags]
+
+detox/ios/downstream/arm:
+  extends:
+    - .detox/ios
+    - .rules/check/downstream/ios/arm
+    - .before-script/download-artifacts
+  script:
+    - poetry run python run-ci.py detox ios
+  tags: !reference [.tags/macos/arm, tags]
+
+detox/ios/downstream/x86_64:
+  extends:
+    - .detox/ios
+    - .rules/check/downstream/ios/x86_64
+    - .before-script/download-artifacts
+  script:
+    - poetry run python run-ci.py detox ios
+  tags: !reference [.tags/macos/x86_64, tags]
