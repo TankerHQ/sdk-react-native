@@ -59,7 +59,8 @@ export const basicTests = () => {
 
     it('prehashPassword does something', async () => {
       const password = 'Amiral de bateau-lavoir';
-      const hash = prehashPassword(password);
+      const hash = await prehashPassword(password);
+      expect(typeof hash).eq('string');
       expect(hash).is.not.empty;
       expect(hash).not.eq(password);
     });
