@@ -54,6 +54,19 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getNativeVersion)
     return [TKRTanker nativeVersionString];
 }
 
+RCT_EXPORT_METHOD(prehashPassword:(nonnull NSString*)password resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @try
+        {
+            resolve([TKRTanker prehashPassword:password]);
+        } @catch (NSException * e)
+        {
+            reject(errorCodeToString(TKRErrorInvalidArgument), e.reason, nil);
+        }
+    });
+}
+
 RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(create, id, createWithOptions:(nonnull NSDictionary<NSString*, id>*)optionsDict version:(nonnull NSString*)version)
 {
     NSError* err;
