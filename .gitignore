@@ -83,3 +83,6 @@ __pycache__/
 # Local sdk-android aar
 /android/libs/
 
+# Local sdk-ios pod
+/pod/
+
