@@ -103,7 +103,7 @@ class ClientReactNativeModule internal constructor(reactContext: ReactApplicatio
         val url = jsOptions.getString("url")
         if (url != null) options.setUrl(url)
         val sdkType = jsOptions.getString("sdkType")
-        if (sdkType != null) options.sdkType = sdkType else options.sdkType = "client-react-native"
+        if (sdkType != null) options.sdkType = sdkType else options.sdkType = "client-react-native-android"
         options.sdkVersion = version
 
         return syncBridge { createTanker(options) }

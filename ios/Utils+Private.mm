@@ -27,6 +27,8 @@ TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id>* _Non
   }
   if (sdkType)
     opts.sdkType = sdkType;
+  else
+    opts.sdkType = @"client-react-native-ios";
   return opts;
 }
 
