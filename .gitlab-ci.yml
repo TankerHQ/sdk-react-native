@@ -61,6 +61,7 @@ default:
 ##########
 
 stages:
+  - lint
   - check
 
 ########
@@ -68,7 +69,7 @@ stages:
 ########
 
 lint:
-  stage: check
+  stage: lint
   rules:
     - !reference [.rules/mr/auto, rules]
     - !reference [.rules/web/auto, rules]
@@ -79,6 +80,7 @@ lint:
 
 .detox/android:
   stage: check
+  needs: []
   extends:
     - .artifacts
   before_script:
@@ -115,7 +117,7 @@ detox/android/deployed:
     - .detox/android
   rules:
     - !reference [.rules/web/auto, rules]
-    - !reference [.rules/mr/auto, rules]
+    - !reference [.rules/mr/manual, rules]
   script:
     - poetry run python run-ci.py detox android --os-version $OS_VERSION --react-native-arch $RN_ARCH
   parallel:

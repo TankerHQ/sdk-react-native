@@ -79,3 +79,7 @@ lib/
 
 # Python
 __pycache__/
+
+# Local sdk-android aar
+/android/libs/
+

@@ -18,7 +18,7 @@ flake8-docstrings = "1.7.0"
 Flask = "^2.1.2"
 isort = "5.10.1"
 mypy = "1.5"
-tankeradminsdk = { version = "^4.0.0", source = "gitlab" }
+tankeradminsdk = { version = "^5.0.0", source = "gitlab" }
 tankersdk-identity = "^3.3.1"
 
 [[tool.poetry.source]]

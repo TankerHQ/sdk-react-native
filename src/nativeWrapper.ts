@@ -9,7 +9,11 @@ import type {
   AttachResult,
   b64string,
 } from './types';
-import { assertVerification, assertVerificationOptions } from './verification';
+import {
+  assertVerification,
+  assertVerificationOptions,
+  OIDCAuthorizationCodeVerification,
+} from './verification';
 import type {
   Verification,
   VerificationOptions,
@@ -255,5 +259,17 @@ export class Tanker {
       )
     );
     return new EncryptionSession(instance);
+  }
+
+  async authenticateWithIDP(
+    providerID: string,
+    subjectCookie: string
+  ): Promise<OIDCAuthorizationCodeVerification> {
+    assertNotEmptyString(providerID, 'providerID');
+    assertNotEmptyString(subjectCookie, 'subjectCookie');
+
+    return bridgeAsyncExceptions(
+      Native.authenticateWithIDP(this.getInstance(), providerID, subjectCookie)
+    );
   }
 }

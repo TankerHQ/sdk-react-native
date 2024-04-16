@@ -1,3 +1,4 @@
+import json
 import os
 import random
 import signal
@@ -103,6 +104,50 @@ def get_verification_code() -> str:
         )
         return res
     abort(400)
+
+
+@app.route("/get_oidc_config")
+def get_oidc_config() -> str:
+    return json.dumps(
+        {
+            "client_id": assert_env("TANKER_OIDC_CLIENT_ID"),
+            "client_secret": assert_env("TANKER_OIDC_CLIENT_SECRET"),
+            "provider_name": assert_env("TANKER_OIDC_PROVIDER"),
+            "issuer": assert_env("TANKER_OIDC_ISSUER"),
+            "fake_oidc_issuer_url": f'{assert_env("TANKER_FAKE_OIDC_URL")}/issuer',
+            "users": {
+                "martine": {
+                    "email": assert_env("TANKER_OIDC_MARTINE_EMAIL"),
+                    "refresh_token": assert_env("TANKER_OIDC_MARTINE_REFRESH_TOKEN"),
+                },
+                "kevin": {
+                    "email": assert_env("TANKER_OIDC_KEVIN_EMAIL"),
+                    "refresh_token": assert_env("TANKER_OIDC_KEVIN_REFRESH_TOKEN"),
+                },
+            },
+        }
+    )
+
+
+@app.route("/set_app_oidc_config", methods=["POST"])
+def set_app_oidc_config() -> str:
+    providers = []
+    if (
+        request.form.get("oidc_client_id")
+        and request.form.get("oidc_display_name")
+        and request.form.get("oidc_issuer")
+    ):
+        providers = [
+            tankeradminsdk.AppOidcProvider(
+                client_id=request.form["oidc_client_id"],
+                display_name=request.form["oidc_display_name"],
+                issuer=request.form["oidc_issuer"],
+            )
+        ]
+
+    return json.dumps(
+        admin.update_app(tanker_holder.app["id"], oidc_providers=providers)
+    )
 
 
 if __name__ == "__main__":

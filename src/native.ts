@@ -9,6 +9,7 @@ import type {
 } from './types';
 import type { Result } from './errors';
 import type {
+  OIDCAuthorizationCodeVerification,
   Verification,
   VerificationMethod,
   VerificationOptions,
@@ -18,8 +19,8 @@ import type { SharingOptions } from './sharingOptions';
 
 export const VERSION = '0.1.0';
 
-// FIXME: Can we reuse the spec interface instead of having two copies..?
-
+// This interface definition is used only on the JS side,
+// it is not automatically checked against the Android/iOS side
 type ClientReactNativeType = {
   create(options: TankerOptions, version: String): Result<NativeTanker>;
   prehashPassword(password: string): Promise<string>;
@@ -102,6 +103,11 @@ type ClientReactNativeType = {
     instance: NativeEncryptionSession,
     clearData: b64string
   ): Promise<b64string>;
+  authenticateWithIDP(
+    instance: NativeTanker,
+    providerID: string,
+    subjectCookie: string
+  ): Promise<OIDCAuthorizationCodeVerification>;
 };
 
 // @ts-expect-error

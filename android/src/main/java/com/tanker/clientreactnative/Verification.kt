@@ -17,6 +17,13 @@ fun Verification(json: ReadableMap): Verification {
     json.getString("verificationKey")?.let {
         return VerificationKeyVerification(it)
     }
+    json.getString("oidcAuthorizationCode")?.let { oidcAuthorizationCode ->
+        return OIDCAuthorizationCodeVerification(
+            json.getString("oidcProviderId")!!,
+            oidcAuthorizationCode,
+            json.getString("oidcState")!!
+        )
+    }
     json.getString("oidcIdToken")?.let {
         return OIDCIDTokenVerification(it)
     }
@@ -53,21 +60,30 @@ fun VerificationMethod.toWritableMap(): WritableMap {
             json.putString("type", "email")
             json.putString("email", this.email)
         }
+
         is VerificationKeyVerificationMethod -> json.putString("type", "verificationKey")
         is PassphraseVerificationMethod -> json.putString("type", "passphrase")
-        is OIDCIDTokenVerificationMethod -> json.putString("type", "oidcIdToken")
+        is OIDCIDTokenVerificationMethod -> {
+            json.putString("type", "oidcIdToken")
+            json.putString("providerId", this.providerId)
+            json.putString("providerDisplayName", this.providerDisplayName)
+        }
+
         is PhoneNumberVerificationMethod -> {
             json.putString("type", "phoneNumber")
             json.putString("phoneNumber", this.phoneNumber)
         }
+
         is PreverifiedEmailVerificationMethod -> {
             json.putString("type", "preverifiedEmail")
             json.putString("preverifiedEmail", this.preverifiedEmail)
         }
+
         is PreverifiedPhoneNumberVerificationMethod -> {
             json.putString("type", "preverifiedPhoneNumber")
             json.putString("preverifiedPhoneNumber", this.preverifiedPhoneNumber)
         }
+
         is E2ePassphraseVerificationMethod -> json.putString("type", "e2ePassphrase")
     }
     return json

@@ -4,6 +4,7 @@ import { basicTests } from './test_basic';
 import { tankerTests } from './test_tanker';
 import { encryptionTests } from './test_encryption';
 import { encryptionSessionTests } from './test_encryption_session';
+import { verifyTests } from './test_verify';
 import RNFS from 'react-native-fs';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -15,6 +16,7 @@ let pathsToClear: Array<string> = [];
 export const generateTests = () => {
   basicTests();
   tankerTests();
+  verifyTests();
   encryptionTests();
   encryptionSessionTests();
 };
