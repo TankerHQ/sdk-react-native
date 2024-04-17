@@ -56,8 +56,37 @@ def lint() -> None:
     tankerci.run("yarn", "run", "lint")
 
 
-def run_detox(os_name: str, os_version: str, rn_arch: ReactNativeArchitecture) -> None:
+def run_detox_test(detox_config: str):
+    example = Path.cwd() / "example"
+    with tankerci.run_in_background(
+        "yarn",
+        "start",
+        cwd=example,
+        wait_for_process=5,
+        # yarn start forks things, we need to killpg
+        killpg=True,
+    ), tankerci.run_in_background(
+        "yarn",
+        "adminserver",
+        cwd=Path.cwd(),
+        wait_for_process=5,
+        killpg=True,
+    ):
+        tankerci.run(
+            "yarn",
+            "detox",
+            "test",
+            "--configuration",
+            detox_config,
+            cwd=example,
+        )
+
+
+def build_and_run_detox(
+    os_name: str, os_version: str, rn_arch: ReactNativeArchitecture
+) -> None:
     tankerci.run("yarn")
+
     if os_name == "android":
         android_api_level = (
             tankerci.android.ApiLevel.OLDEST
@@ -87,43 +116,37 @@ def run_detox(os_name: str, os_version: str, rn_arch: ReactNativeArchitecture) -
         local_aar_path = Path.cwd() / "artifacts/tanker-bindings.aar"
         if local_aar_path.exists():
             copy_local_aar(local_aar_path)
+    elif os_name == "ios":
+        if os_version != "latest":
+            raise RuntimeError(f"Unsupported iOS os version {os_version} for detox")
+
+        new_arch_enabled = "1" if rn_arch == ReactNativeArchitecture.NEW else "0"
+        pod_install_env = {
+            **os.environ.copy(),
+            "RCT_NEW_ARCH_ENABLED": new_arch_enabled,
+        }
+        ios_app = Path.cwd() / "example" / "ios"
+        tankerci.run("pod", "install", env=pod_install_env, cwd=ios_app)
+
+        detox_config = "ios.sim.release"
     else:
         raise RuntimeError(f"Unsupported os {os_name} for detox")
 
     example = Path.cwd() / "example"
     tankerci.run("yarn", "detox", "build", "--configuration", detox_config, cwd=example)
 
-    with tankerci.run_in_background(
-        "yarn",
-        "start",
-        cwd=example,
-        wait_for_process=5,
-        # yarn start forks things, we need to killpg
-        killpg=True,
-    ), tankerci.run_in_background(
-        "yarn",
-        "adminserver",
-        cwd=Path.cwd(),
-        wait_for_process=5,
-        killpg=True,
-    ), tankerci.android.emulator(
-        api_level=android_api_level, small_size=False
-    ):
-        try:
-            tankerci.run(
-                "yarn",
-                "detox",
-                "test",
-                "--configuration",
-                detox_config,
-                cwd=example,
-            )
-        except:  # noqa
-            dump_path = str(Path.cwd() / "logcat.txt")
-            tankerci.android.dump_logcat(dump_path)
-            tankerci.android.take_screenshot(Path.cwd() / "screenshot.png")
-            ui.info("Tests have failed, logcat dumped to", dump_path)
-            raise
+    if os_name == "android":
+        with tankerci.android.emulator(api_level=android_api_level, small_size=False):
+            try:
+                run_detox_test(detox_config)
+            except:  # noqa
+                dump_path = str(Path.cwd() / "logcat.txt")
+                tankerci.android.dump_logcat(dump_path)
+                tankerci.android.take_screenshot(Path.cwd() / "screenshot.png")
+                ui.info("Tests have failed, logcat dumped to", dump_path)
+                raise
+    else:
+        run_detox_test(detox_config)
 
 
 def prepare(
@@ -170,6 +193,10 @@ def prepare(
         dest_path = Path.cwd() / "artifacts"
         shutil.rmtree(dest_path, ignore_errors=True)
         shutil.copytree(sdk_path / "artifacts", dest_path)
+    elif sdk == "ios":
+        dest_path = Path.cwd() / "pod"
+        shutil.rmtree(dest_path, ignore_errors=True)
+        shutil.copytree(sdk_path / "pod", dest_path)
 
 
 def main() -> None:
@@ -179,7 +206,7 @@ def main() -> None:
     subparsers.add_parser("lint")
 
     detox_parser = subparsers.add_parser("detox")
-    detox_parser.add_argument("os", choices=["android"])
+    detox_parser.add_argument("os", choices=["android", "ios"])
     detox_parser.add_argument(
         "--os-version",
         choices=["oldest", "latest"],
@@ -206,7 +233,7 @@ def main() -> None:
     download_artifacts_parser.add_argument("--job-name", required=True)
 
     prepare_parser = subparsers.add_parser("prepare")
-    prepare_parser.add_argument("sdk", choices=["android"])
+    prepare_parser.add_argument("sdk", choices=["android", "ios"])
     prepare_parser.add_argument(
         "--isolate-conan-user-home",
         action="store_true",
@@ -235,7 +262,7 @@ def main() -> None:
     if command == "lint":
         lint()
     elif command == "detox":
-        run_detox(args.os, args.os_version, args.react_native_arch)
+        build_and_run_detox(args.os, args.os_version, args.react_native_arch)
     elif command == "reset-branch":
         fallback = os.environ["CI_COMMIT_REF_NAME"]
         ref = tankerci.git.find_ref(

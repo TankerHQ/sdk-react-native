@@ -134,3 +134,79 @@ detox/android/downstream:
     - !reference [.detox/android, before_script]
   script:
     - poetry run python run-ci.py detox android
+
+.detox/ios:
+  stage: check
+  needs: []
+  extends:
+    - .artifacts
+
+detox/ios/from-sources:
+  extends:
+    - .detox/ios
+    - .rules/mr/manual
+  script:
+    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --remote $CONAN_REMOTE --use-tanker=deployed --tanker-ref=$SDK_NATIVE_LATEST_CONAN_REFERENCE
+    - poetry run python run-ci.py detox ios --react-native-arch $RN_ARCH
+  parallel:
+    matrix:
+      - RN_ARCH: ["old", "new"]
+        CPU_ARCH: ["arm", "x86_64"]
+  tags:
+    - macos
+    - $CPU_ARCH
+
+detox/ios/all-from-sources:
+  extends:
+    - .detox/ios
+    - .rules/mr/manual
+  script:
+    - poetry run python run-ci.py prepare ios --isolate-conan-user-home --remote $CONAN_REMOTE --use-tanker=same-as-branch
+    - poetry run python run-ci.py detox ios --react-native-arch $RN_ARCH
+  parallel:
+    matrix:
+      - RN_ARCH: ["old", "new"]
+        CPU_ARCH: ["arm", "x86_64"]
+  tags:
+    - macos
+    - $CPU_ARCH
+
+detox/ios/deployed:
+  extends:
+    - .detox/ios
+  rules:
+    - !reference [.rules/web/auto, rules]
+    - !reference [.rules/mr/manual, rules]
+  script:
+    - poetry run python run-ci.py detox ios --react-native-arch $RN_ARCH
+  parallel:
+    matrix:
+      - RN_ARCH: ["old", "new"]
+        CPU_ARCH: ["arm", "x86_64"]
+  tags:
+    - macos
+    - $CPU_ARCH
+
+detox/ios/downstream/arm:
+  extends:
+    - .detox/ios
+    - .rules/check/downstream/ios/arm
+    - .before-script/download-artifacts
+  script:
+    - poetry run python run-ci.py detox ios --react-native-arch $RN_ARCH
+  parallel:
+    matrix:
+      - RN_ARCH: ["old", "new"]
+  tags: !reference [.tags/macos/arm, tags]
+
+detox/ios/downstream/x86_64:
+  extends:
+    - .detox/ios
+    - .rules/check/downstream/ios/x86_64
+    - .before-script/download-artifacts
+  script:
+    - poetry run python run-ci.py detox ios --react-native-arch $RN_ARCH
+  parallel:
+    matrix:
+      - RN_ARCH: ["old", "new"]
+  tags: !reference [.tags/macos/x86_64, tags]

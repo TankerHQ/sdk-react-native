@@ -39,6 +39,11 @@ target 'ClientReactNativeExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  # Use local build of sdk-ios?
+  if File.exist?("../../pod/Tanker.podspec")
+    pod 'Tanker', :path => "../../pod"
+  end
+
   target 'ClientReactNativeExampleTests' do
     inherit! :complete
     # Pods for testing
