@@ -57,13 +57,11 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getNativeVersion)
 RCT_EXPORT_METHOD(prehashPassword:(nonnull NSString*)password resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        @try
-        {
-            resolve([TKRTanker prehashPassword:password]);
-        } @catch (NSException * e)
-        {
-            reject(errorCodeToString(TKRErrorInvalidArgument), e.reason, nil);
-        }
+        NSError* err;
+        NSString* hashed = [TKRTanker prehashPassword:password error:&err];
+        if (err)
+            return rejectWithError(reject, err);
+        resolve(hashed);
     });
 }
 
