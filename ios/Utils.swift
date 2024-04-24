@@ -38,11 +38,11 @@ public class Utils: NSObject {
 
   @objc
   public static func dictToTankerVerificationOptions(dict: Dictionary<String, Any>?) -> VerificationOptions {
-    var options = VerificationOptions();
+    let options = VerificationOptions();
     guard let dict = dict else {
       return options
     }
-    
+
     if let withSessionToken = dict["withSessionToken"] as? NSNumber {
       options.withSessionToken = withSessionToken != 0;
     }
@@ -50,5 +50,50 @@ public class Utils: NSObject {
       options.allowE2eMethodSwitch = allowE2eMethodSwitch != 0;
     }
     return options;
+  }
+
+  @objc
+  public static func verificationMethodsToJson(methods: Array<VerificationMethod>) throws -> Array<Dictionary<String, Any>> {
+    try methods.map({method in try Self.verificationMethodToJson(method: method)})
+  }
+
+  @objc
+  public static func verificationMethodToJson(method: VerificationMethod) throws -> Dictionary<String, Any> {
+    var dict = Dictionary<String, Any>()
+    switch method.type {
+    case .passphrase:
+      dict["type"] = "passphrase"
+    case .email:
+      dict["type"] = "email"
+      dict["email"] = method.email
+    case .verificationKey:
+      dict["type"] = "verificationKey"
+    case .oidcidToken:
+      dict["type"] = "oidcIdToken"
+      dict["providerId"] = method.oidcProviderID
+      dict["providerDisplayName"] = method.oidcProviderDisplayName
+    case .phoneNumber:
+      dict["type"] = "phoneNumber"
+      dict["phoneNumber"] = method.phoneNumber
+    case .preverifiedEmail:
+      dict["type"] = "preverifiedEmail"
+      dict["preverifiedEmail"] = method.preverifiedEmail
+    case .preverifiedPhoneNumber:
+      dict["type"] = "preverifiedPhoneNumber"
+      dict["preverifiedPhoneNumber"] = method.preverifiedPhoneNumber
+    case .e2ePassphrase:
+      dict["type"] = "e2ePassphrase"
+    case .preverifiedOIDC:
+      // Can never happen (not returned by server)
+      fallthrough
+    case .oidcAuthorizationCode:
+      // Can never happen (not returned by server)
+      fallthrough
+    @unknown default:
+      throw NSError(domain: TKRErrorDomain, code: TKRError.internalError.rawValue, userInfo: [
+        NSLocalizedDescriptionKey: "Unknown verification method type: \(method.type.rawValue)"
+      ])
+    }
+    return dict
   }
 }
