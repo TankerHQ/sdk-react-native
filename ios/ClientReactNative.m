@@ -4,21 +4,14 @@
 #import "Tanker/TKRTanker.h"
 #import "Tanker/TKRLogEntry.h"
 
+#import "tanker_client_react_native-Swift.h"
+
 @implementation ClientReactNative
 {
     bool hasListeners;
 }
 
 RCT_EXPORT_MODULE()
-
-// Don't compile this code when we build for the old architecture.
-#ifdef RCT_NEW_ARCH_ENABLED
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
-    (const facebook::react::ObjCTurboModule::InitParams &)params
-{
-    return std::make_shared<facebook::react::NativeClientReactNativeSpecJSI>(params);
-}
-#endif
 
 - (instancetype) init
 {
@@ -107,6 +100,69 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(getStatus, id, getStatusWithTankerHandle:(
     if (!tanker)
         return invalidHandleError(handle);
     return @{@"ok": [NSNumber numberWithInt:(int)tanker.status]};
+}
+
+RCT_REMAP_METHOD(registerIdentity,
+        registerIdentityWithTankerHandle:(nonnull NSNumber*)handle
+        verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
+        options:(nullable NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    TKRVerificationOptions* tankerOptions = [Utils dictToTankerVerificationOptionsWithDict:optionsDict];
+    TKRVerification* tankerVerification = [Utils dictToTankerVerificationWithDict:verificationDict];
+    if (!tankerVerification)
+      return rejectInvalidVerificationDict(reject);
+    [tanker registerIdentityWithVerification:tankerVerification options:tankerOptions completionHandler:^(NSString * _Nullable sessionToken, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(sessionToken);
+    }];
+}
+
+RCT_REMAP_METHOD(verifyIdentity,
+        verifyIdentityWithTankerHandle:(nonnull NSNumber*)handle
+        verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
+        options:(nullable NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    TKRVerificationOptions* tankerOptions = [Utils dictToTankerVerificationOptionsWithDict:optionsDict];
+    TKRVerification* tankerVerification = [Utils dictToTankerVerificationWithDict:verificationDict];
+    if (!tankerVerification)
+      return rejectInvalidVerificationDict(reject);
+    [tanker verifyIdentityWithVerification:tankerVerification options:tankerOptions completionHandler:^(NSString * _Nullable sessionToken, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(sessionToken);
+    }];
+}
+
+RCT_REMAP_METHOD(setVerificationMethod,
+        setVerificationMethodWithTankerHandle:(nonnull NSNumber*)handle
+        verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
+        options:(nullable NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    TKRVerificationOptions* tankerOptions = [Utils dictToTankerVerificationOptionsWithDict:optionsDict];
+    TKRVerification* tankerVerification = [Utils dictToTankerVerificationWithDict:verificationDict];
+    if (!tankerVerification)
+        return rejectInvalidVerificationDict(reject);
+      [tanker setVerificationMethodWithVerification:tankerVerification options:tankerOptions completionHandler:^(NSString* _Nullable sessionToken, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(sessionToken);
+    }];
 }
 
 @end
