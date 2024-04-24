@@ -180,4 +180,22 @@ RCT_REMAP_METHOD(generateVerificationKey,
     }];
 }
 
+RCT_REMAP_METHOD(getVerificationMethods,
+        getVerificationMethodsWithTankerHandle:(nonnull NSNumber*)handle
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    [tanker verificationMethodsWithCompletionHandler:^(NSArray<TKRVerificationMethod *> * _Nullable methods, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        NSArray<NSDictionary<NSString*, id>*>* jsonMethods = [Utils verificationMethodsToJsonWithMethods:methods error:&err];
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(jsonMethods);
+    }];
+}
+
 @end
