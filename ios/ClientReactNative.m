@@ -374,6 +374,24 @@ RCT_REMAP_METHOD(decryptData,
     }];
 }
 
+RCT_REMAP_METHOD(share,
+        shareWithTankerHandle:(nonnull NSNumber*)handle
+        resourceIds:(nonnull NSArray<NSString*>*)resourceIds
+        options:(nonnull NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    TKRSharingOptions* options = [Utils dictToTankerSharingOptionsWithDict:optionsDict];
+    [tanker shareResourceIDs:resourceIds options:options completionHandler:^(NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(nil);
+    }];
+}
+
 RCT_REMAP_METHOD(getResourceId,
         getResourceIdWithTankerHandle:(nonnull NSNumber*)handle
         b64EncryptedData:(nonnull NSString*)b64EncryptedData

@@ -135,4 +135,20 @@ public class Utils: NSObject {
     }
     return options;
   }
+
+  @objc
+  public static func dictToTankerSharingOptions(dict: Dictionary<String, Any>?) -> SharingOptions {
+    let options = SharingOptions();
+    guard let dict = dict else {
+      return options
+    }
+
+    if let shareWithUsers = dict["shareWithUsers"] as? Array<String> {
+      options.shareWithUsers = shareWithUsers;
+    }
+    if let shareWithGroups = dict["shareWithGroups"] as? Array<String> {
+      options.shareWithGroups = shareWithGroups;
+    }
+    return options;
+  }
 }
