@@ -198,4 +198,30 @@ RCT_REMAP_METHOD(getVerificationMethods,
     }];
 }
 
+RCT_REMAP_METHOD(createOidcNonce, createOidcNonceWithTankerHandle:(nonnull NSNumber*)handle resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+
+    [tanker createOidcNonceWithCompletionHandler:^(NSString *nonce, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(nonce);
+    }];
+}
+
+RCT_REMAP_METHOD(setOidcTestNonce, setOidcTestNonceWithTankerHandle:(nonnull NSNumber*)handle nonce:(nonnull NSString*)nonce resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+
+    [tanker setOidcTestNonce:nonce completionHandler:^(NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(nil);
+    }];
+}
+
 @end
