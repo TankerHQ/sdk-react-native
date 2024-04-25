@@ -3,6 +3,7 @@
 
 #import "Tanker/TKRTanker.h"
 #import "Tanker/TKRLogEntry.h"
+#import "Tanker/TKRAttachResult.h"
 
 #import "tanker_client_react_native-Swift.h"
 
@@ -242,6 +243,57 @@ RCT_REMAP_METHOD(authenticateWithIDP, authenticateWithIDPWithTankerHandle:(nonnu
             return rejectWithInternalError(reject, @"authenticateWithIDP received invalid verification result, this should never happen");
         resolve(verifDict);
     }];
+}
+
+RCT_REMAP_METHOD(attachProvisionalIdentity,
+        attachProvisionalIdentityWithTankerHandle:(nonnull NSNumber*)handle
+        identity:(nonnull NSString*)identity
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    [tanker attachProvisionalIdentity:identity completionHandler:^(TKRAttachResult * _Nullable result, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        NSMutableDictionary<NSString*, id>* ret = [NSMutableDictionary dictionary];
+        ret[@"status"] = [NSNumber numberWithInt:(int)result.status];
+        if (result.method)
+        {
+            NSDictionary<NSString*, id>* jsonMethod = [Utils verificationMethodToJsonWithMethod:result.method error:&err];
+            if (err != nil)
+                return rejectWithError(reject, err);
+            ret[@"verificationMethod"] = jsonMethod;
+        }
+        resolve(ret);
+    }];
+}
+
+RCT_REMAP_METHOD(verifyProvisionalIdentity,
+        verifyProvisionalIdentityWithTankerHandle:(nonnull NSNumber*)handle
+        verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    @try
+    {
+        TKRVerification* verification = [Utils dictToTankerVerificationWithDict:verificationDict];
+        if (!verificationDict)
+            return rejectInvalidVerificationDict(reject);
+        [tanker verifyProvisionalIdentityWithVerification:verification completionHandler:^(NSError * _Nullable err) {
+            if (err != nil)
+                return rejectWithError(reject, err);
+            resolve(nil);
+        }];
+    }
+    @catch (NSException* e)
+    {
+        reject(errorCodeToString(TKRErrorInvalidArgument), e.reason, nil);
+    }
 }
 
 @end
