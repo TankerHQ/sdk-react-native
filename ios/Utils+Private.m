@@ -52,9 +52,13 @@ void rejectInvalidHandle(RCTPromiseRejectBlock _Nonnull reject,
 }
 
 void rejectInvalidVerificationDict(RCTPromiseRejectBlock _Nonnull reject) {
-  reject(errorCodeToString(TKRErrorInternalError),
-         @"invalid verification JS object, check Typescript definitions match",
-         nil);
+    rejectWithInternalError(reject, @"invalid verification JS object, check Typescript definitions match");
+}
+
+void rejectWithInternalError(RCTPromiseRejectBlock _Nonnull reject, NSString *_Nonnull msg) {
+    reject(errorCodeToString(TKRErrorInternalError),
+           msg,
+           nil);
 }
 
 void rejectWithError(RCTPromiseRejectBlock _Nonnull reject,

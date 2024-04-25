@@ -96,4 +96,17 @@ public class Utils: NSObject {
     }
     return dict
   }
+
+  @objc(oidcAuthCodeDictFromVerif:)
+  public static func oidcAuthCodeDictFromVerif(verif: Verification) -> Dictionary<String, Any>? {
+    guard case .oidcAuthorizationCode(let verif) = verif.data else {
+      // Should never happen
+      return nil
+    }
+    return [
+      "oidcAuthorizationCode": verif.authorizationCode,
+      "oidcProviderId": verif.providerID,
+      "oidcState": verif.state,
+    ]
+  }
 }
