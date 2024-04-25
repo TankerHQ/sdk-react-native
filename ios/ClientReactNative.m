@@ -198,4 +198,50 @@ RCT_REMAP_METHOD(getVerificationMethods,
     }];
 }
 
+RCT_REMAP_METHOD(createOidcNonce, createOidcNonceWithTankerHandle:(nonnull NSNumber*)handle resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+
+    [tanker createOidcNonceWithCompletionHandler:^(NSString *nonce, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(nonce);
+    }];
+}
+
+RCT_REMAP_METHOD(setOidcTestNonce, setOidcTestNonceWithTankerHandle:(nonnull NSNumber*)handle nonce:(nonnull NSString*)nonce resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+
+    [tanker setOidcTestNonce:nonce completionHandler:^(NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(nil);
+    }];
+}
+
+RCT_REMAP_METHOD(authenticateWithIDP, authenticateWithIDPWithTankerHandle:(nonnull NSNumber*)handle
+        providerID:(nonnull NSString*)providerID
+        subjectCookie:(nonnull NSString*)subjectCookie
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+
+    [tanker authenticateWithIDP:providerID cookie:subjectCookie completionHandler:^(TKRVerification* _Nullable verif, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        NSDictionary<NSString*, id>* verifDict = [Utils oidcAuthCodeDictFromVerif:verif];
+        if (verifDict == nil)
+            return rejectWithInternalError(reject, @"authenticateWithIDP received invalid verification result, this should never happen");
+        resolve(verifDict);
+    }];
+}
+
 @end

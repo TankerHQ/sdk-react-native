@@ -10,4 +10,5 @@ NSDictionary* _Nonnull invalidHandleError(NSNumber* _Nonnull handle);
 NSString* _Nonnull errorCodeToString(TKRError err);
 void rejectInvalidHandle(RCTPromiseRejectBlock _Nonnull reject, NSNumber* _Nonnull handle);
 void rejectInvalidVerificationDict(RCTPromiseRejectBlock _Nonnull reject);
+void rejectWithInternalError(RCTPromiseRejectBlock _Nonnull reject, NSString *_Nonnull msg);
 void rejectWithError(RCTPromiseRejectBlock _Nonnull reject, NSError* _Nonnull err);
