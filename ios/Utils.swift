@@ -109,4 +109,30 @@ public class Utils: NSObject {
       "oidcState": verif.state,
     ]
   }
+
+  @objc
+  public static func dictToTankerEncryptionOptions(dict: Dictionary<String, Any>?) -> EncryptionOptions {
+    let options = EncryptionOptions();
+    guard let dict = dict else {
+      return options
+    }
+
+    if let shareWithUsers = dict["shareWithUsers"] as? Array<String> {
+      options.shareWithUsers = shareWithUsers;
+    }
+    if let shareWithGroups = dict["shareWithGroups"] as? Array<String> {
+      options.shareWithGroups = shareWithGroups;
+    }
+    if let shareWithSelf = dict["shareWithSelf"] as? NSNumber {
+      options.shareWithSelf = shareWithSelf.boolValue;
+    }
+    if let paddingStep = dict["paddingStep"] as? NSNumber {
+      switch paddingStep.uintValue {
+      case 0: options.paddingStep = Padding.automatic()!
+      case 1: options.paddingStep = Padding.off()!
+      default: options.paddingStep = Padding.step(paddingStep.uintValue)!
+      }
+    }
+    return options;
+  }
 }

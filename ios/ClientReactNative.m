@@ -296,4 +296,82 @@ RCT_REMAP_METHOD(verifyProvisionalIdentity,
     }
 }
 
+RCT_REMAP_METHOD(encryptString,
+        encryptStringWithTankerHandle:(nonnull NSNumber*)handle
+        clearText:(nonnull NSString*)clearText
+        options:(nullable NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+
+    TKREncryptionOptions* options = [Utils dictToTankerEncryptionOptionsWithDict:optionsDict];
+    [tanker encryptString:clearText options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve([encryptedData base64EncodedStringWithOptions:0]);
+    }];
+}
+
+RCT_REMAP_METHOD(decryptString,
+        decryptStringWithTankerHandle:(nonnull NSNumber*)handle
+        b64EncryptedText:(nonnull NSString*)b64EncryptedText
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedText options:0];
+    if (!encryptedData)
+        return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 encrypted data", nil);
+    [tanker decryptStringFromData:encryptedData completionHandler:^(NSString * _Nullable decryptedString, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(decryptedString);
+    }];
+}
+
+RCT_REMAP_METHOD(encryptData,
+        encryptDataWithTankerHandle:(nonnull NSNumber*)handle
+        b64ClearData:(nonnull NSString*)b64ClearData
+        options:(nullable NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
+    if (!clearData)
+        return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 clear data", nil);
+    TKREncryptionOptions* options = [Utils dictToTankerEncryptionOptionsWithDict:optionsDict];
+    [tanker encryptData:clearData options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve([encryptedData base64EncodedStringWithOptions:0]);
+    }];
+}
+
+RCT_REMAP_METHOD(decryptData,
+        decryptDataWithTankerHandle:(nonnull NSNumber*)handle
+        b64EncryptedData:(nonnull NSString*)b64EncryptedData
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedData options:0];
+    if (!encryptedData)
+        return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 encrypted data", nil);
+    [tanker decryptData:encryptedData completionHandler:^(NSData * _Nullable decryptedData, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve([decryptedData base64EncodedStringWithOptions:0]);
+    }];
+}
+
 @end
