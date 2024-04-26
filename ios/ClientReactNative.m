@@ -3,6 +3,7 @@
 
 #import "Tanker/TKRTanker.h"
 #import "Tanker/TKRLogEntry.h"
+#import "Tanker/TKRAttachResult.h"
 
 #import "tanker_client_react_native-Swift.h"
 
@@ -242,6 +243,172 @@ RCT_REMAP_METHOD(authenticateWithIDP, authenticateWithIDPWithTankerHandle:(nonnu
             return rejectWithInternalError(reject, @"authenticateWithIDP received invalid verification result, this should never happen");
         resolve(verifDict);
     }];
+}
+
+RCT_REMAP_METHOD(attachProvisionalIdentity,
+        attachProvisionalIdentityWithTankerHandle:(nonnull NSNumber*)handle
+        identity:(nonnull NSString*)identity
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    [tanker attachProvisionalIdentity:identity completionHandler:^(TKRAttachResult * _Nullable result, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        NSMutableDictionary<NSString*, id>* ret = [NSMutableDictionary dictionary];
+        ret[@"status"] = [NSNumber numberWithInt:(int)result.status];
+        if (result.method)
+        {
+            NSDictionary<NSString*, id>* jsonMethod = [Utils verificationMethodToJsonWithMethod:result.method error:&err];
+            if (err != nil)
+                return rejectWithError(reject, err);
+            ret[@"verificationMethod"] = jsonMethod;
+        }
+        resolve(ret);
+    }];
+}
+
+RCT_REMAP_METHOD(verifyProvisionalIdentity,
+        verifyProvisionalIdentityWithTankerHandle:(nonnull NSNumber*)handle
+        verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    @try
+    {
+        TKRVerification* verification = [Utils dictToTankerVerificationWithDict:verificationDict];
+        if (!verificationDict)
+            return rejectInvalidVerificationDict(reject);
+        [tanker verifyProvisionalIdentityWithVerification:verification completionHandler:^(NSError * _Nullable err) {
+            if (err != nil)
+                return rejectWithError(reject, err);
+            resolve(nil);
+        }];
+    }
+    @catch (NSException* e)
+    {
+        reject(errorCodeToString(TKRErrorInvalidArgument), e.reason, nil);
+    }
+}
+
+RCT_REMAP_METHOD(encryptString,
+        encryptStringWithTankerHandle:(nonnull NSNumber*)handle
+        clearText:(nonnull NSString*)clearText
+        options:(nullable NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+
+    TKREncryptionOptions* options = [Utils dictToTankerEncryptionOptionsWithDict:optionsDict];
+    [tanker encryptString:clearText options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve([encryptedData base64EncodedStringWithOptions:0]);
+    }];
+}
+
+RCT_REMAP_METHOD(decryptString,
+        decryptStringWithTankerHandle:(nonnull NSNumber*)handle
+        b64EncryptedText:(nonnull NSString*)b64EncryptedText
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedText options:0];
+    if (!encryptedData)
+        return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 encrypted data", nil);
+    [tanker decryptStringFromData:encryptedData completionHandler:^(NSString * _Nullable decryptedString, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(decryptedString);
+    }];
+}
+
+RCT_REMAP_METHOD(encryptData,
+        encryptDataWithTankerHandle:(nonnull NSNumber*)handle
+        b64ClearData:(nonnull NSString*)b64ClearData
+        options:(nullable NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
+    if (!clearData)
+        return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 clear data", nil);
+    TKREncryptionOptions* options = [Utils dictToTankerEncryptionOptionsWithDict:optionsDict];
+    [tanker encryptData:clearData options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve([encryptedData base64EncodedStringWithOptions:0]);
+    }];
+}
+
+RCT_REMAP_METHOD(decryptData,
+        decryptDataWithTankerHandle:(nonnull NSNumber*)handle
+        b64EncryptedData:(nonnull NSString*)b64EncryptedData
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedData options:0];
+    if (!encryptedData)
+        return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 encrypted data", nil);
+    [tanker decryptData:encryptedData completionHandler:^(NSData * _Nullable decryptedData, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve([decryptedData base64EncodedStringWithOptions:0]);
+    }];
+}
+
+RCT_REMAP_METHOD(share,
+        shareWithTankerHandle:(nonnull NSNumber*)handle
+        resourceIds:(nonnull NSArray<NSString*>*)resourceIds
+        options:(nonnull NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    TKRSharingOptions* options = [Utils dictToTankerSharingOptionsWithDict:optionsDict];
+    [tanker shareResourceIDs:resourceIds options:options completionHandler:^(NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(nil);
+    }];
+}
+
+RCT_REMAP_METHOD(getResourceId,
+        getResourceIdWithTankerHandle:(nonnull NSNumber*)handle
+        b64EncryptedData:(nonnull NSString*)b64EncryptedData
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedData options:0];
+    if (!encryptedData)
+        return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 encrypted data", nil);
+    NSError* err;
+    NSString* resourceId = [tanker resourceIDOfEncryptedData:encryptedData error:&err];
+    if (err != nil)
+        return rejectWithError(reject, err);
+    resolve(resourceId);
 }
 
 @end

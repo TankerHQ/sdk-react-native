@@ -1,6 +1,5 @@
 #import "Tanker/TKRTanker.h"
 #import "Tanker/TKRTankerOptions.h"
-#import "Tanker/TKRVerificationOptions.h"
 #import "Tanker/TKRError.h"
 
 #import <React/RCTBridgeModule.h>
