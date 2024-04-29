@@ -411,4 +411,42 @@ RCT_REMAP_METHOD(getResourceId,
     resolve(resourceId);
 }
 
+RCT_REMAP_METHOD(createGroup,
+        createGroupWithTankerHandle:(nonnull NSNumber*)handle publicIdentities:(nonnull NSArray<NSString*>*)identities
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    [tanker createGroupWithIdentities:identities completionHandler:^(NSString * _Nullable groupID, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(groupID);
+    }];
+}
+
+RCT_REMAP_METHOD(updateGroupMembers,
+        updateGroupMembersWithTankerHandle:(nonnull NSNumber*)handle
+        groupId:(nonnull NSString*)groupId
+        options:(nonnull NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    NSArray<NSString*>* usersToAdd = optionsDict[@"usersToAdd"];
+    if (!usersToAdd)
+        usersToAdd = @[];
+    NSArray<NSString*>* usersToRemove = optionsDict[@"usersToRemove"];
+    if (!usersToRemove)
+        usersToRemove = @[];
+    [tanker updateMembersOfGroup:groupId usersToAdd:usersToAdd usersToRemove:usersToRemove completionHandler:^(NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(nil);
+    }];
+}
+
 @end
