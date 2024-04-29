@@ -70,7 +70,7 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(create, id, createWithOptions:(nonnull NSD
     NSError* err;
 
     TKRTankerOptions* opts = dictToTankerOptions(optionsDict);
-    TKRTanker* tanker = [TKRTanker tankerWithOptions:opts err:&err];
+    TKRTanker* tanker = [TKRTanker tankerWithOptions:opts error:&err];
     if (err)
         return @{@"err" : @{@"code": errorCodeToString((TKRError)err.code), @"message": err.localizedDescription}};
     return @{@"ok": [self insertTankerInstanceInMap:tanker]};
