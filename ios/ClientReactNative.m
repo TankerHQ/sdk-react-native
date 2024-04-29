@@ -36,6 +36,11 @@ RCT_EXPORT_MODULE()
     return NO;
 }
 
+-(NSArray<NSString *> *)supportedEvents
+{
+    return @[@"tankerLogHandlerEvent"];
+}
+
 -(void) startObserving {
     hasListeners = YES;
 }
