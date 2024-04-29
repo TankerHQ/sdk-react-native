@@ -4,6 +4,7 @@
 #import "Tanker/TKRTanker.h"
 #import "Tanker/TKRLogEntry.h"
 #import "Tanker/TKRAttachResult.h"
+#import "Tanker/TKREncryptionSession.h"
 
 #import "tanker_client_react_native-Swift.h"
 
@@ -35,6 +36,11 @@ RCT_EXPORT_MODULE()
     return NO;
 }
 
+-(NSArray<NSString *> *)supportedEvents
+{
+    return @[@"tankerLogHandlerEvent"];
+}
+
 -(void) startObserving {
     hasListeners = YES;
 }
@@ -64,7 +70,7 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(create, id, createWithOptions:(nonnull NSD
     NSError* err;
 
     TKRTankerOptions* opts = dictToTankerOptions(optionsDict);
-    TKRTanker* tanker = [TKRTanker tankerWithOptions:opts err:&err];
+    TKRTanker* tanker = [TKRTanker tankerWithOptions:opts error:&err];
     if (err)
         return @{@"err" : @{@"code": errorCodeToString((TKRError)err.code), @"message": err.localizedDescription}};
     return @{@"ok": [self insertTankerInstanceInMap:tanker]};
@@ -409,6 +415,112 @@ RCT_REMAP_METHOD(getResourceId,
     if (err != nil)
         return rejectWithError(reject, err);
     resolve(resourceId);
+}
+
+RCT_REMAP_METHOD(createGroup,
+        createGroupWithTankerHandle:(nonnull NSNumber*)handle publicIdentities:(nonnull NSArray<NSString*>*)identities
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    [tanker createGroupWithIdentities:identities completionHandler:^(NSString * _Nullable groupID, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(groupID);
+    }];
+}
+
+RCT_REMAP_METHOD(updateGroupMembers,
+        updateGroupMembersWithTankerHandle:(nonnull NSNumber*)handle
+        groupId:(nonnull NSString*)groupId
+        options:(nonnull NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    NSArray<NSString*>* usersToAdd = optionsDict[@"usersToAdd"];
+    if (!usersToAdd)
+        usersToAdd = @[];
+    NSArray<NSString*>* usersToRemove = optionsDict[@"usersToRemove"];
+    if (!usersToRemove)
+        usersToRemove = @[];
+    [tanker updateMembersOfGroup:groupId usersToAdd:usersToAdd usersToRemove:usersToRemove completionHandler:^(NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve(nil);
+    }];
+}
+
+RCT_REMAP_METHOD(createEncryptionSession,
+        createEncryptionSessionWithTankerHandle:(nonnull NSNumber*)handle
+        options:(nullable NSDictionary<NSString*, id>*)optionsDict
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    if (!tanker)
+        return rejectInvalidHandle(reject, handle);
+    TKREncryptionOptions* options = [Utils dictToTankerEncryptionOptionsWithDict:optionsDict];
+    [tanker createEncryptionSessionWithCompletionHandler:^(TKREncryptionSession * _Nullable session, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve([self insertEncryptionSessionInMap:session]);
+    } encryptionOptions:options];
+}
+
+RCT_REMAP_METHOD(encryptionSessionEncryptString,
+        encryptStringWithEncryptionSessionHandle:(nonnull NSNumber*)handle
+        clearText:(nonnull NSString*)text
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
+    if (!session)
+        return rejectInvalidHandle(reject, handle);
+    [session encryptString:text completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve([encryptedData base64EncodedStringWithOptions:0]);
+    }];
+}
+
+RCT_REMAP_METHOD(encryptionSessionEncryptData,
+        encryptDataWithEncryptionSessionHandle:(nonnull NSNumber*)handle
+        b64ClearData:(nonnull NSString*)b64ClearData
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
+    if (!session)
+        return rejectInvalidHandle(reject, handle);
+    NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
+    if (!clearData)
+        return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 clear data", nil);
+    [session encryptData:clearData completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
+        if (err != nil)
+            return rejectWithError(reject, err);
+        resolve([encryptedData base64EncodedStringWithOptions:0]);
+    }];
+}
+
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionGetResourceId, id, getResourceIdWithEncryptionSessionHandle:(nonnull NSNumber*)handle)
+{
+    TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
+    if (!session)
+        return invalidHandleError(handle);
+    return @{@"ok": session.resourceID};
+}
+
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionDestroy, id, destroyEncryptionSessionHandle:(nonnull NSNumber*)handle)
+{
+    if (![self.encryptionSessionMap objectForKey:handle])
+        return invalidHandleError(handle);
+    [self removeEncryptionSessionInMap:handle];
+    return @{@"ok": @""};
 }
 
 @end
