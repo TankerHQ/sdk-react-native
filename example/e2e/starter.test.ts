@@ -52,8 +52,10 @@ for (const groupName of Object.keys(testList)) {
           .toExist()
           .withTimeout(5000);
         const attributes = await element(by.id(testResultId)).getAttributes();
-        // @ts-expect-error
-        const testResult: TestResult = JSON.parse(attributes.text);
+        const testResult: TestResult = JSON.parse(
+          // @ts-expect-error
+          attributes.text || attributes.label
+        );
 
         if (testResult.errorMessage) console.error(testResult.errorMessage);
         jestExpect(testResult.success).toBe(true);

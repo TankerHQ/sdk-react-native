@@ -26,7 +26,7 @@ async function globalSetup() {
 
   const attributes = await element(by.id('testListJsonData')).getAttributes();
   // @ts-expect-error
-  const testListJson = attributes.text;
+  const testListJson = attributes.text || attributes.label;
   process.env.ON_DEVICE_TEST_LIST = testListJson;
 
   await uninstallWorker();
