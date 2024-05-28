@@ -111,7 +111,7 @@ public class Utils: NSObject {
   }
 
   @objc
-  public static func dictToTankerEncryptionOptions(dict: Dictionary<String, Any>?) -> EncryptionOptions {
+  public static func dictToTankerEncryptionOptions(dict: Dictionary<String, Any>?) throws -> EncryptionOptions {
     let options = EncryptionOptions();
     guard let dict = dict else {
       return options
@@ -130,7 +130,7 @@ public class Utils: NSObject {
       switch paddingStep.uintValue {
       case 0: options.paddingStep = Padding.automatic()!
       case 1: options.paddingStep = Padding.off()!
-      default: options.paddingStep = Padding.step(paddingStep.uintValue)!
+      default: options.paddingStep = try Padding.step(paddingStep.uintValue)
       }
     }
     return options;

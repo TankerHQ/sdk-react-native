@@ -313,7 +313,10 @@ RCT_REMAP_METHOD(encryptString,
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
 
-    TKREncryptionOptions* options = [Utils dictToTankerEncryptionOptionsWithDict:optionsDict];
+    NSError* err = nil;
+    TKREncryptionOptions* options = [Utils dictToTankerEncryptionOptionsWithDict:optionsDict error:&err];
+    if (err != nil)
+        return rejectWithError(reject, err);
     [tanker encryptString:clearText options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
         if (err != nil)
             return rejectWithError(reject, err);
@@ -353,7 +356,10 @@ RCT_REMAP_METHOD(encryptData,
     NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
     if (!clearData)
         return reject(errorCodeToString(TKRErrorInvalidArgument), @"Invalid base64 clear data", nil);
-    TKREncryptionOptions* options = [Utils dictToTankerEncryptionOptionsWithDict:optionsDict];
+    NSError* err = nil;
+    TKREncryptionOptions* options = [Utils dictToTankerEncryptionOptionsWithDict:optionsDict error:&err];
+    if (err != nil)
+        return rejectWithError(reject, err);
     [tanker encryptData:clearData options:options completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
         if (err != nil)
             return rejectWithError(reject, err);
@@ -464,7 +470,10 @@ RCT_REMAP_METHOD(createEncryptionSession,
     TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
-    TKREncryptionOptions* options = [Utils dictToTankerEncryptionOptionsWithDict:optionsDict];
+    NSError* err = nil;
+    TKREncryptionOptions* options = [Utils dictToTankerEncryptionOptionsWithDict:optionsDict error:&err];
+    if (err != nil)
+        return rejectWithError(reject, err);
     [tanker createEncryptionSessionWithCompletionHandler:^(TKREncryptionSession * _Nullable session, NSError * _Nullable err) {
         if (err != nil)
             return rejectWithError(reject, err);
