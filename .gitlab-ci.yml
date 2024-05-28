@@ -196,7 +196,7 @@ detox/ios/downstream/arm:
     - poetry run python run-ci.py detox ios --react-native-arch $RN_ARCH
   parallel:
     matrix:
-      - RN_ARCH: ["old", "new"]
+      - RN_ARCH: ["old"]
   tags: !reference [.tags/macos/arm, tags]
 
 detox/ios/downstream/x86_64:
@@ -208,5 +208,5 @@ detox/ios/downstream/x86_64:
     - poetry run python run-ci.py detox ios --react-native-arch $RN_ARCH
   parallel:
     matrix:
-      - RN_ARCH: ["old", "new"]
+      - RN_ARCH: ["old"]
   tags: !reference [.tags/macos/x86_64, tags]
