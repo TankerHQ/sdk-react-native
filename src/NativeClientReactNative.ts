@@ -19,6 +19,7 @@ export type Status = number;
 export type Err = { err: Object };
 export type Ok<T> = { ok: T };
 // @ts-expect-error
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type Result<T> = Object;
 
 type OIDCAuthorizationCodeVerification = Object;
@@ -85,7 +86,7 @@ export interface Spec extends TurboModule {
     encryptedData: b64string
   ): Promise<b64string>;
 
-  getResourceId(instance: NativeTanker, encrypted: string): Promise<string>;
+  getResourceId(instance: NativeTanker, encryptedData: string): Promise<string>;
 
   share(
     instance: NativeTanker,
@@ -99,12 +100,15 @@ export interface Spec extends TurboModule {
     instance: NativeTanker
   ): Promise<Array<VerificationMethod>>;
 
-  createGroup(instance: NativeTanker, userIds: Array<string>): Promise<string>;
+  createGroup(
+    instance: NativeTanker,
+    publicIdentities: Array<string>
+  ): Promise<string>;
 
   updateGroupMembers(
     instance: NativeTanker,
     groupId: string,
-    args: { usersToAdd?: Array<string>; usersToRemove?: Array<string> }
+    options: Object
   ): Promise<void>;
 
   attachProvisionalIdentity(

@@ -118,7 +118,7 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(getStatus, id, getStatus:(double)handle)
 }
 
 RCT_REMAP_METHOD(registerIdentity,
-        registerIdentityWithTankerHandle:(double)handle
+        registerIdentity:(double)handle
         verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
         resolve:(RCTPromiseResolveBlock)resolve
@@ -139,7 +139,7 @@ RCT_REMAP_METHOD(registerIdentity,
 }
 
 RCT_REMAP_METHOD(verifyIdentity,
-        verifyIdentityWithTankerHandle:(double)handle
+        verifyIdentity:(double)handle
         verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
         resolve:(RCTPromiseResolveBlock)resolve
@@ -160,7 +160,7 @@ RCT_REMAP_METHOD(verifyIdentity,
 }
 
 RCT_REMAP_METHOD(setVerificationMethod,
-        setVerificationMethodWithTankerHandle:(double)handle
+        setVerificationMethod:(double)handle
         verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
         resolve:(RCTPromiseResolveBlock)resolve
@@ -181,7 +181,7 @@ RCT_REMAP_METHOD(setVerificationMethod,
 }
 
 RCT_REMAP_METHOD(generateVerificationKey,
-        generateVerificationKeyWithTankerHandle:(double)handle
+        generateVerificationKey:(double)handle
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
 {
@@ -196,7 +196,7 @@ RCT_REMAP_METHOD(generateVerificationKey,
 }
 
 RCT_REMAP_METHOD(getVerificationMethods,
-        getVerificationMethodsWithTankerHandle:(double)handle
+        getVerificationMethods:(double)handle
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
 {
@@ -213,7 +213,7 @@ RCT_REMAP_METHOD(getVerificationMethods,
     }];
 }
 
-RCT_REMAP_METHOD(createOidcNonce, createOidcNonceWithTankerHandle:(double)handle resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+RCT_REMAP_METHOD(createOidcNonce, createOidcNonce:(double)handle resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
     TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
@@ -226,7 +226,7 @@ RCT_REMAP_METHOD(createOidcNonce, createOidcNonceWithTankerHandle:(double)handle
     }];
 }
 
-RCT_REMAP_METHOD(setOidcTestNonce, setOidcTestNonceWithTankerHandle:(double)handle nonce:(nonnull NSString*)nonce resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+RCT_REMAP_METHOD(setOidcTestNonce, setOidcTestNonce:(double)handle nonce:(nonnull NSString*)nonce resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
     TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
@@ -239,7 +239,7 @@ RCT_REMAP_METHOD(setOidcTestNonce, setOidcTestNonceWithTankerHandle:(double)hand
     }];
 }
 
-RCT_REMAP_METHOD(authenticateWithIDP, authenticateWithIDPWithTankerHandle:(double)handle
+RCT_REMAP_METHOD(authenticateWithIDP, authenticateWithIDP:(double)handle
         providerID:(nonnull NSString*)providerID
         subjectCookie:(nonnull NSString*)subjectCookie
         resolve:(RCTPromiseResolveBlock)resolve
@@ -260,7 +260,7 @@ RCT_REMAP_METHOD(authenticateWithIDP, authenticateWithIDPWithTankerHandle:(doubl
 }
 
 RCT_REMAP_METHOD(attachProvisionalIdentity,
-        attachProvisionalIdentityWithTankerHandle:(double)handle
+        attachProvisionalIdentity:(double)handle
         identity:(nonnull NSString*)identity
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
@@ -285,7 +285,7 @@ RCT_REMAP_METHOD(attachProvisionalIdentity,
 }
 
 RCT_REMAP_METHOD(verifyProvisionalIdentity,
-        verifyProvisionalIdentityWithTankerHandle:(double)handle
+        verifyProvisionalIdentity:(double)handle
         verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
@@ -311,7 +311,7 @@ RCT_REMAP_METHOD(verifyProvisionalIdentity,
 }
 
 RCT_REMAP_METHOD(encryptString,
-        encryptStringWithTankerHandle:(double)handle
+        encryptString:(double)handle
         clearText:(nonnull NSString*)clearText
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
         resolve:(RCTPromiseResolveBlock)resolve
@@ -333,8 +333,8 @@ RCT_REMAP_METHOD(encryptString,
 }
 
 RCT_REMAP_METHOD(decryptString,
-        decryptStringWithTankerHandle:(double)handle
-        b64EncryptedText:(nonnull NSString*)b64EncryptedText
+        decryptString:(double)handle
+        encryptedText:(nonnull NSString*)b64EncryptedText
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
 {
@@ -352,8 +352,8 @@ RCT_REMAP_METHOD(decryptString,
 }
 
 RCT_REMAP_METHOD(encryptData,
-        encryptDataWithTankerHandle:(double)handle
-        b64ClearData:(nonnull NSString*)b64ClearData
+        encryptData:(double)handle
+        clearData:(nonnull NSString*)b64ClearData
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
@@ -376,8 +376,8 @@ RCT_REMAP_METHOD(encryptData,
 }
 
 RCT_REMAP_METHOD(decryptData,
-        decryptDataWithTankerHandle:(double)handle
-        b64EncryptedData:(nonnull NSString*)b64EncryptedData
+        decryptData:(double)handle
+        encryptedData:(nonnull NSString*)b64EncryptedData
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
 {
@@ -395,7 +395,7 @@ RCT_REMAP_METHOD(decryptData,
 }
 
 RCT_REMAP_METHOD(share,
-        shareWithTankerHandle:(double)handle
+        share:(double)handle
         resourceIds:(nonnull NSArray<NSString*>*)resourceIds
         options:(nonnull NSDictionary<NSString*, id>*)optionsDict
         resolve:(RCTPromiseResolveBlock)resolve
@@ -413,8 +413,8 @@ RCT_REMAP_METHOD(share,
 }
 
 RCT_REMAP_METHOD(getResourceId,
-        getResourceIdWithTankerHandle:(double)handle
-        b64EncryptedData:(nonnull NSString*)b64EncryptedData
+        getResourceId:(double)handle
+        encryptedData:(nonnull NSString*)b64EncryptedData
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
 {
@@ -432,7 +432,8 @@ RCT_REMAP_METHOD(getResourceId,
 }
 
 RCT_REMAP_METHOD(createGroup,
-        createGroupWithTankerHandle:(double)handle publicIdentities:(nonnull NSArray<NSString*>*)identities
+        createGroup:(double)handle
+        publicIdentities:(nonnull NSArray<NSString*>*)identities
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
 {
@@ -447,7 +448,7 @@ RCT_REMAP_METHOD(createGroup,
 }
 
 RCT_REMAP_METHOD(updateGroupMembers,
-        updateGroupMembersWithTankerHandle:(double)handle
+        updateGroupMembers:(double)handle
         groupId:(nonnull NSString*)groupId
         options:(nonnull NSDictionary<NSString*, id>*)optionsDict
         resolve:(RCTPromiseResolveBlock)resolve
@@ -470,7 +471,7 @@ RCT_REMAP_METHOD(updateGroupMembers,
 }
 
 RCT_REMAP_METHOD(createEncryptionSession,
-        createEncryptionSessionWithTankerHandle:(double)handle
+        createEncryptionSession:(double)handle
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
@@ -490,7 +491,7 @@ RCT_REMAP_METHOD(createEncryptionSession,
 }
 
 RCT_REMAP_METHOD(encryptionSessionEncryptString,
-        encryptStringWithEncryptionSessionHandle:(double)handle
+        encryptionSessionEncryptString:(double)handle
         clearText:(nonnull NSString*)text
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
@@ -506,8 +507,8 @@ RCT_REMAP_METHOD(encryptionSessionEncryptString,
 }
 
 RCT_REMAP_METHOD(encryptionSessionEncryptData,
-        encryptDataWithEncryptionSessionHandle:(double)handle
-        b64ClearData:(nonnull NSString*)b64ClearData
+        encryptionSessionEncryptData:(double)handle
+        clearData:(nonnull NSString*)b64ClearData
         resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject)
 {
@@ -524,7 +525,7 @@ RCT_REMAP_METHOD(encryptionSessionEncryptData,
     }];
 }
 
-RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionGetResourceId, id, getResourceIdWithEncryptionSessionHandle:(double)handle)
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionGetResourceId, id, encryptionSessionGetResourceId:(double)handle)
 {
     TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!session)
@@ -532,7 +533,7 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionGetResourceId, id, getRes
     return @{@"ok": session.resourceID};
 }
 
-RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionDestroy, id, destroyEncryptionSessionHandle:(double)handle)
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionDestroy, id, encryptionSessionDestroy:(double)handle)
 {
     if (![self.encryptionSessionMap objectForKey:[NSNumber numberWithUnsignedInt:handle]])
         return invalidHandleError(handle);

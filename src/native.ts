@@ -63,7 +63,7 @@ type ClientReactNativeType = {
     instance: NativeTanker,
     encryptedData: b64string
   ): Promise<b64string>;
-  getResourceId(instance: NativeTanker, encrypted: string): Promise<string>;
+  getResourceId(instance: NativeTanker, encryptedData: string): Promise<string>;
   share(
     instance: NativeTanker,
     resourceIds: Array<string>,
@@ -73,11 +73,14 @@ type ClientReactNativeType = {
   getVerificationMethods(
     instance: NativeTanker
   ): Promise<Array<VerificationMethod>>;
-  createGroup(instance: NativeTanker, userIds: Array<string>): Promise<string>;
+  createGroup(
+    instance: NativeTanker,
+    publicIdentities: Array<string>
+  ): Promise<string>;
   updateGroupMembers(
     instance: NativeTanker,
     groupId: string,
-    args: { usersToAdd?: Array<string>; usersToRemove?: Array<string> }
+    options: { usersToAdd?: Array<string>; usersToRemove?: Array<string> }
   ): Promise<void>;
   attachProvisionalIdentity(
     instance: NativeTanker,
