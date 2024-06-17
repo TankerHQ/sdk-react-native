@@ -73,7 +73,7 @@ RCT_EXPORT_METHOD(prehashPassword:(nonnull NSString*)password resolver:(RCTPromi
     });
 }
 
-RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(create, id, createWithOptions:(nonnull NSDictionary<NSString*, id>*)optionsDict version:(nonnull NSString*)version)
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(create, id, create:(nonnull NSDictionary<NSString*, id>*)optionsDict version:(nonnull NSString*)version)
 {
     NSError* err;
 
@@ -84,7 +84,7 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(create, id, createWithOptions:(nonnull NSD
     return @{@"ok": [self insertTankerInstanceInMap:tanker]};
 }
 
-RCT_REMAP_METHOD(start, startWithTankerHandle:(nonnull NSNumber*)handle identity:(nonnull NSString*)identity resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_REMAP_METHOD(start, start:(nonnull NSNumber*)handle identity:(nonnull NSString*)identity resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
     if (!tanker)
@@ -96,7 +96,7 @@ RCT_REMAP_METHOD(start, startWithTankerHandle:(nonnull NSNumber*)handle identity
     }];
 }
 
-RCT_REMAP_METHOD(stop, stopWithTankerHandle:(nonnull NSNumber*)handle resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_REMAP_METHOD(stop, stop:(nonnull NSNumber*)handle resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
     if (!tanker)
@@ -109,7 +109,7 @@ RCT_REMAP_METHOD(stop, stopWithTankerHandle:(nonnull NSNumber*)handle resolver:(
     }];
 }
 
-RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(getStatus, id, getStatusWithTankerHandle:(nonnull NSNumber*)handle)
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(getStatus, id, getStatus:(nonnull NSNumber*)handle)
 {
     TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
     if (!tanker)
