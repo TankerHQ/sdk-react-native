@@ -9,8 +9,8 @@
 - (void) initInstanceMap;
 - (void) initEncryptionSessionMap;
 - (nonnull NSNumber*) insertTankerInstanceInMap:(nonnull TKRTanker*)instance;
-- (void) removeTankerInstanceInMap:(nonnull NSNumber*)handle;
+- (void) removeTankerInstanceInMap:(unsigned)handle;
 - (nonnull NSNumber*) insertEncryptionSessionInMap:(nonnull TKREncryptionSession*)session;
-- (void) removeEncryptionSessionInMap:(nonnull NSNumber*)handle;
+- (void) removeEncryptionSessionInMap:(unsigned)handle;
 
 @end

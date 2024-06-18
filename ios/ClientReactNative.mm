@@ -15,6 +15,14 @@
 
 RCT_EXPORT_MODULE()
 
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
+    (const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeClientReactNativeSpecJSI>(params);
+}
+#endif
+
 - (instancetype) init
 {
     if (self = [super init])
@@ -54,7 +62,7 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getNativeVersion)
     return [TKRTanker nativeVersionString];
 }
 
-RCT_EXPORT_METHOD(prehashPassword:(nonnull NSString*)password resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(prehashPassword:(nonnull NSString*)password resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSError* err;
@@ -65,7 +73,7 @@ RCT_EXPORT_METHOD(prehashPassword:(nonnull NSString*)password resolver:(RCTPromi
     });
 }
 
-RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(create, id, createWithOptions:(nonnull NSDictionary<NSString*, id>*)optionsDict version:(nonnull NSString*)version)
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(create, id, create:(nonnull NSDictionary<NSString*, id>*)optionsDict version:(nonnull NSString*)version)
 {
     NSError* err;
 
@@ -76,9 +84,9 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(create, id, createWithOptions:(nonnull NSD
     return @{@"ok": [self insertTankerInstanceInMap:tanker]};
 }
 
-RCT_REMAP_METHOD(start, startWithTankerHandle:(nonnull NSNumber*)handle identity:(nonnull NSString*)identity resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_REMAP_METHOD(start, start:(double)handle identity:(nonnull NSString*)identity resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     [tanker startWithIdentity:identity completionHandler:^(TKRStatus status, NSError * _Nullable err) {
@@ -88,9 +96,9 @@ RCT_REMAP_METHOD(start, startWithTankerHandle:(nonnull NSNumber*)handle identity
     }];
 }
 
-RCT_REMAP_METHOD(stop, stopWithTankerHandle:(nonnull NSNumber*)handle resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_REMAP_METHOD(stop, stop:(double)handle resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     [tanker stopWithCompletionHandler:^(NSError * _Nullable err) {
@@ -101,22 +109,22 @@ RCT_REMAP_METHOD(stop, stopWithTankerHandle:(nonnull NSNumber*)handle resolver:(
     }];
 }
 
-RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(getStatus, id, getStatusWithTankerHandle:(nonnull NSNumber*)handle)
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(getStatus, id, getStatus:(double)handle)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return invalidHandleError(handle);
     return @{@"ok": [NSNumber numberWithInt:(int)tanker.status]};
 }
 
 RCT_REMAP_METHOD(registerIdentity,
-        registerIdentityWithTankerHandle:(nonnull NSNumber*)handle
+        registerIdentity:(double)handle
         verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     TKRVerificationOptions* tankerOptions = [Utils dictToTankerVerificationOptionsWithDict:optionsDict];
@@ -131,13 +139,13 @@ RCT_REMAP_METHOD(registerIdentity,
 }
 
 RCT_REMAP_METHOD(verifyIdentity,
-        verifyIdentityWithTankerHandle:(nonnull NSNumber*)handle
+        verifyIdentity:(double)handle
         verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     TKRVerificationOptions* tankerOptions = [Utils dictToTankerVerificationOptionsWithDict:optionsDict];
@@ -152,13 +160,13 @@ RCT_REMAP_METHOD(verifyIdentity,
 }
 
 RCT_REMAP_METHOD(setVerificationMethod,
-        setVerificationMethodWithTankerHandle:(nonnull NSNumber*)handle
+        setVerificationMethod:(double)handle
         verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     TKRVerificationOptions* tankerOptions = [Utils dictToTankerVerificationOptionsWithDict:optionsDict];
@@ -173,11 +181,11 @@ RCT_REMAP_METHOD(setVerificationMethod,
 }
 
 RCT_REMAP_METHOD(generateVerificationKey,
-        generateVerificationKeyWithTankerHandle:(nonnull NSNumber*)handle
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        generateVerificationKey:(double)handle
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     [tanker generateVerificationKeyWithCompletionHandler:^(TKRVerificationKey * _Nullable key, NSError * _Nullable err) {
@@ -188,11 +196,11 @@ RCT_REMAP_METHOD(generateVerificationKey,
 }
 
 RCT_REMAP_METHOD(getVerificationMethods,
-        getVerificationMethodsWithTankerHandle:(nonnull NSNumber*)handle
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        getVerificationMethods:(double)handle
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     [tanker verificationMethodsWithCompletionHandler:^(NSArray<TKRVerificationMethod *> * _Nullable methods, NSError * _Nullable err) {
@@ -205,9 +213,9 @@ RCT_REMAP_METHOD(getVerificationMethods,
     }];
 }
 
-RCT_REMAP_METHOD(createOidcNonce, createOidcNonceWithTankerHandle:(nonnull NSNumber*)handle resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_REMAP_METHOD(createOidcNonce, createOidcNonce:(double)handle resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
 
@@ -218,9 +226,9 @@ RCT_REMAP_METHOD(createOidcNonce, createOidcNonceWithTankerHandle:(nonnull NSNum
     }];
 }
 
-RCT_REMAP_METHOD(setOidcTestNonce, setOidcTestNonceWithTankerHandle:(nonnull NSNumber*)handle nonce:(nonnull NSString*)nonce resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_REMAP_METHOD(setOidcTestNonce, setOidcTestNonce:(double)handle nonce:(nonnull NSString*)nonce resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
 
@@ -231,13 +239,13 @@ RCT_REMAP_METHOD(setOidcTestNonce, setOidcTestNonceWithTankerHandle:(nonnull NSN
     }];
 }
 
-RCT_REMAP_METHOD(authenticateWithIDP, authenticateWithIDPWithTankerHandle:(nonnull NSNumber*)handle
+RCT_REMAP_METHOD(authenticateWithIDP, authenticateWithIDP:(double)handle
         providerID:(nonnull NSString*)providerID
         subjectCookie:(nonnull NSString*)subjectCookie
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
 
@@ -252,12 +260,12 @@ RCT_REMAP_METHOD(authenticateWithIDP, authenticateWithIDPWithTankerHandle:(nonnu
 }
 
 RCT_REMAP_METHOD(attachProvisionalIdentity,
-        attachProvisionalIdentityWithTankerHandle:(nonnull NSNumber*)handle
+        attachProvisionalIdentity:(double)handle
         identity:(nonnull NSString*)identity
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     [tanker attachProvisionalIdentity:identity completionHandler:^(TKRAttachResult * _Nullable result, NSError * _Nullable err) {
@@ -277,12 +285,12 @@ RCT_REMAP_METHOD(attachProvisionalIdentity,
 }
 
 RCT_REMAP_METHOD(verifyProvisionalIdentity,
-        verifyProvisionalIdentityWithTankerHandle:(nonnull NSNumber*)handle
+        verifyProvisionalIdentity:(double)handle
         verification:(nonnull NSDictionary<NSString*, id>*)verificationDict
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     @try
@@ -303,13 +311,13 @@ RCT_REMAP_METHOD(verifyProvisionalIdentity,
 }
 
 RCT_REMAP_METHOD(encryptString,
-        encryptStringWithTankerHandle:(nonnull NSNumber*)handle
+        encryptString:(double)handle
         clearText:(nonnull NSString*)clearText
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
 
@@ -325,12 +333,12 @@ RCT_REMAP_METHOD(encryptString,
 }
 
 RCT_REMAP_METHOD(decryptString,
-        decryptStringWithTankerHandle:(nonnull NSNumber*)handle
-        b64EncryptedText:(nonnull NSString*)b64EncryptedText
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        decryptString:(double)handle
+        encryptedText:(nonnull NSString*)b64EncryptedText
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedText options:0];
@@ -344,13 +352,13 @@ RCT_REMAP_METHOD(decryptString,
 }
 
 RCT_REMAP_METHOD(encryptData,
-        encryptDataWithTankerHandle:(nonnull NSNumber*)handle
-        b64ClearData:(nonnull NSString*)b64ClearData
+        encryptData:(double)handle
+        clearData:(nonnull NSString*)b64ClearData
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
@@ -368,12 +376,12 @@ RCT_REMAP_METHOD(encryptData,
 }
 
 RCT_REMAP_METHOD(decryptData,
-        decryptDataWithTankerHandle:(nonnull NSNumber*)handle
-        b64EncryptedData:(nonnull NSString*)b64EncryptedData
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        decryptData:(double)handle
+        encryptedData:(nonnull NSString*)b64EncryptedData
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedData options:0];
@@ -387,13 +395,13 @@ RCT_REMAP_METHOD(decryptData,
 }
 
 RCT_REMAP_METHOD(share,
-        shareWithTankerHandle:(nonnull NSNumber*)handle
+        share:(double)handle
         resourceIds:(nonnull NSArray<NSString*>*)resourceIds
         options:(nonnull NSDictionary<NSString*, id>*)optionsDict
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     TKRSharingOptions* options = [Utils dictToTankerSharingOptionsWithDict:optionsDict];
@@ -405,12 +413,12 @@ RCT_REMAP_METHOD(share,
 }
 
 RCT_REMAP_METHOD(getResourceId,
-        getResourceIdWithTankerHandle:(nonnull NSNumber*)handle
-        b64EncryptedData:(nonnull NSString*)b64EncryptedData
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        getResourceId:(double)handle
+        encryptedData:(nonnull NSString*)b64EncryptedData
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     NSData* encryptedData = [[NSData alloc] initWithBase64EncodedString:b64EncryptedData options:0];
@@ -424,11 +432,12 @@ RCT_REMAP_METHOD(getResourceId,
 }
 
 RCT_REMAP_METHOD(createGroup,
-        createGroupWithTankerHandle:(nonnull NSNumber*)handle publicIdentities:(nonnull NSArray<NSString*>*)identities
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        createGroup:(double)handle
+        publicIdentities:(nonnull NSArray<NSString*>*)identities
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     [tanker createGroupWithIdentities:identities completionHandler:^(NSString * _Nullable groupID, NSError * _Nullable err) {
@@ -439,13 +448,13 @@ RCT_REMAP_METHOD(createGroup,
 }
 
 RCT_REMAP_METHOD(updateGroupMembers,
-        updateGroupMembersWithTankerHandle:(nonnull NSNumber*)handle
+        updateGroupMembers:(double)handle
         groupId:(nonnull NSString*)groupId
         options:(nonnull NSDictionary<NSString*, id>*)optionsDict
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     NSArray<NSString*>* usersToAdd = optionsDict[@"usersToAdd"];
@@ -462,12 +471,12 @@ RCT_REMAP_METHOD(updateGroupMembers,
 }
 
 RCT_REMAP_METHOD(createEncryptionSession,
-        createEncryptionSessionWithTankerHandle:(nonnull NSNumber*)handle
+        createEncryptionSession:(double)handle
         options:(nullable NSDictionary<NSString*, id>*)optionsDict
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:handle];
+    TKRTanker* tanker = [self.tankerInstanceMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!tanker)
         return rejectInvalidHandle(reject, handle);
     NSError* err = nil;
@@ -482,12 +491,12 @@ RCT_REMAP_METHOD(createEncryptionSession,
 }
 
 RCT_REMAP_METHOD(encryptionSessionEncryptString,
-        encryptStringWithEncryptionSessionHandle:(nonnull NSNumber*)handle
+        encryptionSessionEncryptString:(double)handle
         clearText:(nonnull NSString*)text
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
+    TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!session)
         return rejectInvalidHandle(reject, handle);
     [session encryptString:text completionHandler:^(NSData * _Nullable encryptedData, NSError * _Nullable err) {
@@ -498,12 +507,12 @@ RCT_REMAP_METHOD(encryptionSessionEncryptString,
 }
 
 RCT_REMAP_METHOD(encryptionSessionEncryptData,
-        encryptDataWithEncryptionSessionHandle:(nonnull NSNumber*)handle
-        b64ClearData:(nonnull NSString*)b64ClearData
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject)
+        encryptionSessionEncryptData:(double)handle
+        clearData:(nonnull NSString*)b64ClearData
+        resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject)
 {
-    TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
+    TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!session)
         return rejectInvalidHandle(reject, handle);
     NSData* clearData = [[NSData alloc] initWithBase64EncodedString:b64ClearData options:0];
@@ -516,17 +525,17 @@ RCT_REMAP_METHOD(encryptionSessionEncryptData,
     }];
 }
 
-RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionGetResourceId, id, getResourceIdWithEncryptionSessionHandle:(nonnull NSNumber*)handle)
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionGetResourceId, id, encryptionSessionGetResourceId:(double)handle)
 {
-    TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:handle];
+    TKREncryptionSession* session = [self.encryptionSessionMap objectForKey:[NSNumber numberWithUnsignedInt:handle]];
     if (!session)
         return invalidHandleError(handle);
     return @{@"ok": session.resourceID};
 }
 
-RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionDestroy, id, destroyEncryptionSessionHandle:(nonnull NSNumber*)handle)
+RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(encryptionSessionDestroy, id, encryptionSessionDestroy:(double)handle)
 {
-    if (![self.encryptionSessionMap objectForKey:handle])
+    if (![self.encryptionSessionMap objectForKey:[NSNumber numberWithUnsignedInt:handle]])
         return invalidHandleError(handle);
     [self removeEncryptionSessionInMap:handle];
     return @{@"ok": @""};

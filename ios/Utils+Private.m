@@ -33,21 +33,21 @@ TKRTankerOptions *_Nonnull dictToTankerOptions(NSDictionary<NSString *, id> *_No
   return opts;
 }
 
-NSDictionary *invalidHandleError(NSNumber *_Nonnull handle) {
+NSDictionary *invalidHandleError(unsigned handle) {
   return @{
     @"err" : @{
       @"code" : errorCodeToString(TKRErrorInternalError),
       @"message" : [NSString
-          stringWithFormat:@"invalid handle: %ul", handle.unsignedIntValue]
+          stringWithFormat:@"invalid handle: %ul", handle]
     }
   };
 }
 
 void rejectInvalidHandle(RCTPromiseRejectBlock _Nonnull reject,
-                         NSNumber *_Nonnull handle) {
+                         unsigned handle) {
   reject(errorCodeToString(TKRErrorInternalError),
          [NSString
-             stringWithFormat:@"invalid handle: %ul", handle.unsignedIntValue],
+             stringWithFormat:@"invalid handle: %ul", handle],
          nil);
 }
 
