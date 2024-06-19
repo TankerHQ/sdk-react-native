@@ -90,7 +90,7 @@ public class Utils: NSObject {
       // Can never happen (not returned by server)
       fallthrough
     @unknown default:
-      throw NSError(domain: TKRErrorDomain, code: TKRError.internalError.rawValue, userInfo: [
+      throw NSError(domain: ErrorDomain, code: Error.internalError.rawValue, userInfo: [
         NSLocalizedDescriptionKey: "Unknown verification method type: \(method.type.rawValue)"
       ])
     }
