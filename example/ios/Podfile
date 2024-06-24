@@ -1,3 +1,7 @@
+# Currently sdk-ios is on a private podspec repo, so we have to add it as source
+source "https://github.com/TankerHQ/PodSpecs"
+source 'https://cdn.cocoapods.org/'
+
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
