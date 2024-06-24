@@ -119,6 +119,10 @@ repositories {
         flatDir {
             dirs("$androidLibPath/libs")
         }
+    } else {
+        maven {
+            url 'https://storage.googleapis.com/maven.tanker.io'
+        }
     }
 }
 
