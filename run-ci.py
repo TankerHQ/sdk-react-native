@@ -147,7 +147,7 @@ def build_and_run_detox(
         pod_install_env = {
             **os.environ.copy(),
             "RCT_NEW_ARCH_ENABLED": new_arch_enabled,
-            "NO_FLIPPER": new_arch_enabled,
+            "NO_FLIPPER": "1",
         }
         ios_app = Path.cwd() / "example" / "ios"
         tankerci.run("pod", "install", env=pod_install_env, cwd=ios_app)
