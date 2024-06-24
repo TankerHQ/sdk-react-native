@@ -6,7 +6,7 @@
 #import "Tanker/TKRAttachResult.h"
 #import "Tanker/TKREncryptionSession.h"
 
-#import "tanker_client_react_native-Swift.h"
+#import <tanker_client_react_native/tanker_client_react_native-Swift.h>
 
 @implementation ClientReactNative
 {
