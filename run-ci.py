@@ -12,6 +12,7 @@ import tankerci
 import tankerci.android
 import tankerci.git
 import tankerci.gitlab
+import tankerci.js
 from tankerci.conan import Profile, TankerSource
 
 
@@ -54,6 +55,26 @@ def lint() -> None:
     tankerci.run("yarn", "install")
     tankerci.run("yarn", "run", "typecheck")
     tankerci.run("yarn", "run", "lint")
+
+
+def setup_detox_ios_fork():
+    # Prepare Detox repo
+    base_path = tankerci.git.prepare_sources(repos=["Detox"])
+    detox_path = base_path / "Detox"
+    lerna_env = {**os.environ.copy(), "LANG": "en_US.UTF-8"}
+    with tankerci.working_directory(detox_path):
+        tankerci.git.run(detox_path, "submodule", "update", "--init", "--recursive")
+        tankerci.js.npm("install", "lerna@6.x.x")
+        tankerci.js.npm("exec", "--", "lerna", "bootstrap", "--ci=false", env=lerna_env)
+
+    # Patch node modules and refresh Detox build cache
+    node_modules_detox = Path.cwd() / "example" / "node_modules" / "detox"
+    if not os.path.islink(node_modules_detox):
+        shutil.rmtree(node_modules_detox, ignore_errors=True)
+        os.symlink(detox_path / "detox", node_modules_detox)
+    shutil.rmtree(Path.home() / "Library" / "Detox", ignore_errors=True)
+    with tankerci.working_directory(Path.cwd() / "example"):
+        tankerci.js.run_yarn("detox", "build-framework-cache")
 
 
 def run_detox_test(detox_config: str):
@@ -120,11 +141,13 @@ def build_and_run_detox(
         if os_version != "latest":
             raise RuntimeError(f"Unsupported iOS os version {os_version} for detox")
 
+        setup_detox_ios_fork()
+
         new_arch_enabled = "1" if rn_arch == ReactNativeArchitecture.NEW else "0"
         pod_install_env = {
             **os.environ.copy(),
             "RCT_NEW_ARCH_ENABLED": new_arch_enabled,
-            "NO_FLIPPER": new_arch_enabled,
+            "NO_FLIPPER": "1",
         }
         ios_app = Path.cwd() / "example" / "ios"
         tankerci.run("pod", "install", env=pod_install_env, cwd=ios_app)

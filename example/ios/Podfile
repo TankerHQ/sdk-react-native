@@ -1,3 +1,7 @@
+# Currently sdk-ios is on a private podspec repo, so we have to add it as source
+source "https://github.com/TankerHQ/PodSpecs"
+source 'https://cdn.cocoapods.org/'
+
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
@@ -17,10 +21,13 @@ prepare_react_native_project!
 #   dependencies: {
 #     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
 # ```
-flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
+flipper_config = ENV['NO_FLIPPER'] == "0" ? FlipperConfiguration.enabled : FlipperConfiguration.disabled
 
 linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
+if linkage == nil
+  Pod::UI.puts "Configuring Pod with statically linked Frameworks".green
+  use_frameworks! :linkage => :static
+elsif linkage.downcase != 'no' && linkage != '0'
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
 end
