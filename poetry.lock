@@ -1111,13 +1111,13 @@ widechars = ["wcwidth"]
 
 [[package]]
 name = "tankeradminsdk"
-version = "5.0.0"
+version = "6.0.0"
 description = "Tanker Python Admin SDK"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "tankeradminsdk-5.0.0-py3-none-any.whl", hash = "sha256:93fdf92c15387a991d55e8aa96f03e4f8ae68e18fa4d5c2c72338b8d10ea3f4f"},
-    {file = "tankeradminsdk-5.0.0.tar.gz", hash = "sha256:cf8de98449da95a22194414e9ec82870b313dc6f51ede1b09db6d3b11bd1bcab"},
+    {file = "tankeradminsdk-6.0.0-py3-none-any.whl", hash = "sha256:01d3108b00962aabf4141a774b084fabea6743bc3ef5a169e211838238015b0a"},
+    {file = "tankeradminsdk-6.0.0.tar.gz", hash = "sha256:3665fae54962201c761fac53fdc29617239ec3016a1769cfdcdf5a732c30cdf0"},
 ]
 
 [package.dependencies]
@@ -1276,4 +1276,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "d5d2d8a51ad964ed8b737207615adbc2e192510b19c1ee64d7f1c09fdce532d4"
+content-hash = "b668ab5efe8727bc5a2994e51f301af8448af5f90325fe0b5081c3b15b9bbd9e"
