@@ -44,6 +44,24 @@ def replace_line_in_file(f: Path, *, pattern: str, new_line: str) -> None:
     f.write_text("\n".join(patched_lines))
 
 
+def patch_sdk_version(*, sdk: str, version: str) -> None:
+    if sdk == "android":
+        dest = Path.cwd() / "android/build.gradle"
+        replace_line_in_file(
+            dest,
+            pattern="io.tanker:tanker-bindings:",
+            new_line=f"    api 'io.tanker:tanker-bindings:{version}@aar'",
+        )
+    else:
+        dest = Path.cwd() / "tanker-client-react-native.podspec"
+        replace_line_in_file(
+            dest,
+            pattern='''s.dependency "Tanker"''',
+            new_line=f'''  s.dependency "Tanker", "{version}"''',
+        )
+    ui.info(f"Patched sdk-{sdk} version to {version} in {dest}")
+
+
 def lint() -> None:
     # CI lint
     tankerci.run("poetry", "run", "black", "--check", "--diff", ".")
@@ -223,6 +241,21 @@ def prepare(
         shutil.copytree(sdk_path / "pod", dest_path)
 
 
+def version_to_npm_tag(version: str) -> str:
+    for tag in ["alpha", "beta"]:
+        if tag in version:
+            return tag
+    return "latest"
+
+
+def deploy(version: str) -> None:
+    tankerci.bump_files(version)
+    npm_tag = version_to_npm_tag(version)
+
+    tankerci.run("yarn")
+    tankerci.run("npm", "publish", "--access", "public", "--tag", npm_tag)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
 
@@ -280,6 +313,13 @@ def main() -> None:
     prepare_parser.add_argument("--remote", default="artifactory")
     prepare_parser.add_argument("--tanker-ref")
 
+    patch_sdk_version_parser = subparsers.add_parser("patch-sdk-version")
+    patch_sdk_version_parser.add_argument("sdk", choices=["ios", "android"])
+    patch_sdk_version_parser.add_argument("version", nargs="?")
+
+    deploy_parser = subparsers.add_parser("deploy")
+    deploy_parser.add_argument("--version")
+
     args = parser.parse_args()
     command = args.command
 
@@ -307,6 +347,13 @@ def main() -> None:
             args.home_isolation,
             args.remote,
         )
+    elif command == "patch-sdk-version":
+        if not args.version:
+            ui.info(f"No version provided for sdk-{args.sdk}, nothing to patch")
+        else:
+            patch_sdk_version(sdk=args.sdk, version=args.version)
+    elif command == "deploy":
+        deploy(args.version)
     else:
         parser.print_help()
         sys.exit(1)
