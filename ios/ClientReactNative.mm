@@ -6,7 +6,14 @@
 #import "Tanker/TKRAttachResult.h"
 #import "Tanker/TKREncryptionSession.h"
 
+// Depending on whether we use a local pod in a folder or a published package,
+// the include path to the auto-generated Swift header will change.
+// There are only two possibilities, and we need to support both.
+#if __has_include(<tanker_client_react_native/tanker_client_react_native-Swift.h>)
 #import <tanker_client_react_native/tanker_client_react_native-Swift.h>
+#else
+#import <tanker_client_react_native-Swift.h>
+#endif
 
 @implementation ClientReactNative
 {
