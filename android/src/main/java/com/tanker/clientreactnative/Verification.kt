@@ -36,6 +36,9 @@ fun Verification(json: ReadableMap): Verification {
     json.getString("preverifiedPhoneNumber")?.let {
         return PreverifiedPhoneNumberVerification(it)
     }
+    json.getString("preverifiedOidcSubject")?.let {
+        return PreverifiedOIDCVerification(it, json.getString("oidcProviderId")!!)
+    }
     json.getString("e2ePassphrase")?.let {
         return E2ePassphraseVerification(it)
     }
