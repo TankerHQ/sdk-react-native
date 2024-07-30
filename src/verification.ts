@@ -50,6 +50,10 @@ export type PreverifiedEmailVerification = { preverifiedEmail: string };
 export type PreverifiedPhoneNumberVerification = {
   preverifiedPhoneNumber: string;
 };
+export type PreverifiedOidcVerification = {
+  preverifiedOidcSubject: string;
+  oidcProviderId: string;
+};
 export type E2ePassphraseVerification = { e2ePassphrase: string };
 
 export type Verification =
@@ -61,6 +65,7 @@ export type Verification =
   | PhoneNumberVerification
   | PreverifiedEmailVerification
   | PreverifiedPhoneNumberVerification
+  | PreverifiedOidcVerification
   | E2ePassphraseVerification;
 
 export type VerificationOptions = {
@@ -77,6 +82,7 @@ const validMethods = [
   'phoneNumber',
   'preverifiedEmail',
   'preverifiedPhoneNumber',
+  'preverifiedOidcSubject',
   'e2ePassphrase',
 ];
 const validKeys = [
@@ -166,6 +172,22 @@ export const assertVerification = (verification: Verification) => {
     assertNotEmptyString(
       verification.preverifiedPhoneNumber,
       'verification.preverifiedPhoneNumber'
+    );
+  } else if ('preverifiedOidcSubject' in verification) {
+    assertNotEmptyString(
+      verification.preverifiedOidcSubject,
+      'verification.preverifiedOidcSubject'
+    );
+    if (!('oidcProviderId' in verification)) {
+      throw new InvalidArgument(
+        'verification',
+        'oidc pre-verification should also have a oidcProviderId',
+        verification
+      );
+    }
+    assertNotEmptyString(
+      verification.oidcProviderId,
+      'verification.oidcProviderId'
     );
   } else if ('e2ePassphrase' in verification) {
     assertNotEmptyString(

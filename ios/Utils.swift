@@ -30,6 +30,9 @@ public class Utils: NSObject {
     if let preverifiedPhoneNumber = dict["preverifiedPhoneNumber"] as? String {
       return Verification(preverifiedPhoneNumber: preverifiedPhoneNumber)
     }
+    if let preverifiedOIDCSubject = dict["preverifiedOidcSubject"] as? String, let providerID = dict["oidcProviderId"] as? String {
+      return Verification(preverifiedOIDCSubject: preverifiedOIDCSubject, providerID: providerID)
+    }
     if let e2ePassphrase = dict["e2ePassphrase"] as? String {
       return Verification(e2ePassphrase: e2ePassphrase)
     }

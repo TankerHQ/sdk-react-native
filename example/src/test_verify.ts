@@ -16,6 +16,20 @@ import {
 import { createTanker, clearTankerDataDirs } from './tests';
 import base64 from 'react-native-base64';
 
+function extractOidcSubject(jwt: string): string {
+  const b64UrlNoPadBody = jwt.split('.')[1]!;
+  const b64NoPadBody = b64UrlNoPadBody
+    .replaceAll('-', '+')
+    .replaceAll('_', '/');
+
+  const remainder = b64NoPadBody.length % 4;
+  const paddingBytes = (4 - remainder) % 4;
+  const b64Body = b64NoPadBody + '='.repeat(paddingBytes);
+
+  const body = base64.decode(b64Body);
+  return JSON.parse(body).sub;
+}
+
 export const verifyTests = () => {
   describe('Verify tests', () => {
     let tanker: Tanker;
@@ -142,6 +156,22 @@ export const verifyTests = () => {
       ).is.rejectedWith(InvalidArgument);
     });
 
+    it('fails to register with preverified oidc', async () => {
+      const oidcConfig = await getOidcConfig();
+      const appResponse = await setAppOidcConfig(oidcConfig);
+      const oidcProviderResponse = appResponse.oidc_providers[0]!!;
+
+      await tanker.start(identity);
+      await expect(
+        tanker.registerIdentity({
+          preverifiedOidcSubject: 'martine',
+          oidcProviderId: oidcProviderResponse.id,
+        })
+      ).is.rejectedWith(InvalidArgument);
+
+      await setAppOidcConfig(undefined); // Cleanup
+    });
+
     it('fails to verify with preverified email', async () => {
       const email = 'bob@burger.io';
       await tanker.start(identity);
@@ -172,6 +202,35 @@ export const verifyTests = () => {
       ).is.rejectedWith(InvalidArgument);
 
       await secondDevice.stop();
+    });
+
+    it('fails to verify with preverified oidc', async () => {
+      const oidcConfig = await getOidcConfig();
+      const appResponse = await setAppOidcConfig(oidcConfig);
+      const oidcProviderResponse = appResponse.oidc_providers[0]!!;
+
+      await setAppOidcConfig(oidcConfig);
+      const oidcToken = await getGoogleIdToken(
+        oidcConfig,
+        oidcConfig.users.martine!!
+      );
+
+      await tanker.start(identity);
+      await tanker.setOidcTestNonce(await tanker.createOidcNonce());
+      await tanker.registerIdentity({ oidcIdToken: oidcToken });
+      await tanker.stop();
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+      await expect(
+        secondDevice.verifyIdentity({
+          preverifiedOidcSubject: 'martine',
+          oidcProviderId: oidcProviderResponse.id,
+        })
+      ).is.rejectedWith(InvalidArgument);
+
+      await secondDevice.stop();
+      await setAppOidcConfig(undefined); // Cleanup
     });
 
     it('can use set verification method with preverified email', async () => {
@@ -248,6 +307,49 @@ export const verifyTests = () => {
       ]);
 
       await secondDevice.stop();
+    });
+
+    it('can use set verification method with preverified oidc', async () => {
+      const oidcConfig = await getOidcConfig();
+      const appResponse = await setAppOidcConfig(oidcConfig);
+      const oidcProviderResponse = appResponse.oidc_providers[0]!!;
+
+      await setAppOidcConfig(oidcConfig);
+      const oidcToken = await getGoogleIdToken(
+        oidcConfig,
+        oidcConfig.users.martine!!
+      );
+      const oidcSubject = extractOidcSubject(oidcToken);
+
+      const pass = { passphrase: 'Malotru' };
+      await tanker.start(identity);
+      await tanker.registerIdentity(pass);
+      await tanker.setVerificationMethod({
+        preverifiedOidcSubject: oidcSubject,
+        oidcProviderId: oidcProviderResponse.id,
+      });
+      expect(await tanker.getVerificationMethods()).to.have.deep.members([
+        {
+          type: 'passphrase',
+        },
+        {
+          type: 'oidcIdToken',
+          providerId: oidcProviderResponse.id,
+          providerDisplayName: oidcProviderResponse.display_name,
+        },
+      ]);
+      await tanker.stop();
+
+      let secondDevice = await createTanker();
+      await secondDevice.start(identity);
+      await secondDevice.setOidcTestNonce(await secondDevice.createOidcNonce());
+      await secondDevice.verifyIdentity({
+        oidcIdToken: oidcToken,
+      });
+      expect(secondDevice.status).eq(Tanker.statuses.READY);
+
+      await secondDevice.stop();
+      await setAppOidcConfig(undefined); // Cleanup
     });
 
     it('can register an e2e passphrase', async () => {
