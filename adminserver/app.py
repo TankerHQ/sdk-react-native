@@ -114,7 +114,7 @@ def get_oidc_config() -> str:
             "client_secret": assert_env("TANKER_OIDC_CLIENT_SECRET"),
             "provider_name": assert_env("TANKER_OIDC_PROVIDER"),
             "issuer": assert_env("TANKER_OIDC_ISSUER"),
-            "fake_oidc_issuer_url": f'{assert_env("TANKER_FAKE_OIDC_URL")}/issuer',
+            "fake_oidc_issuer_url": f'{assert_env("TANKER_FAKE_OIDC_URL")}/issuers/main',
             "users": {
                 "martine": {
                     "email": assert_env("TANKER_OIDC_MARTINE_EMAIL"),
@@ -136,12 +136,14 @@ def set_app_oidc_config() -> str:
         request.form.get("oidc_client_id")
         and request.form.get("oidc_display_name")
         and request.form.get("oidc_issuer")
+        and request.form.get("oidc_provider_group_id")
     ):
         providers = [
             tankeradminsdk.AppOidcProvider(
                 client_id=request.form["oidc_client_id"],
                 display_name=request.form["oidc_display_name"],
                 issuer=request.form["oidc_issuer"],
+                provider_group_id=request.form["oidc_provider_group_id"],
             )
         ]
 

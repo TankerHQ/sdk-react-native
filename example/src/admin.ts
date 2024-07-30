@@ -80,12 +80,16 @@ export type OidcProviderResponse = {
 export async function setAppOidcConfig(
   oidcConfig?: OidcConfig
 ): Promise<AppUpdateResponse> {
+  // Hardcoded value from sdk-android
+  const providerGroupId = '5LOYCcYur5h9k2nMX0GxJ_6xSL4nn4pKNzEAbPFDv3o';
+
   let form;
   if (oidcConfig) {
     form = new FormData();
     form.append('oidc_client_id', oidcConfig.client_id);
     form.append('oidc_display_name', oidcConfig.provider_name);
     form.append('oidc_issuer', oidcConfig.issuer);
+    form.append('oidc_provider_group_id', providerGroupId);
   }
 
   return await (

@@ -1,6 +1,6 @@
 include:
   - project: TankerHQ/gitlab-ci-files
-    ref: 2023-12-12-275
+    ref: 2024-07-29-279
     file: /common.yml
 
 variables:
@@ -63,6 +63,7 @@ default:
 stages:
   - lint
   - check
+  - deploy
 
 ########
 # Jobs #
@@ -210,3 +211,22 @@ detox/ios/downstream/x86_64:
     matrix:
       - RN_ARCH: ["old"]
   tags: !reference [.tags/macos/x86_64, tags]
+
+################
+# deploy stage #
+################
+
+deploy:
+  stage: deploy
+  extends:
+    - .rules/deploy/react-native
+  script:
+    - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "${HOME}/.npmrc"
+    - poetry run python run-ci.py reset-branch $UPSTREAM_BRANCH_NAME
+    - poetry run python run-ci.py patch-sdk-version android $SDK_ANDROID_RELEASE_VERSION
+    - poetry run python run-ci.py patch-sdk-version ios $SDK_IOS_RELEASE_VERSION
+    - poetry run python run-ci.py deploy --version $SDK_REACT_NATIVE_RELEASE_VERSION
+  release:
+    description: sdk-react-native v$SDK_REACT_NATIVE_RELEASE_VERSION
+    tag_name: v$SDK_REACT_NATIVE_RELEASE_VERSION
+  tags: !reference [.tags/linux, tags]
