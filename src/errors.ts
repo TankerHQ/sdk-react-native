@@ -1,18 +1,18 @@
 import {
-  InvalidArgument,
-  InternalError,
-  NetworkError,
-  PreconditionFailed,
-  OperationCanceled,
-  DecryptionFailed,
-  GroupTooBig,
-  InvalidVerification,
-  TooManyAttempts,
-  ExpiredVerification,
   Conflict,
+  DecryptionFailed,
+  ExpiredVerification,
+  GroupTooBig,
+  InternalError,
+  InvalidArgument,
+  InvalidVerification,
+  NetworkError,
+  OperationCanceled,
+  PreconditionFailed,
+  TankerError,
+  TooManyAttempts,
   UpgradeRequired,
   IdentityAlreadyAttached,
-  TankerError,
 } from '@tanker/errors';
 
 export type Err = { err: Object };
@@ -20,6 +20,7 @@ export type Ok<T> = { ok: T };
 export type Result<T> = Ok<T> | Err;
 
 export const errors = {
+  Conflict,
   DecryptionFailed,
   ExpiredVerification,
   GroupTooBig,
