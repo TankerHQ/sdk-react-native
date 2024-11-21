@@ -139,7 +139,7 @@ dependencies {
     api 'io.tanker:tanker-bindings:dev@aar'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
   } else {
-    api 'io.tanker:tanker-bindings:4.2.0@aar'
+    api 'io.tanker:tanker-bindings:4.2.1@aar'
   }
 }
 
