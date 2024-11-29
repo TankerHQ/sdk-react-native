@@ -1,15 +1,22 @@
 import { Native } from './native';
-export type { Status, TankerOptions, NativeTanker } from './types';
-export { Tanker } from './nativeWrapper';
-export { Padding } from './encryptionOptions';
 import { bridgeAsyncExceptions } from './errors';
-export { errors } from './errors';
 import type { LogRecord } from './types';
 import {
   type EmitterSubscription,
   NativeEventEmitter,
   NativeModules,
 } from 'react-native';
+
+export { Status } from './types';
+export type {
+  AttachResult,
+  LogRecord,
+  NativeTanker,
+  TankerOptions,
+} from './types';
+export { Tanker } from './nativeWrapper';
+export { Padding } from './encryptionOptions';
+export { errors } from './errors';
 
 let EVENT_LISTENER: EmitterSubscription | null = null;
 

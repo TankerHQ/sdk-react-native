@@ -1,4 +1,4 @@
-import { Tanker, setLogHandler } from '@tanker/client-react-native';
+import { Tanker, Status, setLogHandler } from '@tanker/client-react-native';
 import { expect, describe, beforeEach, afterEach, it } from './framework';
 import {
   createIdentity,
@@ -23,18 +23,18 @@ export const tankerTests = () => {
     });
 
     it('can start and stop', async () => {
-      expect(tanker.status).eq(Tanker.statuses.STOPPED);
+      expect(tanker.status).eq(Status.STOPPED);
       await tanker.start(identity);
-      expect(tanker.status).eq(Tanker.statuses.IDENTITY_REGISTRATION_NEEDED);
+      expect(tanker.status).eq(Status.IDENTITY_REGISTRATION_NEEDED);
       await tanker.stop();
-      expect(tanker.status).eq(Tanker.statuses.STOPPED);
+      expect(tanker.status).eq(Status.STOPPED);
     });
 
     it('can reuse the Tanker object after stop', async () => {
       await tanker.start(identity);
       await tanker.stop();
       await tanker.start(identity);
-      expect(tanker.status).eq(Tanker.statuses.IDENTITY_REGISTRATION_NEEDED);
+      expect(tanker.status).eq(Status.IDENTITY_REGISTRATION_NEEDED);
     });
 
     it('calls the log handler', async () => {
@@ -135,7 +135,7 @@ export const tankerTests = () => {
       const email = 'bob@burger.io';
       const provIdentity = await createProvisionalIdentity(email);
       const result = await tanker.attachProvisionalIdentity(provIdentity);
-      expect(result.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
+      expect(result.status).eq(Status.IDENTITY_VERIFICATION_NEEDED);
       expect(result.verificationMethod).deep.eq({
         type: 'email',
         email,
@@ -165,7 +165,7 @@ export const tankerTests = () => {
       await other.start(await createIdentity());
       await other.registerIdentity({ passphrase: 'otherpass' });
       await other.attachProvisionalIdentity(provIdentity);
-      expect(result.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
+      expect(result.status).eq(Status.IDENTITY_VERIFICATION_NEEDED);
       const verificationCode2 = await getEmailVerificationCode(email);
       await expect(
         other.verifyProvisionalIdentity({
@@ -191,7 +191,7 @@ export const tankerTests = () => {
       const verificationCode = await getEmailVerificationCode(email);
       await tanker.registerIdentity({ email, verificationCode });
       const result = await tanker.attachProvisionalIdentity(provIdentity);
-      expect(result.status).eq(Tanker.statuses.READY);
+      expect(result.status).eq(Status.READY);
       expect(result.verificationMethod).is.undefined;
     });
   });
