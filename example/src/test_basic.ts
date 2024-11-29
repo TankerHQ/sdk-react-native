@@ -1,4 +1,9 @@
-import { Tanker, prehashPassword, errors } from '@tanker/client-react-native';
+import {
+  Tanker,
+  Status,
+  prehashPassword,
+  errors,
+} from '@tanker/client-react-native';
 import { expect, describe, beforeEach, afterEach, it } from './framework';
 import { createTanker, clearTankerDataDirs } from './tests';
 import {
@@ -30,7 +35,7 @@ export const basicTests = () => {
     });
 
     it('has a status', async () => {
-      expect(tanker.status).to.equal(Tanker.statuses.STOPPED);
+      expect(tanker.status).to.equal(Status.STOPPED);
     });
 
     it('cannot create Tanker with a bad appId', async () => {

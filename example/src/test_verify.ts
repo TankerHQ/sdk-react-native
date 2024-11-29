@@ -1,4 +1,4 @@
-import { Tanker } from '@tanker/client-react-native';
+import { Tanker, Status } from '@tanker/client-react-native';
 import { expect, describe, beforeEach, afterEach, it } from './framework';
 import {
   setAppOidcConfig,
@@ -45,23 +45,23 @@ export const verifyTests = () => {
 
     it('can validate a new device with a verification key', async () => {
       await tanker.start(identity);
-      expect(tanker.status).eq(Tanker.statuses.IDENTITY_REGISTRATION_NEEDED);
+      expect(tanker.status).eq(Status.IDENTITY_REGISTRATION_NEEDED);
 
       const verifKey = await tanker.generateVerificationKey();
       expect(verifKey).is.not.empty;
       await tanker.registerIdentity({
         verificationKey: verifKey,
       });
-      expect(tanker.status).eq(Tanker.statuses.READY);
+      expect(tanker.status).eq(Status.READY);
       await tanker.stop();
 
       const tanker2 = await createTanker();
       await tanker2.start(identity);
-      expect(tanker2.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
+      expect(tanker2.status).eq(Status.IDENTITY_VERIFICATION_NEEDED);
       await tanker2.verifyIdentity({
         verificationKey: verifKey,
       });
-      expect(tanker2.status).eq(Tanker.statuses.READY);
+      expect(tanker2.status).eq(Status.READY);
       await tanker2.stop();
     });
 
@@ -96,7 +96,7 @@ export const verifyTests = () => {
     it('can use registerIdentity to open a session with a passphrase', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({ passphrase: 'foo' });
-      expect(tanker.status).eq(Tanker.statuses.READY);
+      expect(tanker.status).eq(Status.READY);
     });
 
     it('can use registerIdentity to open a session with a phone number', async () => {
@@ -104,24 +104,22 @@ export const verifyTests = () => {
       const verificationCode = await getSMSVerificationCode(phoneNumber);
 
       await tanker.start(identity);
-      expect(tanker.status).eq(Tanker.statuses.IDENTITY_REGISTRATION_NEEDED);
+      expect(tanker.status).eq(Status.IDENTITY_REGISTRATION_NEEDED);
       await tanker.registerIdentity({ phoneNumber, verificationCode });
-      expect(tanker.status).eq(Tanker.statuses.READY);
+      expect(tanker.status).eq(Status.READY);
     });
 
     it('can use verifyIdentity to open a session', async () => {
       await tanker.start(identity);
       await tanker.registerIdentity({ passphrase: 'foo' });
-      expect(tanker.status).eq(Tanker.statuses.READY);
+      expect(tanker.status).eq(Status.READY);
 
       let secondDevice = await createTanker();
       await secondDevice.start(identity);
-      expect(secondDevice.status).eq(
-        Tanker.statuses.IDENTITY_VERIFICATION_NEEDED
-      );
+      expect(secondDevice.status).eq(Status.IDENTITY_VERIFICATION_NEEDED);
 
       await secondDevice.verifyIdentity({ passphrase: 'foo' });
-      expect(secondDevice.status).eq(Tanker.statuses.READY);
+      expect(secondDevice.status).eq(Status.READY);
       await secondDevice.stop();
     });
 
@@ -136,7 +134,7 @@ export const verifyTests = () => {
       let secondDevice = await createTanker();
       await secondDevice.start(identity);
       await secondDevice.verifyIdentity(pass2);
-      expect(secondDevice.status).eq(Tanker.statuses.READY);
+      expect(secondDevice.status).eq(Status.READY);
       await secondDevice.stop();
     });
 
@@ -255,7 +253,7 @@ export const verifyTests = () => {
 
       const verificationCode = await getEmailVerificationCode(email);
       await secondDevice.verifyIdentity({ email, verificationCode });
-      expect(secondDevice.status).eq(Tanker.statuses.READY);
+      expect(secondDevice.status).eq(Status.READY);
 
       expect(await secondDevice.getVerificationMethods()).to.have.deep.members([
         {
@@ -294,7 +292,7 @@ export const verifyTests = () => {
 
       const verificationCode = await getSMSVerificationCode(phoneNumber);
       await secondDevice.verifyIdentity({ phoneNumber, verificationCode });
-      expect(secondDevice.status).eq(Tanker.statuses.READY);
+      expect(secondDevice.status).eq(Status.READY);
 
       expect(await secondDevice.getVerificationMethods()).to.have.deep.members([
         {
@@ -346,7 +344,7 @@ export const verifyTests = () => {
       await secondDevice.verifyIdentity({
         oidcIdToken: oidcToken,
       });
-      expect(secondDevice.status).eq(Tanker.statuses.READY);
+      expect(secondDevice.status).eq(Status.READY);
 
       await secondDevice.stop();
       await setAppOidcConfig(undefined); // Cleanup
@@ -361,7 +359,7 @@ export const verifyTests = () => {
       let secondDevice = await createTanker();
       await secondDevice.start(identity);
       await secondDevice.verifyIdentity({ e2ePassphrase });
-      expect(secondDevice.status).eq(Tanker.statuses.READY);
+      expect(secondDevice.status).eq(Status.READY);
       await secondDevice.stop();
     });
 
@@ -439,7 +437,7 @@ export const verifyTests = () => {
         { passphrase: 'foo' },
         { withSessionToken: true }
       );
-      expect(tanker.status).eq(Tanker.statuses.READY);
+      expect(tanker.status).eq(Status.READY);
       expect(token).is.not.empty;
       // @ts-ignore is.not.empty checks that the token is not undefined
       const tokenData = base64.decode(token);
@@ -508,17 +506,17 @@ export const verifyTests = () => {
       await tanker.start(martineIdentity);
       await tanker.setOidcTestNonce(await tanker.createOidcNonce());
 
-      expect(tanker.status).eq(Tanker.statuses.IDENTITY_REGISTRATION_NEEDED);
+      expect(tanker.status).eq(Status.IDENTITY_REGISTRATION_NEEDED);
       await tanker.registerIdentity({ oidcIdToken: oidcToken });
-      expect(tanker.status).eq(Tanker.statuses.READY);
+      expect(tanker.status).eq(Status.READY);
       await tanker.stop();
 
       tanker = await createTanker();
       await tanker.setOidcTestNonce(await tanker.createOidcNonce());
       await tanker.start(martineIdentity);
-      expect(tanker.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
+      expect(tanker.status).eq(Status.IDENTITY_VERIFICATION_NEEDED);
       await tanker.verifyIdentity({ oidcIdToken: oidcToken });
-      expect(tanker.status).eq(Tanker.statuses.READY);
+      expect(tanker.status).eq(Status.READY);
 
       await setAppOidcConfig(undefined); // Cleanup
     });
@@ -549,9 +547,9 @@ export const verifyTests = () => {
 
       tanker = await createTanker();
       await tanker.start(identity);
-      expect(tanker.status).eq(Tanker.statuses.IDENTITY_VERIFICATION_NEEDED);
+      expect(tanker.status).eq(Status.IDENTITY_VERIFICATION_NEEDED);
       await tanker.verifyIdentity(verif2);
-      expect(tanker.status).eq(Tanker.statuses.READY);
+      expect(tanker.status).eq(Status.READY);
 
       await setAppOidcConfig(undefined); // Cleanup
     });

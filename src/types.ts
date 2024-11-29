@@ -12,23 +12,30 @@ export type TankerOptions = {
   url?: string;
 };
 
-const statusDefs = [
+// NOTE: This cannot be a const enum for compat with TS verbatimModuleSyntax
+export enum Status {
+  'STOPPED' = 0,
+  'READY' = 1,
+  'IDENTITY_REGISTRATION_NEEDED' = 2,
+  'IDENTITY_VERIFICATION_NEEDED' = 3,
+}
+
+const statusDefs: Array<{ name: keyof typeof Status }> = [
   /* 0 */ { name: 'STOPPED' },
   /* 1 */ { name: 'READY' },
   /* 2 */ { name: 'IDENTITY_REGISTRATION_NEEDED' },
   /* 3 */ { name: 'IDENTITY_VERIFICATION_NEEDED' },
 ];
 
-type Statuses = { [name: string]: number };
-export const statuses: Statuses = (() => {
-  const h: Statuses = {};
-  statusDefs.forEach((def, index) => {
-    h[def.name] = index;
-  });
-  return h;
-})();
+export const statuses = (() => {
+  const h: Partial<Record<keyof typeof Status, Status>> = {};
 
-export type Status = number;
+  statusDefs.forEach((status, index) => {
+    h[status.name] = index as Status;
+  });
+
+  return h as Record<keyof typeof Status, Status>;
+})();
 
 export type AttachResult = {
   status: Status;
