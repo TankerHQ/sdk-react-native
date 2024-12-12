@@ -13,6 +13,7 @@ abstract class ClientReactNativeSpec internal constructor(context: ReactApplicat
     abstract fun getNativeVersion(): String
     abstract fun getStatus(handle: TankerHandle): Result<Int>
     abstract fun prehashPassword(password: String, promise: Promise)
+    abstract fun prehashAndEncryptPassword(password: String, publicKey: String, promise: Promise)
     abstract fun start(handle: TankerHandle, identity: String, promise: Promise)
     abstract fun stop(handle: TankerHandle, promise: Promise)
     abstract fun createOidcNonce(handle: TankerHandle, promise: Promise)

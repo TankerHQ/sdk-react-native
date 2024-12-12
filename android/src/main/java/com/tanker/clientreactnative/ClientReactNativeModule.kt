@@ -124,6 +124,11 @@ class ClientReactNativeModule internal constructor(reactContext: ReactApplicatio
         TankerFuture<Unit>().andThen<String> { Tanker.prehashPassword(password) }.bridge(promise)
     }
 
+    @ReactMethod
+    override fun prehashAndEncryptPassword(password: String, publicKey: String, promise: Promise) {
+        TankerFuture<Unit>().andThen<String> { Tanker.prehashAndEncryptPassword(password, publicKey) }.bridge(promise)
+    }
+
     @ReactMethod()
     override fun start(handle: TankerHandle, identity: String, promise: Promise) {
         return getTanker(handle).start(identity).bridge(promise) { it.value }
