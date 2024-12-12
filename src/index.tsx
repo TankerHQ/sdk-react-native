@@ -24,6 +24,15 @@ export async function prehashPassword(password: string): Promise<string> {
   return bridgeAsyncExceptions(Native.prehashPassword(password));
 }
 
+export async function prehashAndEncryptPassword(
+  password: string,
+  publicKey: string
+): Promise<string> {
+  return bridgeAsyncExceptions(
+    Native.prehashAndEncryptPassword(password, publicKey)
+  );
+}
+
 // FIXME: Don't directly call NativeModules, that won't work with Turbo
 export function setLogHandler(handler: (record: LogRecord) => void) {
   const eventEmitter = new NativeEventEmitter(NativeModules.ClientReactNative);

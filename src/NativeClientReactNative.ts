@@ -34,6 +34,11 @@ export interface Spec extends TurboModule {
 
   prehashPassword(password: string): Promise<string>;
 
+  prehashAndEncryptPassword(
+    password: string,
+    publicKey: string
+  ): Promise<string>;
+
   getNativeVersion(): string;
 
   getStatus(instance: NativeTanker): Result<Status>;
