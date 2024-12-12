@@ -80,6 +80,21 @@ RCT_EXPORT_METHOD(prehashPassword:(nonnull NSString*)password resolve:(RCTPromis
     });
 }
 
+RCT_EXPORT_METHOD(prehashAndEncryptPassword:(nonnull NSString*)password
+                                  publicKey:(nonnull NSString*)publicKey
+                                    resolve:(RCTPromiseResolveBlock)resolve
+                                     reject:(RCTPromiseRejectBlock)reject
+)
+{
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSError* err;
+        NSString* hashed = [TKRTanker prehashAndEncryptPassword:password publicKey:publicKey error:&err];
+        if (err)
+            return rejectWithError(reject, err);
+        resolve(hashed);
+  });
+}
+
 RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(create, id, create:(nonnull NSDictionary<NSString*, id>*)optionsDict version:(nonnull NSString*)version)
 {
     NSError* err;
