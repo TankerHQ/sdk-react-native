@@ -9,7 +9,7 @@
 @dynamic tankerInstanceMap;
 @dynamic encryptionSessionMap;
 
-- (void)initInstanceMap
+- (void) initInstanceMap
 {
   assert(objc_getAssociatedObject(self, @selector(tankerInstanceMap)) == nil);
 
@@ -17,7 +17,7 @@
   objc_setAssociatedObject(self, @selector(tankerInstanceMap), m, OBJC_ASSOCIATION_RETAIN);
 }
 
-- (void)initEncryptionSessionMap
+- (void) initEncryptionSessionMap
 {
   assert(objc_getAssociatedObject(self, @selector(encryptionSessionMap)) == nil);
 
@@ -25,7 +25,7 @@
   objc_setAssociatedObject(self, @selector(encryptionSessionMap), m, OBJC_ASSOCIATION_RETAIN);
 }
 
-- (nonnull NSNumber*)insertTankerInstanceInMap:(nonnull TKRTanker*)instance
+- (nonnull NSNumber*) insertTankerInstanceInMap:(nonnull TKRTanker *)instance
 {
   NSMutableDictionary<NSNumber*, TKRTanker*>* m = objc_getAssociatedObject(self, @selector(tankerInstanceMap));
 
@@ -40,10 +40,9 @@
   }
 }
 
-- (nonnull NSNumber*)insertEncryptionSessionInMap:(nonnull TKREncryptionSession*)session
+- (nonnull NSNumber*) insertEncryptionSessionInMap:(nonnull TKREncryptionSession *)session
 {
-  NSMutableDictionary<NSNumber*, TKREncryptionSession*>* m =
-      objc_getAssociatedObject(self, @selector(encryptionSessionMap));
+  NSMutableDictionary<NSNumber*, TKREncryptionSession*>* m = objc_getAssociatedObject(self, @selector(encryptionSessionMap));
 
   while (true)
   {
@@ -66,16 +65,15 @@
   return objc_getAssociatedObject(self, @selector(encryptionSessionMap));
 }
 
-- (void)removeTankerInstanceInMap:(unsigned)handle
+- (void) removeTankerInstanceInMap:(unsigned)handle
 {
   NSMutableDictionary<NSNumber*, TKRTanker*>* m = objc_getAssociatedObject(self, @selector(tankerInstanceMap));
   [m removeObjectForKey:@(handle)];
 }
 
-- (void)removeEncryptionSessionInMap:(unsigned)handle
+- (void) removeEncryptionSessionInMap:(unsigned)handle
 {
-  NSMutableDictionary<NSNumber*, TKREncryptionSession*>* m =
-      objc_getAssociatedObject(self, @selector(encryptionSessionMap));
+  NSMutableDictionary<NSNumber*, TKREncryptionSession*>* m = objc_getAssociatedObject(self, @selector(encryptionSessionMap));
   [m removeObjectForKey:@(handle)];
 }
 

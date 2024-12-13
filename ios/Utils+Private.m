@@ -1,30 +1,29 @@
 #import "Utils+Private.h"
 
-TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id>* _Nonnull optionsDict)
-{
-  TKRTankerOptions* opts = [TKRTankerOptions options];
-  NSString* url = optionsDict[@"url"];
-  NSString* persistentPath = optionsDict[@"persistentPath"];
-  NSString* cachePath = optionsDict[@"cachePath"];
-  NSString* sdkType = optionsDict[@"sdkType"];
+TKRTankerOptions *_Nonnull dictToTankerOptions(NSDictionary<NSString *, id> *_Nonnull optionsDict) {
+  TKRTankerOptions *opts = [TKRTankerOptions options];
+  NSString *url = optionsDict[@"url"];
+  NSString *persistentPath = optionsDict[@"persistentPath"];
+  NSString *cachePath = optionsDict[@"cachePath"];
+  NSString *sdkType = optionsDict[@"sdkType"];
 
   opts.appID = optionsDict[@"appId"];
   if (url)
     opts.url = url;
   if (persistentPath)
     opts.persistentPath = persistentPath;
-  else
-  {
-    NSURL* path = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory
-                                                          inDomains:NSUserDomainMask] lastObject];
+  else {
+    NSURL *path = [[[NSFileManager defaultManager]
+        URLsForDirectory:NSDocumentDirectory
+               inDomains:NSUserDomainMask] lastObject];
     opts.persistentPath = [path absoluteString];
   }
   if (cachePath)
     opts.cachePath = cachePath;
-  else
-  {
-    NSURL* path = [[[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory
-                                                          inDomains:NSUserDomainMask] lastObject];
+  else {
+    NSURL *path = [[[NSFileManager defaultManager]
+        URLsForDirectory:NSCachesDirectory
+               inDomains:NSUserDomainMask] lastObject];
     opts.cachePath = [path absoluteString];
   }
   if (sdkType)
@@ -34,40 +33,41 @@ TKRTankerOptions* _Nonnull dictToTankerOptions(NSDictionary<NSString*, id>* _Non
   return opts;
 }
 
-NSDictionary* invalidHandleError(unsigned handle)
-{
+NSDictionary *invalidHandleError(unsigned handle) {
   return @{
     @"err" : @{
       @"code" : errorCodeToString(TKRErrorInternalError),
-      @"message" : [NSString stringWithFormat:@"invalid handle: %ul", handle]
+      @"message" : [NSString
+          stringWithFormat:@"invalid handle: %ul", handle]
     }
   };
 }
 
-void rejectInvalidHandle(RCTPromiseRejectBlock _Nonnull reject, unsigned handle)
-{
-  reject(errorCodeToString(TKRErrorInternalError), [NSString stringWithFormat:@"invalid handle: %ul", handle], nil);
+void rejectInvalidHandle(RCTPromiseRejectBlock _Nonnull reject,
+                         unsigned handle) {
+  reject(errorCodeToString(TKRErrorInternalError),
+         [NSString
+             stringWithFormat:@"invalid handle: %ul", handle],
+         nil);
 }
 
-void rejectInvalidVerificationDict(RCTPromiseRejectBlock _Nonnull reject)
-{
-  rejectWithInternalError(reject, @"invalid verification JS object, check Typescript definitions match");
+void rejectInvalidVerificationDict(RCTPromiseRejectBlock _Nonnull reject) {
+    rejectWithInternalError(reject, @"invalid verification JS object, check Typescript definitions match");
 }
 
-void rejectWithInternalError(RCTPromiseRejectBlock _Nonnull reject, NSString* _Nonnull msg)
-{
-  reject(errorCodeToString(TKRErrorInternalError), msg, nil);
+void rejectWithInternalError(RCTPromiseRejectBlock _Nonnull reject, NSString *_Nonnull msg) {
+    reject(errorCodeToString(TKRErrorInternalError),
+           msg,
+           nil);
 }
 
-void rejectWithError(RCTPromiseRejectBlock _Nonnull reject, NSError* _Nonnull err)
-{
+void rejectWithError(RCTPromiseRejectBlock _Nonnull reject,
+                     NSError *_Nonnull err) {
   reject(errorCodeToString((TKRError)err.code), err.localizedDescription, err);
 }
 
-NSString* errorCodeToString(TKRError err)
-{
-  switch (err)
-  {
+NSString *errorCodeToString(TKRError err) {
+  switch (err) {
   case TKRErrorConflict:
     return @"CONFLICT";
   case TKRErrorInternalError:
