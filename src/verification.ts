@@ -55,6 +55,9 @@ export type PreverifiedOidcVerification = {
   oidcProviderId: string;
 };
 export type E2ePassphraseVerification = { e2ePassphrase: string };
+export type PrehashedAndEncryptedPassphraseVerification = {
+  prehashedAndEncryptedPassphrase: string;
+};
 
 export type Verification =
   | EmailVerification
@@ -66,7 +69,8 @@ export type Verification =
   | PreverifiedEmailVerification
   | PreverifiedPhoneNumberVerification
   | PreverifiedOidcVerification
-  | E2ePassphraseVerification;
+  | E2ePassphraseVerification
+  | PrehashedAndEncryptedPassphraseVerification;
 
 export type VerificationOptions = {
   withSessionToken?: boolean;
@@ -193,6 +197,11 @@ export const assertVerification = (verification: Verification) => {
     assertNotEmptyString(
       verification.e2ePassphrase,
       'verification.e2ePassphrase'
+    );
+  } else if ('prehashedAndEncryptedPassphrase' in verification) {
+    assertNotEmptyString(
+      verification.prehashedAndEncryptedPassphrase,
+      'verification.prehashedAndEncryptedPassphrase'
     );
   }
 };

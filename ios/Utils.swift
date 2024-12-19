@@ -36,6 +36,9 @@ public class Utils: NSObject {
     if let e2ePassphrase = dict["e2ePassphrase"] as? String {
       return Verification(e2ePassphrase: e2ePassphrase)
     }
+    if let prehashedAndEncryptedPassphrase = dict["prehashedAndEncryptedPassphrase"] as? String {
+      return Verification(prehashedAndEncryptedPassphrase: prehashedAndEncryptedPassphrase)
+    }
     return nil;
   }
 
