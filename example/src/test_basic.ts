@@ -2,6 +2,7 @@ import {
   Tanker,
   Status,
   prehashPassword,
+  prehashAndEncryptPassword,
   errors,
 } from '@tanker/client-react-native';
 import { expect, describe, beforeEach, afterEach, it } from './framework';
@@ -78,7 +79,7 @@ export const basicTests = () => {
       expect(output).to.deep.equal(b64TestVector);
     });
 
-    it('should be equal to the unicode test vector', async () => {
+    it('prehashPassword should be equal to the unicode test vector', async () => {
       const input = 'test éå 한국어 😃';
       const output = await prehashPassword(input);
       const b64TestVector = 'Pkn/pjub2uwkBDpt2HUieWOXP5xLn0Zlen16ID4C7jI=';
@@ -86,11 +87,48 @@ export const basicTests = () => {
       expect(output).to.deep.equal(b64TestVector);
     });
 
-    it('should throw when given an empty password', async () => {
+    it('prehashPassword should throw when given an empty password', async () => {
       await expect(prehashPassword('')).eventually.rejectedWith(
         errors.InvalidArgument,
         'empty password'
       );
+    });
+
+    it('prehashAndEncryptPassword fails to hash an empty password', async () => {
+      const publicKey = 'iFpHADRaRYQbErZhHMDruROvqkRF3XkgJxKk+7eP1hI=';
+      await expect(
+        prehashAndEncryptPassword('', publicKey)
+      ).eventually.rejectedWith(errors.InvalidArgument);
+    });
+
+    it('prehashAndEncryptPassword fails to hash an empty public key', async () => {
+      const password = 'super secretive password';
+      await expect(
+        prehashAndEncryptPassword(password, '')
+      ).eventually.rejectedWith(errors.InvalidArgument);
+    });
+
+    it('prehashAndEncryptPassword fails to hash a non-base64-encoded public key', async () => {
+      const password = 'super secretive password';
+      await expect(
+        prehashAndEncryptPassword(password, '$')
+      ).eventually.rejectedWith(errors.InvalidArgument);
+    });
+
+    it('prehashAndEncryptPassword fails to hash with an invalid public key', async () => {
+      const password = 'super secretive password';
+      await expect(
+        prehashAndEncryptPassword(password, 'fake')
+      ).eventually.rejectedWith(errors.InvalidArgument);
+    });
+
+    it('prehashAndEncryptPassword hashes and encrypt when using a valid password and public key', async () => {
+      const password = 'super secretive password';
+      const publicKey = 'iFpHADRaRYQbErZhHMDruROvqkRF3XkgJxKk+7eP1hI=';
+      const hash = await prehashAndEncryptPassword(password, publicKey);
+      expect(typeof hash).eq('string');
+      expect(hash).not.empty;
+      expect(hash).not.contain(password);
     });
   });
 };
