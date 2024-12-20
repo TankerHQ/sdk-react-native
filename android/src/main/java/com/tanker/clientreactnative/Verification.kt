@@ -42,6 +42,9 @@ fun Verification(json: ReadableMap): Verification {
     json.getString("e2ePassphrase")?.let {
         return E2ePassphraseVerification(it)
     }
+    json.getString("prehashedAndEncryptedPassphrase")?.let {
+        return PrehashedAndEncryptedPassphraseVerification(it)
+    }
     throw AssertionError("Invalid verification JS object received, check Typescript definitions match")
 }
 
